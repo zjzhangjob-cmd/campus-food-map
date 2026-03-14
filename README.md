@@ -7,6 +7,12 @@
 ![SQLite](https://img.shields.io/badge/SQLite-内置无需安装-003B57?logo=sqlite&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-f4b942)
 
+## 🖼️ 在线预览
+
+> 无需部署，点击直接在浏览器查看所有页面效果：
+>
+> **[👉 点击查看在线预览 Demo](https://zhangzijun.github.io/campus-food-map/)**
+
 ---
 
 ## ✨ 功能一览

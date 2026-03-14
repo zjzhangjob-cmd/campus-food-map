@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>觅食 · 大学城美食地图 - 在线预览</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@700;900&family=Noto+Sans+SC:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap');
+
+:root{
+  --ink:#1a1209;--paper:#fdf6e3;--accent:#e85d26;--accent2:#f4b942;
+  --accent3:#2d7a4f;--muted:#8a7a6a;--border:#e8dcc8;--card:#fffdf7;
+  --tag:#f0e8d8;--shadow:rgba(26,18,9,.08);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Noto Sans SC',sans-serif;background:#f0e8d8;color:var(--ink);min-height:100vh;}
+
+/* ── 顶部 Banner ── */
+.banner{background:linear-gradient(160deg,#1a1209 0%,#2d1a05 100%);padding:40px 24px 32px;text-align:center;position:relative;overflow:hidden;}
+.banner::before{content:'';position:absolute;width:400px;height:400px;border-radius:50%;background:rgba(232,93,38,.1);top:-150px;left:-100px;}
+.banner::after{content:'';position:absolute;width:300px;height:300px;border-radius:50%;background:rgba(244,185,66,.08);bottom:-100px;right:-80px;}
+.banner-foods{font-size:28px;display:flex;justify-content:center;gap:14px;margin-bottom:20px;position:relative;z-index:1;}
+.banner-food{animation:foodFloat 3s ease-in-out infinite;}
+.banner-food:nth-child(1){animation-delay:0s;}
+.banner-food:nth-child(2){animation-delay:.4s;}
+.banner-food:nth-child(3){animation-delay:.8s;}
+.banner-food:nth-child(4){animation-delay:1.2s;}
+.banner-food:nth-child(5){animation-delay:1.6s;}
+@keyframes foodFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.banner-title{font-family:'Noto Serif SC',serif;font-size:48px;font-weight:900;color:#fdf6e3;letter-spacing:-2px;position:relative;z-index:1;display:flex;align-items:center;justify-content:center;gap:8px;}
+.banner-dot{width:12px;height:12px;background:var(--accent);border-radius:50%;animation:pulse 2s infinite;margin-bottom:6px;}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.5)}}
+.banner-sub{font-size:14px;color:rgba(253,246,227,.5);letter-spacing:3px;font-family:'DM Mono',monospace;margin-top:8px;position:relative;z-index:1;}
+.banner-desc{font-size:14px;color:rgba(253,246,227,.7);max-width:480px;margin:16px auto 0;line-height:1.7;position:relative;z-index:1;}
+.banner-btns{display:flex;gap:12px;justify-content:center;margin-top:24px;position:relative;z-index:1;flex-wrap:wrap;}
+.banner-btn{padding:10px 24px;border-radius:24px;font-size:13px;font-family:'Noto Sans SC',sans-serif;cursor:pointer;border:none;transition:all .2s;display:flex;align-items:center;gap:6px;}
+.banner-btn.primary{background:linear-gradient(135deg,var(--accent),#f06030);color:white;box-shadow:0 6px 20px rgba(232,93,38,.35);}
+.banner-btn.primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(232,93,38,.45);}
+.banner-btn.secondary{background:rgba(253,246,227,.1);color:#fdf6e3;border:1px solid rgba(253,246,227,.2);}
+.banner-btn.secondary:hover{background:rgba(253,246,227,.18);}
+
+/* ── 特性标签 ── */
+.features{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;padding:20px 24px;background:var(--paper);border-bottom:1px solid var(--border);}
+.feat-chip{display:flex;align-items:center;gap:5px;padding:6px 14px;border-radius:20px;background:var(--card);border:1px solid var(--border);font-size:12px;color:var(--muted);}
+.feat-chip span:first-child{font-size:14px;}
+
+/* ── 主内容 ── */
+.main{max-width:1100px;margin:0 auto;padding:32px 20px 60px;}
+
+/* ── 设备框 ── */
+.device-section{margin-bottom:48px;}
+.section-label{display:flex;align-items:center;gap:10px;margin-bottom:20px;}
+.section-label h2{font-family:'Noto Serif SC',serif;font-size:20px;font-weight:700;}
+.section-label .num{width:28px;height:28px;background:var(--accent);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;}
+
+.browser-frame{background:#2d2d2d;border-radius:12px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.25);}
+.browser-bar{background:#3d3d3d;padding:10px 14px;display:flex;align-items:center;gap:8px;}
+.browser-dots{display:flex;gap:6px;}
+.bdot{width:12px;height:12px;border-radius:50%;}
+.bdot.r{background:#ff5f57;}
+.bdot.y{background:#febc2e;}
+.bdot.g{background:#28c840;}
+.browser-url{flex:1;background:#1d1d1d;border-radius:6px;padding:5px 12px;font-size:12px;color:#888;font-family:'DM Mono',monospace;text-align:center;}
+.browser-content{background:var(--paper);overflow:hidden;}
+
+/* ── 页面预览内容 ── */
+/* SPLASH */
+.preview-splash{min-height:380px;background:linear-gradient(160deg,#fff8f0,#fdf0dc,#fff3e5);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;position:relative;overflow:hidden;}
+.ps-ring{position:absolute;border-radius:50%;border:1.5px solid rgba(232,93,38,.1);}
+.ps-orbit{position:absolute;width:220px;height:220px;top:50%;left:50%;animation:spin 12s linear infinite;}
+@keyframes spin{from{transform:translate(-50%,-50%) rotate(0)}to{transform:translate(-50%,-50%) rotate(360deg)}}
+.ps-food{position:absolute;font-size:18px;}
+.ps-food:nth-child(1){top:-12px;left:calc(50% - 9px);}
+.ps-food:nth-child(2){bottom:-12px;left:calc(50% - 9px);}
+.ps-food:nth-child(3){left:-12px;top:calc(50% - 9px);}
+.ps-food:nth-child(4){right:-12px;top:calc(50% - 9px);}
+.ps-food-i{animation:spinR 12s linear infinite;}
+@keyframes spinR{from{transform:rotate(0)}to{transform:rotate(-360deg)}}
+.ps-steam{display:flex;gap:6px;height:28px;align-items:flex-end;margin-bottom:4px;}
+.ps-st{width:3px;border-radius:3px;background:linear-gradient(to top,rgba(232,93,38,.4),transparent);animation:steamUp 1.6s ease-in-out infinite;}
+.ps-st:nth-child(1){height:18px;animation-delay:0s}
+.ps-st:nth-child(2){height:24px;animation-delay:.25s}
+.ps-st:nth-child(3){height:14px;animation-delay:.5s}
+.ps-st:nth-child(4){height:20px;animation-delay:.75s}
+@keyframes steamUp{0%{opacity:.7;transform:scaleX(1) translateY(0)}100%{opacity:0;transform:scaleX(2) translateY(-16px)}}
+.ps-bowl{font-size:80px;line-height:1;animation:bowlB 2.5s ease-in-out infinite;filter:drop-shadow(0 8px 20px rgba(232,93,38,.18));z-index:2;}
+@keyframes bowlB{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-8px) rotate(2deg)}}
+.ps-title{font-family:'Noto Serif SC',serif;font-size:44px;font-weight:900;color:#1a1209;letter-spacing:-2px;z-index:2;display:flex;align-items:center;gap:4px;margin-top:6px;}
+.ps-tdot{width:9px;height:9px;background:var(--accent);border-radius:50%;margin-bottom:5px;animation:pulse 2s infinite;}
+.ps-sub{font-size:11px;color:#8a7a6a;letter-spacing:3px;z-index:2;margin-top:5px;}
+.ps-chips{display:flex;gap:8px;margin-top:16px;z-index:2;flex-wrap:wrap;justify-content:center;padding:0 20px;}
+.ps-chip{background:white;border-radius:20px;padding:6px 13px;font-size:12px;display:flex;align-items:center;gap:6px;border:1px solid rgba(232,93,38,.15);box-shadow:0 3px 10px rgba(232,93,38,.07);}
+.ps-chip-t{font-size:11px;color:#8a7a6a;font-weight:500;}
+.ps-cta{margin-top:16px;padding:10px 22px;background:linear-gradient(135deg,#e85d26,#f06030);border-radius:24px;font-size:12px;color:white;font-weight:500;z-index:2;border:none;}
+
+/* HEADER */
+.preview-hdr{background:rgba(253,246,227,.97);border-bottom:1px solid var(--border);padding:0 16px;height:52px;display:flex;align-items:center;justify-content:space-between;}
+.ph-logo{display:flex;align-items:center;gap:5px;}
+.ph-logo-t{font-family:'Noto Serif SC',serif;font-size:18px;font-weight:900;}
+.ph-logo-d{width:7px;height:7px;background:var(--accent);border-radius:50%;animation:pulse 2s infinite;margin-bottom:1px;}
+.ph-logo-s{font-size:10px;color:#b0a090;letter-spacing:1px;}
+.ph-btns{display:flex;gap:5px;}
+.phb{padding:5px 11px;border-radius:16px;border:1px solid var(--border);background:transparent;font-size:11px;cursor:pointer;color:var(--muted);font-family:'Noto Sans SC',sans-serif;}
+.phb.ac{background:var(--accent);color:white;border-color:var(--accent);}
+
+/* HERO */
+.preview-hero{padding:20px 16px 14px;background:linear-gradient(180deg,#fdf6e3,#f7f0e6);}
+.ph-pill{display:inline-flex;align-items:center;gap:4px;background:var(--accent);color:white;padding:3px 10px;border-radius:12px;font-size:10px;margin-bottom:10px;}
+.ph-h1{font-family:'Noto Serif SC',serif;font-size:26px;font-weight:900;line-height:1.2;margin-bottom:10px;letter-spacing:-.5px;}
+.ph-h1 em{font-style:normal;color:var(--accent);border-bottom:3px solid var(--accent2);padding-bottom:1px;}
+.ph-search{display:flex;gap:7px;margin-bottom:10px;}
+.ph-input{flex:1;display:flex;align-items:center;gap:7px;background:white;border:1.5px solid var(--border);border-radius:10px;padding:0 12px;height:40px;font-size:12px;color:var(--muted);}
+.ph-sbtn{padding:0 16px;height:40px;background:var(--accent);color:white;border:none;border-radius:10px;font-size:12px;white-space:nowrap;box-shadow:0 3px 10px rgba(232,93,38,.25);}
+.ph-moods{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px;}
+.ph-mood{padding:4px 10px;border-radius:14px;border:1px solid var(--border);background:white;font-size:11px;color:var(--muted);}
+.ph-mood.sp{background:linear-gradient(135deg,var(--accent),var(--accent2));color:white;border:none;}
+.ph-stats{display:flex;border-top:1px solid var(--border);padding-top:10px;}
+.ph-stat{flex:1;text-align:center;border-right:1px solid var(--border);}
+.ph-stat:last-child{border-right:none;}
+.ph-sn{font-family:'Noto Serif SC',serif;font-size:18px;font-weight:900;}
+.ph-sn span{color:var(--accent);}
+.ph-sl{font-size:9px;color:var(--muted);margin-top:1px;}
+
+/* CARDS */
+.preview-cards{padding:10px 14px;}
+.pc-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.pc{background:white;border:1px solid #ece4d4;border-radius:14px;overflow:hidden;}
+.pc.feat{grid-column:span 2;display:grid;grid-template-columns:180px 1fr;}
+.pc-thumb{position:relative;overflow:hidden;}
+.pc-thumb-bg{display:flex;align-items:center;justify-content:center;position:relative;}
+.pc-deco{position:absolute;border-radius:50%;opacity:.2;}
+.pc-emoji{position:relative;z-index:1;filter:drop-shadow(0 3px 6px rgba(0,0,0,.12));}
+.pc-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 40%,rgba(26,18,9,.3));}
+.pc-badge{position:absolute;top:7px;left:7px;padding:2px 8px;border-radius:9px;font-size:9px;font-weight:500;z-index:2;}
+.pc-badge.hot{background:var(--accent);color:white;}
+.pc-badge.new{background:var(--accent3);color:white;}
+.pc-fav{position:absolute;top:7px;right:7px;width:24px;height:24px;background:rgba(255,255,255,.9);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;border:none;z-index:2;}
+.pc-body{padding:10px 11px;}
+.pc-hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:3px;}
+.pc-name{font-size:12px;font-weight:500;}
+.pc-rating{font-size:11px;color:var(--accent);font-weight:500;}
+.pc-meta{font-size:10px;color:var(--muted);margin-bottom:5px;display:flex;align-items:center;gap:3px;}
+.pc-open{display:inline-flex;align-items:center;gap:2px;font-size:9px;padding:1px 5px;border-radius:7px;background:#e8f5e9;color:#2d7a4f;}
+.pc-odot{width:4px;height:4px;background:#2d7a4f;border-radius:50%;animation:pulse 1.5s infinite;}
+.pc-tags{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:7px;}
+.pc-tag{padding:1px 6px;border-radius:7px;background:var(--tag);font-size:9px;color:var(--muted);}
+.pc-foot{display:flex;justify-content:space-between;border-top:1px solid #f0e8d8;padding-top:6px;}
+.pc-price{font-size:11px;font-weight:500;color:var(--accent3);}
+.pc-dist{font-size:10px;color:var(--muted);}
+
+/* DEALS */
+.preview-deals{background:linear-gradient(135deg,#fffaf0,#fff5e8);border-top:1px solid rgba(244,185,66,.25);border-bottom:1px solid rgba(244,185,66,.25);padding:12px 14px;}
+.pd-title{font-size:13px;font-weight:500;margin-bottom:10px;}
+.pd-scroll{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;}
+.pd-scroll::-webkit-scrollbar{display:none;}
+.pd-card{flex-shrink:0;width:130px;background:white;border-radius:11px;padding:10px;border:1px solid rgba(244,185,66,.2);}
+.pd-em{font-size:22px;margin-bottom:5px;}
+.pd-name{font-size:11px;font-weight:500;margin-bottom:2px;}
+.pd-desc{font-size:10px;color:var(--muted);margin-bottom:5px;line-height:1.3;}
+.pd-new{font-size:13px;font-weight:500;color:var(--accent);}
+.pd-old{font-size:10px;color:#c0b0a0;text-decoration:line-through;margin-left:4px;}
+
+/* DETAIL */
+.preview-detail{}
+.pdet-hero{height:160px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;}
+.pdet-hero-bg{width:100%;height:100%;display:flex;align-items:center;justify-content:center;}
+.pdet-deco1{position:absolute;width:140px;height:140px;border-radius:50%;opacity:.2;top:-30px;right:-30px;}
+.pdet-deco2{position:absolute;width:90px;height:90px;border-radius:50%;opacity:.15;bottom:-15px;left:-15px;}
+.pdet-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 50%,rgba(26,18,9,.4));}
+.pdet-emoji{font-size:80px;filter:drop-shadow(0 6px 16px rgba(0,0,0,.15));animation:bowlB 3s ease-in-out infinite;z-index:1;}
+.pdet-body{padding:14px 16px;}
+.pdet-name{font-family:'Noto Serif SC',serif;font-size:20px;font-weight:700;margin-bottom:8px;}
+.pdet-meta{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;align-items:center;}
+.pdet-rating{font-size:14px;font-weight:500;color:var(--accent);}
+.pdet-reviews{font-size:11px;color:var(--muted);}
+.pdet-price{font-size:12px;font-weight:500;color:var(--accent3);}
+.pdet-open{display:flex;align-items:center;gap:3px;padding:2px 8px;border-radius:9px;background:#e8f5e9;color:#2d7a4f;font-size:10px;}
+.pdet-opendot{width:5px;height:5px;background:#2d7a4f;border-radius:50%;animation:pulse 1.5s infinite;}
+.pdet-seclabel{font-size:9px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;margin-top:12px;display:flex;align-items:center;gap:5px;}
+.pdet-seclabel::after{content:'';flex:1;height:1px;background:#f0e8d8;}
+.pdet-desc{font-size:12px;line-height:1.7;color:#5a4a3a;}
+.pdet-mi{display:flex;align-items:center;justify-content:space-between;padding:7px 10px;background:#faf5ee;border-radius:8px;margin-bottom:5px;border:1px solid #f0e8d8;}
+.pdet-mil{display:flex;align-items:center;gap:7px;}
+.pdet-miem{font-size:17px;}
+.pdet-miname{font-size:12px;font-weight:500;}
+.pdet-midesc{font-size:10px;color:var(--muted);}
+.pdet-miprice{font-size:13px;font-weight:500;color:var(--accent);}
+.pdet-actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-top:14px;}
+.pdet-act{padding:10px 6px;border-radius:10px;border:1px solid var(--border);background:white;font-size:11px;cursor:pointer;font-family:'Noto Sans SC',sans-serif;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--muted);}
+.pdet-act.pr{background:linear-gradient(135deg,var(--accent),#f06030);color:white;border:none;box-shadow:0 3px 12px rgba(232,93,38,.25);}
+.pdet-act-icon{font-size:18px;}
+
+/* LOGIN */
+.preview-login{min-height:360px;background:linear-gradient(160deg,#fff8f0,#fdf0dc,#fff3e5);display:flex;align-items:center;justify-content:center;padding:20px;}
+.pl-box{background:rgba(255,255,255,.95);border:1px solid var(--border);border-radius:18px;padding:22px;width:100%;max-width:320px;box-shadow:0 16px 48px rgba(26,18,9,.07);}
+.pl-logo{text-align:center;margin-bottom:16px;}
+.pl-icon{width:50px;height:50px;border-radius:14px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;margin:0 auto 8px;box-shadow:0 6px 18px rgba(232,93,38,.2);font-size:22px;}
+.pl-title{font-family:'Noto Serif SC',serif;font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:3px;}
+.pl-dot{width:6px;height:6px;background:var(--accent);border-radius:50%;margin-bottom:2px;}
+.pl-sub{font-size:10px;color:var(--muted);letter-spacing:1px;margin-top:3px;}
+.pl-tabs{display:flex;background:#f5ede0;border-radius:10px;padding:3px;margin-bottom:14px;}
+.pl-tab{flex:1;padding:7px;text-align:center;font-size:12px;cursor:pointer;border:none;background:transparent;border-radius:7px;color:var(--muted);font-family:'Noto Sans SC',sans-serif;}
+.pl-tab.active{background:white;color:var(--ink);box-shadow:0 2px 6px rgba(26,18,9,.06);}
+.pl-hint{background:linear-gradient(135deg,#fff8f0,#fff3e8);border:1px solid rgba(244,185,66,.35);border-radius:9px;padding:9px 11px;font-size:11px;margin-bottom:12px;line-height:1.6;color:#5a4a3a;}
+.pl-hint strong{color:var(--accent);}
+.pl-group{margin-bottom:10px;}
+.pl-label{font-size:9px;color:var(--muted);display:block;margin-bottom:3px;letter-spacing:.5px;text-transform:uppercase;}
+.pl-input{width:100%;padding:9px 11px;border:1.5px solid var(--border);border-radius:9px;font-size:12px;background:#fdf9f5;color:var(--ink);font-family:'Noto Sans SC',sans-serif;outline:none;}
+.pl-btn{width:100%;padding:11px;border-radius:10px;border:none;font-size:13px;cursor:pointer;font-family:'Noto Sans SC',sans-serif;margin-bottom:7px;font-weight:500;}
+.pl-btn.pr{background:linear-gradient(135deg,var(--accent),#f06030);color:white;box-shadow:0 3px 12px rgba(232,93,38,.25);}
+.pl-btn.dm{background:#f5ede0;color:var(--muted);border:1px solid var(--border);}
+.pl-feats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:12px;padding-top:12px;border-top:1px solid #f0e8d8;}
+.pl-feat{text-align:center;}
+.pl-fi{width:28px;height:28px;border-radius:8px;background:#f5ede0;display:flex;align-items:center;justify-content:center;margin:0 auto 3px;font-size:14px;}
+.pl-ft{font-size:9px;color:var(--muted);}
+
+/* CIRCLE */
+.preview-circle{padding:12px 14px;}
+.pci-compose{background:white;border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:12px;}
+.pci-compose-hdr{display:flex;align-items:center;gap:9px;margin-bottom:8px;}
+.pci-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:13px;color:white;font-weight:500;}
+.pci-ph{flex:1;padding:7px 12px;background:#f5ede0;border-radius:18px;font-size:12px;color:var(--muted);}
+.pci-acts{display:flex;gap:5px;justify-content:flex-end;}
+.pci-act{padding:4px 10px;border-radius:12px;border:1px solid var(--border);background:transparent;font-size:10px;color:var(--muted);font-family:'Noto Sans SC',sans-serif;}
+.pci-post{background:white;border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:10px;}
+.pci-phdr{display:flex;align-items:center;gap:8px;margin-bottom:9px;}
+.pci-pavatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;}
+.pci-pname{font-size:12px;font-weight:500;}
+.pci-pmeta{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--muted);}
+.pci-ptype{padding:1px 6px;border-radius:8px;font-size:9px;}
+.pci-ptime{font-size:10px;color:var(--muted);margin-left:auto;}
+.pci-pcontent{font-size:12px;line-height:1.7;margin-bottom:8px;}
+.pci-ptags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px;}
+.pci-ptag{font-size:11px;color:var(--accent);background:#fce4e4;padding:2px 7px;border-radius:9px;}
+.pci-prest{display:flex;align-items:center;gap:7px;padding:7px 10px;background:#f5ede0;border-radius:9px;margin-bottom:8px;font-size:11px;}
+.pci-pfoot{display:flex;border-top:1px solid var(--border);padding-top:8px;}
+.pci-pact{flex:1;display:flex;align-items:center;justify-content:center;gap:4px;font-size:11px;color:var(--muted);cursor:pointer;padding:4px;}
+
+/* ── 底部 ── */
+.footer{background:#1a1209;color:rgba(253,246,227,.6);text-align:center;padding:32px 20px;font-size:13px;line-height:1.8;}
+.footer a{color:var(--accent2);text-decoration:none;}
+.footer-links{display:flex;gap:20px;justify-content:center;margin-bottom:12px;flex-wrap:wrap;}
+.footer-links a{color:rgba(253,246,227,.5);font-size:12px;}
+.footer-links a:hover{color:var(--accent2);}
+
+/* ── 响应式 ── */
+@media(max-width:768px){
+  .banner-title{font-size:36px;}
+  .main{padding:20px 14px 40px;}
+}
+</style>
+</head>
+<body>
+
+<!-- BANNER -->
+<div class="banner">
+  <div class="banner-foods">
+    <span class="banner-food">🍜</span>
+    <span class="banner-food">🍣</span>
+    <span class="banner-food">☕</span>
+    <span class="banner-food">🫕</span>
+    <span class="banner-food">🥗</span>
+  </div>
+  <div class="banner-title">觅食<div class="banner-dot"></div></div>
+  <div class="banner-sub">大学城美食地图</div>
+  <div class="banner-desc">专为大学城学生打造的本地化美食发现平台。AI推荐、高德地图、校园圈，解决「今天吃什么」的决策困境。</div>
+  <div class="banner-btns">
+    <a href="https://github.com/zjzhangjob-cmd/campus-food-map" target="_blank">
+      <button class="banner-btn secondary">⭐ GitHub 仓库</button>
+    </a>
+    <a href="https://github.com/zjzhangjob-cmd/campus-food-map#快速开始" target="_blank">
+      <button class="banner-btn primary">🚀 快速开始</button>
+    </a>
+  </div>
+</div>
+
+<!-- 特性 -->
+<div class="features">
+  <div class="feat-chip"><span>🤖</span> AI 智能推荐</div>
+  <div class="feat-chip"><span>🗺️</span> 高德地图</div>
+  <div class="feat-chip"><span>👥</span> 校园圈社交</div>
+  <div class="feat-chip"><span>🎟️</span> 学生专属优惠</div>
+  <div class="feat-chip"><span>❤️</span> 收藏 & 评价</div>
+  <div class="feat-chip"><span>🛠️</span> 管理后台</div>
+  <div class="feat-chip"><span>🔐</span> JWT 用户系统</div>
+  <div class="feat-chip"><span>⚡</span> SQLite 零配置</div>
+</div>
+
+<div class="main">
+
+  <!-- 1. 启动动画 -->
+  <div class="device-section">
+    <div class="section-label">
+      <div class="num">1</div>
+      <h2>启动动画</h2>
+    </div>
+    <div class="browser-frame">
+      <div class="browser-bar">
+        <div class="browser-dots"><div class="bdot r"></div><div class="bdot y"></div><div class="bdot g"></div></div>
+        <div class="browser-url">localhost:3000</div>
+      </div>
+      <div class="browser-content">
+        <div class="preview-splash">
+          <div class="ps-ring" style="width:260px;height:260px;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);animation:none;opacity:.3;"></div>
+          <div class="ps-orbit">
+            <div class="ps-food"><div class="ps-food-i">🍣</div></div>
+            <div class="ps-food" style="bottom:-12px;left:calc(50% - 9px);top:auto;"><div class="ps-food-i">🥗</div></div>
+            <div class="ps-food" style="left:-12px;top:calc(50% - 9px);"><div class="ps-food-i">☕</div></div>
+            <div class="ps-food" style="right:-12px;top:calc(50% - 9px);left:auto;"><div class="ps-food-i">🫕</div></div>
+          </div>
+          <div class="ps-steam"><div class="ps-st"></div><div class="ps-st"></div><div class="ps-st"></div><div class="ps-st"></div></div>
+          <div class="ps-bowl">🍜</div>
+          <div class="ps-title">觅食<div class="ps-tdot"></div></div>
+          <div class="ps-sub">大学城美食地图</div>
+          <div class="ps-chips">
+            <div class="ps-chip"><span>🍜</span><span class="ps-chip-t">面馆</span></div>
+            <div class="ps-chip"><span>🍣</span><span class="ps-chip-t">日料</span></div>
+            <div class="ps-chip"><span>☕</span><span class="ps-chip-t">咖啡</span></div>
+            <div class="ps-chip"><span>🫕</span><span class="ps-chip-t">火锅</span></div>
+          </div>
+          <button class="ps-cta">今天吃什么，交给觅食来定 ✨</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. 主页 -->
+  <div class="device-section">
+    <div class="section-label">
+      <div class="num">2</div>
+      <h2>美食主页</h2>
+    </div>
+    <div class="browser-frame">
+      <div class="browser-bar">
+        <div class="browser-dots"><div class="bdot r"></div><div class="bdot y"></div><div class="bdot g"></div></div>
+        <div class="browser-url">localhost:3000/index.html</div>
+      </div>
+      <div class="browser-content">
+        <div class="preview-hdr">
+          <div class="ph-logo"><div class="ph-logo-t">觅食</div><div class="ph-logo-d"></div><div class="ph-logo-s">大学城</div></div>
+          <div class="ph-btns">
+            <button class="phb">👥 校园圈</button>
+            <button class="phb">❤️ 收藏</button>
+            <button class="phb ac">🤖 AI助手</button>
+            <button class="phb">登录</button>
+          </div>
+        </div>
+        <div class="preview-hero">
+          <div class="ph-pill">📍 大学城联盟 · 五校共享</div>
+          <div class="ph-h1">今天<em>吃什么</em>，<br>交给觅食来定</div>
+          <div class="ph-search">
+            <div class="ph-input">🔍 搜索餐厅、菜系、菜名…</div>
+            <button class="ph-sbtn">搜索</button>
+          </div>
+          <div class="ph-moods">
+            <div class="ph-mood sp">🤖 AI帮我选</div>
+            <div class="ph-mood">🌶️ 辣的</div>
+            <div class="ph-mood">⚡ 快一点</div>
+            <div class="ph-mood">💰 性价比</div>
+            <div class="ph-mood">🌙 宵夜</div>
+            <div class="ph-mood">👫 约饭</div>
+          </div>
+          <div class="ph-stats">
+            <div class="ph-stat"><div class="ph-sn">5<span>所</span></div><div class="ph-sl">合作高校</div></div>
+            <div class="ph-stat"><div class="ph-sn">10<span>+</span></div><div class="ph-sl">收录餐厅</div></div>
+            <div class="ph-stat"><div class="ph-sn">1.2<span>万</span></div><div class="ph-sl">学生评价</div></div>
+            <div class="ph-stat"><div class="ph-sn">98<span>%</span></div><div class="ph-sl">满意率</div></div>
+          </div>
+        </div>
+        <div class="preview-deals">
+          <div class="pd-title">🎟️ 学生专属优惠</div>
+          <div class="pd-scroll">
+            <div class="pd-card"><div class="pd-em">🍜</div><div class="pd-name">重庆秀山小面</div><div class="pd-desc">学生证9折</div><span class="pd-new">¥16</span><span class="pd-old">¥18</span></div>
+            <div class="pd-card"><div class="pd-em">🥞</div><div class="pd-name">柒号煎饼铺</div><div class="pd-desc">第二个半价</div><span class="pd-new">¥15</span><span class="pd-old">¥20</span></div>
+            <div class="pd-card"><div class="pd-em">🍵</div><div class="pd-name">陶陶居早茶</div><div class="pd-desc">立减20元</div><span class="pd-new">¥68</span><span class="pd-old">¥88</span></div>
+            <div class="pd-card"><div class="pd-em">☕</div><div class="pd-name">豆舍咖啡</div><div class="pd-desc">买二送一</div><span style="font-size:11px;font-weight:500;color:var(--accent)">买二送一</span></div>
+          </div>
+        </div>
+        <div class="preview-cards">
+          <div class="pc-grid">
+            <div class="pc feat">
+              <div class="pc-thumb" style="min-height:130px;">
+                <div class="pc-thumb-bg" style="background:linear-gradient(135deg,#fff3e0,#ffcc80);min-height:130px;">
+                  <div class="pc-deco" style="width:100px;height:100px;background:#e85d26;top:-25px;right:-25px;"></div>
+                  <div class="pc-deco" style="width:70px;height:70px;background:#f4b942;bottom:-15px;left:-10px;"></div>
+                  <span class="pc-emoji" style="font-size:70px;">🍜</span>
+                </div>
+                <div class="pc-overlay"></div>
+                <div class="pc-badge hot">🔥 热门</div>
+                <button class="pc-fav">🤍</button>
+              </div>
+              <div class="pc-body">
+                <div class="pc-hdr"><span class="pc-name">重庆秀山小面</span><span class="pc-rating">★ 4.9</span></div>
+                <div class="pc-meta">中餐 · 5,621 评价 · <div class="pc-open"><div class="pc-odot"></div>营业中</div></div>
+                <div class="pc-tags"><span class="pc-tag">小面</span><span class="pc-tag">麻辣</span><span class="pc-tag">学生优惠</span><span class="pc-tag">早餐</span></div>
+                <div class="pc-foot"><span class="pc-price">¥12-22 / 人</span><span class="pc-dist">📍 步行3分钟</span></div>
+              </div>
+            </div>
+            <div class="pc">
+              <div class="pc-thumb" style="height:100px;">
+                <div class="pc-thumb-bg" style="background:linear-gradient(135deg,#fffde7,#fff176);height:100px;">
+                  <div class="pc-deco" style="width:80px;height:80px;background:#f4b942;top:-15px;right:-15px;"></div>
+                  <span class="pc-emoji" style="font-size:50px;">🥞</span>
+                </div>
+                <div class="pc-overlay"></div>
+                <button class="pc-fav">🤍</button>
+              </div>
+              <div class="pc-body">
+                <div class="pc-hdr"><span class="pc-name">柒号煎饼铺</span><span class="pc-rating">★ 4.8</span></div>
+                <div class="pc-meta">小吃 · 6,782 评价</div>
+                <div class="pc-tags"><span class="pc-tag">早餐</span><span class="pc-tag">网红</span></div>
+                <div class="pc-foot"><span class="pc-price">¥8-15</span><span class="pc-dist">📍 步行1分钟</span></div>
+              </div>
+            </div>
+            <div class="pc">
+              <div class="pc-thumb" style="height:100px;">
+                <div class="pc-thumb-bg" style="background:linear-gradient(135deg,#fce4ec,#f48fb1);height:100px;">
+                  <div class="pc-deco" style="width:70px;height:70px;background:#e91e63;bottom:-10px;right:-10px;"></div>
+                  <span class="pc-emoji" style="font-size:50px;">🍣</span>
+                </div>
+                <div class="pc-overlay"></div>
+                <div class="pc-badge new">✨ 精选</div>
+                <button class="pc-fav">🤍</button>
+              </div>
+              <div class="pc-body">
+                <div class="pc-hdr"><span class="pc-name">大渔铁板烧·日料</span><span class="pc-rating">★ 4.7</span></div>
+                <div class="pc-meta">日料 · 1,893 评价</div>
+                <div class="pc-tags"><span class="pc-tag">刺身</span><span class="pc-tag">约会</span></div>
+                <div class="pc-foot"><span class="pc-price">¥88-160</span><span class="pc-dist">📍 步行14分钟</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. 餐厅详情 -->
+  <div class="device-section">
+    <div class="section-label">
+      <div class="num">3</div>
+      <h2>餐厅详情</h2>
+    </div>
+    <div class="browser-frame">
+      <div class="browser-bar">
+        <div class="browser-dots"><div class="bdot r"></div><div class="bdot y"></div><div class="bdot g"></div></div>
+        <div class="browser-url">localhost:3000 · 餐厅详情</div>
+      </div>
+      <div class="browser-content">
+        <div class="preview-detail">
+          <div class="pdet-hero" style="background:linear-gradient(135deg,#fff3e0,#ffcc80);">
+            <div class="pdet-deco1" style="background:#e85d26;"></div>
+            <div class="pdet-deco2" style="background:#f4b942;"></div>
+            <div class="pdet-emoji">🍜</div>
+            <div class="pdet-overlay"></div>
+          </div>
+          <div class="pdet-body">
+            <div class="pdet-name">重庆秀山小面</div>
+            <div class="pdet-meta">
+              <div class="pdet-rating">★ 4.9</div>
+              <div class="pdet-reviews">5,621 条评价</div>
+              <div class="pdet-price">¥12-22 / 人</div>
+              <div class="pdet-open"><div class="pdet-opendot"></div>营业中</div>
+            </div>
+            <div class="pdet-seclabel">🍽️ 热门菜品</div>
+            <div class="pdet-mi"><div class="pdet-mil"><div class="pdet-miem">🍜</div><div><div class="pdet-miname">招牌牛肉面</div><div class="pdet-midesc">必点 · 月售1500+</div></div></div><div class="pdet-miprice">¥18</div></div>
+            <div class="pdet-mi"><div class="pdet-mil"><div class="pdet-miem">🥣</div><div><div class="pdet-miname">豌杂面</div><div class="pdet-midesc">经典重庆味</div></div></div><div class="pdet-miprice">¥12</div></div>
+            <div class="pdet-seclabel">💬 评价精选</div>
+            <div style="background:#faf5ee;border-radius:10px;padding:10px 12px;margin-bottom:7px;font-size:12px;line-height:1.6;border:1px solid #f0e8d8">
+              <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="color:var(--muted);font-size:10px">理工大·计算机系</span><span style="color:var(--accent);font-size:11px">★ 5.0</span></div>
+              每周必来！牛肉面真的绝了，汤喝完还想再来一碗 👍
+            </div>
+            <div class="pdet-actions">
+              <button class="pdet-act"><div class="pdet-act-icon">❤️</div>收藏</button>
+              <button class="pdet-act"><div class="pdet-act-icon">📍</div>导航</button>
+              <button class="pdet-act pr"><div class="pdet-act-icon">🤖</div>AI推荐</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. 校园圈 -->
+  <div class="device-section">
+    <div class="section-label">
+      <div class="num">4</div>
+      <h2>校园圈</h2>
+    </div>
+    <div class="browser-frame">
+      <div class="browser-bar">
+        <div class="browser-dots"><div class="bdot r"></div><div class="bdot y"></div><div class="bdot g"></div></div>
+        <div class="browser-url">localhost:3000/circle.html</div>
+      </div>
+      <div class="browser-content">
+        <div class="preview-hdr">
+          <div class="ph-logo"><div class="ph-logo-t">校园圈</div><div class="ph-logo-d"></div></div>
+          <div class="ph-btns"><button class="phb">美食地图</button><button class="phb ac">✏️ 发帖</button></div>
+        </div>
+        <div class="preview-circle">
+          <div class="pci-compose">
+            <div class="pci-compose-hdr">
+              <div class="pci-avatar">张</div>
+              <div class="pci-ph">分享你的觅食体验，或者问大家推荐什么…</div>
+            </div>
+            <div class="pci-acts">
+              <button class="pci-act">📸 晒美食</button>
+              <button class="pci-act">⭐ 写评测</button>
+              <button class="pci-act">❓ 求推荐</button>
+            </div>
+          </div>
+          <div class="pci-post">
+            <div class="pci-phdr">
+              <div class="pci-pavatar" style="background:#fff3e0">🍜</div>
+              <div><div class="pci-pname">小米同学</div><div class="pci-pmeta"><span>📍 理工大</span><span class="pci-ptype" style="background:#fce4e4;color:var(--accent)">美食评测</span></div></div>
+              <div class="pci-ptime">10分钟前</div>
+            </div>
+            <div class="pci-pcontent">重庆秀山小面真的绝了！汤底鲜辣，牛肉软烂入味，早上7点去还排了15分钟队，完全值得！强烈推荐🔥</div>
+            <div class="pci-ptags"><span class="pci-ptag">#小面推荐</span><span class="pci-ptag">#大学城美食</span></div>
+            <div class="pci-prest">🍜 <span style="font-weight:500">重庆秀山小面</span> <span style="color:var(--accent);margin-left:4px">★ 4.9</span><span style="margin-left:auto;color:var(--muted)">→</span></div>
+            <div class="pci-pfoot">
+              <div class="pci-pact">❤️ 49</div>
+              <div class="pci-pact">💬 12</div>
+              <div class="pci-pact">🔗 分享</div>
+            </div>
+          </div>
+          <div class="pci-post">
+            <div class="pci-phdr">
+              <div class="pci-pavatar" style="background:#e8f5e9">🥗</div>
+              <div><div class="pci-pname">健身达人Lisa</div><div class="pci-pmeta"><span>📍 理工大</span><span class="pci-ptype" style="background:#e8f5e9;color:var(--accent3)">美食评测</span></div></div>
+              <div class="pci-ptime">3小时前</div>
+            </div>
+            <div class="pci-pcontent">减脂期的福音！绿·植物基轻食的超级食物碗，热量只有480卡，好吃还扛饿💪</div>
+            <div class="pci-ptags"><span class="pci-ptag">#轻食</span><span class="pci-ptag">#减脂</span></div>
+            <div class="pci-pfoot">
+              <div class="pci-pact">🤍 112</div>
+              <div class="pci-pact">💬 45</div>
+              <div class="pci-pact">🔗 分享</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. 登录页 -->
+  <div class="device-section">
+    <div class="section-label">
+      <div class="num">5</div>
+      <h2>登录 / 注册</h2>
+    </div>
+    <div class="browser-frame" style="max-width:420px;margin:0 auto;">
+      <div class="browser-bar">
+        <div class="browser-dots"><div class="bdot r"></div><div class="bdot y"></div><div class="bdot g"></div></div>
+        <div class="browser-url">localhost:3000/login.html</div>
+      </div>
+      <div class="browser-content">
+        <div class="preview-login">
+          <div class="pl-box">
+            <div class="pl-logo">
+              <div class="pl-icon">🍜</div>
+              <div class="pl-title">觅食<div class="pl-dot"></div></div>
+              <div class="pl-sub">大学城美食地图</div>
+            </div>
+            <div class="pl-tabs"><button class="pl-tab active">登录</button><button class="pl-tab">注册</button></div>
+            <div class="pl-hint">❤️ 登录后可<strong>收藏餐厅</strong>、<strong>发布评价</strong>、使用<strong>校园圈</strong></div>
+            <div class="pl-group"><label class="pl-label">用户名</label><input class="pl-input" placeholder="输入用户名"></div>
+            <div class="pl-group"><label class="pl-label">密码</label><input class="pl-input" type="password" placeholder="输入密码"></div>
+            <button class="pl-btn pr">登录账号</button>
+            <button class="pl-btn dm">🎓 使用测试账号登录</button>
+            <div class="pl-feats">
+              <div class="pl-feat"><div class="pl-fi">❤️</div><div class="pl-ft">收藏</div></div>
+              <div class="pl-feat"><div class="pl-fi">⭐</div><div class="pl-ft">评价</div></div>
+              <div class="pl-feat"><div class="pl-fi">👥</div><div class="pl-ft">校园圈</div></div>
+              <div class="pl-feat"><div class="pl-fi">🤖</div><div class="pl-ft">AI推荐</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <div class="footer-links">
+    <a href="https://github.com/zjzhangjob-cmd/campus-food-map" target="_blank">GitHub 仓库</a>
+    <a href="https://github.com/zjzhangjob-cmd/campus-food-map#readme" target="_blank">使用文档</a>
+    <a href="https://github.com/zjzhangjob-cmd/campus-food-map/issues" target="_blank">问题反馈</a>
+  </div>
+  <div>MIT License · 觅食·大学城美食地图</div>
+  <div style="margin-top:6px;font-size:11px;color:rgba(253,246,227,.3)">本页面为静态预览，无需部署即可查看效果</div>
+</div>
+
+</body>
+</html>
