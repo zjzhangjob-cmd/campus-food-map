@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>管理后台 · 觅食</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@700;900&family=Noto+Sans+SC:wght@400;500&family=DM+Mono&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:#1a1209;--paper:#fdf6e3;--accent:#e85d26;--accent2:#f4b942;
+    --accent3:#2d7a4f;--muted:#8a7a6a;--border:#e8dcc8;--card:#fffdf7;--sidebar-w:220px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'Noto Sans SC',sans-serif;background:#f5ede0;color:var(--ink);display:flex;min-height:100vh;}
+
+  /* Sidebar */
+  .sidebar{width:var(--sidebar-w);background:var(--ink);min-height:100vh;display:flex;flex-direction:column;flex-shrink:0;}
+  .sidebar-logo{padding:24px 20px;border-bottom:1px solid rgba(255,255,255,.1);}
+  .sidebar-logo .name{font-family:'Noto Serif SC',serif;font-size:18px;font-weight:900;color:#fdf6e3;}
+  .sidebar-logo .sub{font-size:10px;color:rgba(253,246,227,.4);font-family:'DM Mono',monospace;margin-top:2px;}
+  .nav-item{display:flex;align-items:center;gap:10px;padding:12px 20px;cursor:pointer;color:rgba(253,246,227,.6);font-size:14px;transition:all .15s;}
+  .nav-item:hover,.nav-item.active{background:rgba(255,255,255,.08);color:#fdf6e3;}
+  .nav-item .icon{font-size:18px;width:24px;text-align:center;}
+  .sidebar-footer{margin-top:auto;padding:16px 20px;border-top:1px solid rgba(255,255,255,.1);}
+  .user-info{font-size:12px;color:rgba(253,246,227,.5);}
+
+  /* Main */
+  .main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+  .topbar{background:var(--paper);border-bottom:1.5px solid var(--border);padding:0 28px;height:60px;display:flex;align-items:center;justify-content:space-between;}
+  .page-title{font-family:'Noto Serif SC',serif;font-size:18px;font-weight:700;}
+  .topbar-right{display:flex;gap:12px;align-items:center;}
+  .btn{padding:8px 16px;border-radius:8px;border:1.5px solid var(--border);font-size:13px;cursor:pointer;font-family:'Noto Sans SC',sans-serif;background:var(--card);color:var(--ink);transition:all .15s;}
+  .btn:hover{border-color:var(--accent);color:var(--accent);}
+  .btn-primary{background:var(--accent);color:white;border-color:var(--accent);}
+  .btn-primary:hover{background:#d14e1a;color:white;}
+  .btn-danger{background:transparent;color:#e85d26;border-color:#e8dcc8;}
+  .btn-danger:hover{background:#fee;border-color:#e85d26;}
+
+  .content{flex:1;overflow-y:auto;padding:28px;}
+  .panel{display:none;}
+  .panel.active{display:block;}
+
+  /* Stats cards */
+  .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px;}
+  .stat-card{background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:20px;}
+  .stat-card .num{font-family:'Noto Serif SC',serif;font-size:32px;font-weight:900;color:var(--ink);}
+  .stat-card .num span{color:var(--accent);}
+  .stat-card .label{font-size:12px;color:var(--muted);margin-top:4px;font-family:'DM Mono',monospace;}
+  .stat-card .icon{font-size:28px;margin-bottom:10px;}
+
+  /* Tables */
+  .section{background:var(--card);border:1.5px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:20px;}
+  .section-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);}
+  .section-title{font-size:14px;font-weight:600;display:flex;align-items:center;gap:6px;}
+  table{width:100%;border-collapse:collapse;}
+  th{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;text-align:left;padding:10px 20px;background:var(--paper);border-bottom:1px solid var(--border);}
+  td{font-size:13px;padding:12px 20px;border-bottom:1px solid var(--border);vertical-align:middle;}
+  tr:last-child td{border-bottom:none;}
+  tr:hover td{background:#fffaf3;}
+
+  /* Forms */
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;}
+  .form-group label{font-size:11px;color:var(--muted);display:block;margin-bottom:4px;font-family:'DM Mono',monospace;}
+  .form-group input,.form-group select,.form-group textarea{
+    width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;
+    font-size:13px;background:var(--paper);color:var(--ink);outline:none;
+    font-family:'Noto Sans SC',sans-serif;transition:border-color .2s;
+  }
+  .form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--accent);}
+  .form-group.full{grid-column:span 2;}
+
+  /* Badge */
+  .badge{padding:2px 8px;border-radius:10px;font-size:11px;font-family:'DM Mono',monospace;}
+  .badge-green{background:#e8f5e9;color:#2d7a4f;}
+  .badge-red{background:#fce4ec;color:#c62828;}
+  .badge-yellow{background:#fff8e1;color:#f57f17;}
+
+  /* Modal */
+  .modal-overlay{position:fixed;inset:0;background:rgba(26,18,9,.5);backdrop-filter:blur(6px);z-index:100;display:none;align-items:center;justify-content:center;}
+  .modal-overlay.open{display:flex;}
+  .modal{background:var(--paper);border-radius:18px;padding:28px;width:580px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);}
+  .modal-title{font-family:'Noto Serif SC',serif;font-size:18px;font-weight:700;margin-bottom:20px;}
+  .modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid var(--border);}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <div class="name">觅食 · 管理后台</div>
+    <div class="sub">CAMPUS FOOD ADMIN</div>
+  </div>
+  <nav style="padding:12px 0">
+    <div class="nav-item active" onclick="showPanel('dashboard')"><span class="icon">📊</span>仪表盘</div>
+    <div class="nav-item" onclick="showPanel('restaurants')"><span class="icon">🍽️</span>餐厅管理</div>
+    <div class="nav-item" onclick="showPanel('deals')"><span class="icon">🎟️</span>优惠活动</div>
+    <div class="nav-item" onclick="showPanel('reviews')"><span class="icon">💬</span>评价管理</div>
+    <div class="nav-item" onclick="showPanel('users')"><span class="icon">👥</span>用户管理</div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-info" id="sidebarUser">加载中…</div>
+    <button class="btn" style="margin-top:8px;width:100%;color:rgba(253,246,227,.6);border-color:rgba(255,255,255,.15);background:transparent" onclick="Auth.logout()">退出登录</button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="page-title" id="pageTitle">仪表盘</div>
+    <div class="topbar-right">
+      <a href="index.html" class="btn">← 返回前台</a>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- 仪表盘 -->
+    <div class="panel active" id="panel-dashboard">
+      <div class="stats-grid" id="statsGrid">
+        <div class="stat-card"><div class="icon">🍽️</div><div class="num" id="s-restaurants">—</div><div class="label">收录餐厅</div></div>
+        <div class="stat-card"><div class="icon">👥</div><div class="num" id="s-users">—</div><div class="label">注册用户</div></div>
+        <div class="stat-card"><div class="icon">💬</div><div class="num" id="s-reviews">—</div><div class="label">用户评价</div></div>
+        <div class="stat-card"><div class="icon">⭐</div><div class="num" id="s-featured">—</div><div class="label">精选餐厅</div></div>
+      </div>
+      <div class="section">
+        <div class="section-header"><span class="section-title">🏆 口碑榜 Top 5</span></div>
+        <table><thead><tr><th>排名</th><th>餐厅</th><th>菜系</th><th>评分</th><th>评价数</th><th>人均</th></tr></thead>
+        <tbody id="rankingTable"><tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px">加载中…</td></tr></tbody></table>
+      </div>
+    </div>
+
+    <!-- 餐厅管理 -->
+    <div class="panel" id="panel-restaurants">
+      <div class="section">
+        <div class="section-header">
+          <span class="section-title">🍽️ 餐厅列表</span>
+          <button class="btn btn-primary" onclick="openAddRestaurant()">+ 新增餐厅</button>
+        </div>
+        <table>
+          <thead><tr><th>ID</th><th>名称</th><th>菜系</th><th>校区</th><th>评分</th><th>人均</th><th>状态</th><th>操作</th></tr></thead>
+          <tbody id="restaurantTable"><tr><td colspan="8" style="text-align:center;color:var(--muted);padding:24px">加载中…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 优惠管理 -->
+    <div class="panel" id="panel-deals">
+      <div class="section">
+        <div class="section-header">
+          <span class="section-title">🎟️ 优惠活动</span>
+          <button class="btn btn-primary" onclick="openAddDeal()">+ 新增优惠</button>
+        </div>
+        <div style="padding:16px 20px;color:var(--muted);font-size:13px" id="dealsList">加载中…</div>
+      </div>
+    </div>
+
+    <!-- 评价管理 -->
+    <div class="panel" id="panel-reviews">
+      <div class="section">
+        <div class="section-header"><span class="section-title">💬 最新评价</span></div>
+        <table>
+          <thead><tr><th>餐厅</th><th>用户</th><th>评分</th><th>内容</th><th>时间</th><th>操作</th></tr></thead>
+          <tbody id="reviewsTable"><tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px">加载中…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 用户管理 -->
+    <div class="panel" id="panel-users">
+      <div class="section">
+        <div class="section-header"><span class="section-title">👥 用户列表</span></div>
+        <table>
+          <thead><tr><th>ID</th><th>用户名</th><th>昵称</th><th>邮箱</th><th>校区</th><th>角色</th><th>状态</th><th>操作</th></tr></thead>
+          <tbody id="usersTable"><tr><td colspan="8" style="text-align:center;color:var(--muted);padding:24px">加载中…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- 新增餐厅 Modal -->
+<div class="modal-overlay" id="restaurantModal">
+  <div class="modal">
+    <div class="modal-title">🍽️ 新增餐厅</div>
+    <div class="form-grid">
+      <div class="form-group full"><label>餐厅名称 *</label><input id="r-name" placeholder="例：老林家重庆小面"></div>
+      <div class="form-group full"><label>简介</label><textarea id="r-desc" rows="2" placeholder="餐厅描述…"></textarea></div>
+      <div class="form-group"><label>菜系</label>
+        <select id="r-cuisine"><option>中餐</option><option>日料</option><option>韩餐</option><option>西餐</option><option>快餐</option><option>小吃</option><option>其他</option></select>
+      </div>
+      <div class="form-group"><label>所属校区</label>
+        <select id="r-campus"><option>全部</option><option>理工大</option><option>师范大</option><option>医科大</option><option>财经大</option></select>
+      </div>
+      <div class="form-group"><label>人均最低（元）</label><input id="r-pmin" type="number" placeholder="10"></div>
+      <div class="form-group"><label>人均最高（元）</label><input id="r-pmax" type="number" placeholder="30"></div>
+      <div class="form-group"><label>步行距离（分钟）</label><input id="r-dist" type="number" placeholder="5"></div>
+      <div class="form-group"><label>营业时间</label><input id="r-hours" placeholder="06:00-22:00"></div>
+      <div class="form-group"><label>地址</label><input id="r-addr" placeholder="大学城美食街X号"></div>
+      <div class="form-group"><label>电话</label><input id="r-phone" placeholder="138-xxxx-xxxx"></div>
+      <div class="form-group"><label>Emoji 图标</label><input id="r-emoji" placeholder="🍜" maxlength="2"></div>
+      <div class="form-group"><label>标签（逗号分隔）</label><input id="r-tags" placeholder="辣,早餐,学生优惠"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('restaurantModal')">取消</button>
+      <button class="btn btn-primary" onclick="submitRestaurant()">保存餐厅</button>
+    </div>
+  </div>
+</div>
+
+<!-- 新增优惠 Modal -->
+<div class="modal-overlay" id="dealModal">
+  <div class="modal">
+    <div class="modal-title">🎟️ 新增优惠活动</div>
+    <div class="form-grid">
+      <div class="form-group full"><label>关联餐厅 ID</label><input id="d-rid" type="number" placeholder="餐厅 ID"></div>
+      <div class="form-group full"><label>优惠标题 *</label><input id="d-title" placeholder="例：学生证8折"></div>
+      <div class="form-group full"><label>描述</label><input id="d-desc" placeholder="优惠详情说明"></div>
+      <div class="form-group"><label>原价（元）</label><input id="d-oprice" type="number" placeholder="30"></div>
+      <div class="form-group"><label>优惠价（元）</label><input id="d-dprice" type="number" placeholder="24"></div>
+      <div class="form-group full"><label>折扣文案</label><input id="d-text" placeholder="8折 / 买一送一 / 立减6元"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('dealModal')">取消</button>
+      <button class="btn btn-primary" onclick="submitDeal()">保存优惠</button>
+    </div>
+  </div>
+</div>
+
+<script src="assets/api.js"></script>
+<script>
+  // 权限检查
+  if (!Auth.isLoggedIn()) { window.location.href = "login.html"; }
+  if (!Auth.isAdmin())    { showToast("需要管理员权限", "error"); setTimeout(() => location.href="index.html", 1500); }
+
+  const user = Auth.getUser();
+  document.getElementById("sidebarUser").textContent = `👤 ${user?.nickname || user?.username}（管理员）`;
+
+  const pageTitles = { dashboard:"仪表盘", restaurants:"餐厅管理", deals:"优惠活动", reviews:"评价管理", users:"用户管理" };
+
+  function showPanel(name) {
+    document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
+    document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
+    document.getElementById(`panel-${name}`).classList.add("active");
+    event.currentTarget.classList.add("active");
+    document.getElementById("pageTitle").textContent = pageTitles[name];
+    loaders[name]?.();
+  }
+
+  // ── 加载器 ──────────────────────────────────
+  const loaders = {
+    dashboard:   loadDashboard,
+    restaurants: loadRestaurants,
+    deals:       loadDeals,
+    reviews:     loadReviews,
+    users:       loadUsers,
+  };
+
+  async function loadDashboard() {
+    try {
+      const [stats, ranking] = await Promise.all([AdminAPI.stats(), RestaurantAPI.ranking()]);
+      document.getElementById("s-restaurants").innerHTML = `${stats.total_restaurants}<span>家</span>`;
+      document.getElementById("s-users").innerHTML       = `${stats.total_users}<span>人</span>`;
+      document.getElementById("s-reviews").innerHTML     = `${stats.total_reviews}<span>条</span>`;
+      document.getElementById("s-featured").innerHTML    = `${stats.featured_count}<span>家</span>`;
+      document.getElementById("rankingTable").innerHTML = ranking.slice(0,5).map((r,i) => `
+        <tr>
+          <td><strong>${["🥇","🥈","🥉","4","5"][i]}</strong></td>
+          <td>${r.emoji} ${r.name}</td>
+          <td>${r.cuisine}</td>
+          <td style="color:var(--accent)">★ ${r.avg_rating}</td>
+          <td>${r.review_count.toLocaleString()}</td>
+          <td>¥${r.price_min}-${r.price_max}</td>
+        </tr>`).join("");
+    } catch(e) { showToast(e.message, "error"); }
+  }
+
+  async function loadRestaurants() {
+    try {
+      const data = await RestaurantAPI.list({ page_size: 50 });
+      document.getElementById("restaurantTable").innerHTML = data.items.map(r => `
+        <tr>
+          <td style="color:var(--muted);font-family:'DM Mono',monospace">#${r.id}</td>
+          <td>${r.emoji} <strong>${r.name}</strong></td>
+          <td>${r.cuisine}</td>
+          <td>${r.campus}</td>
+          <td style="color:var(--accent)">★ ${r.avg_rating}</td>
+          <td>¥${r.price_min}-${r.price_max}</td>
+          <td><span class="badge ${r.is_open ? 'badge-green':'badge-red'}">${r.is_open ? '营业中':'休息'}</span></td>
+          <td>
+            <button class="btn btn-danger" onclick="toggleOpen(${r.id}, ${!r.is_open})" style="padding:4px 10px;font-size:12px">${r.is_open ? '下架':'上架'}</button>
+          </td>
+        </tr>`).join("");
+    } catch(e) { showToast(e.message, "error"); }
+  }
+
+  async function toggleOpen(id, state) {
+    try {
+      await RestaurantAPI.update(id, { is_open: state });
+      showToast(state ? "已上架" : "已下架", "success");
+      loadRestaurants();
+    } catch(e) { showToast(e.message, "error"); }
+  }
+
+  async function loadDeals() {
+    try {
+      const data = await RestaurantAPI.list({ page_size: 50 });
+      const all_deals = data.items.flatMap(r => r.deals.map(d => ({ ...d, restaurant_name: r.name })));
+      if (all_deals.length === 0) {
+        document.getElementById("dealsList").textContent = "暂无优惠活动，点击右上角新增";
+        return;
+      }
+      document.getElementById("dealsList").innerHTML = `
+        <table style="width:100%"><thead><tr><th>餐厅</th><th>标题</th><th>折扣</th><th>价格</th><th>操作</th></tr></thead>
+        <tbody>${all_deals.map(d => `
+          <tr>
+            <td>${d.restaurant_name}</td>
+            <td><strong>${d.title}</strong><br><span style="font-size:11px;color:var(--muted)">${d.description}</span></td>
+            <td><span class="badge badge-yellow">${d.discount_text}</span></td>
+            <td style="font-family:'DM Mono',monospace">
+              ${d.deal_price ? `<span style="color:var(--accent)">¥${d.deal_price}</span>` : "—"}
+              ${d.original_price ? `<span style="text-decoration:line-through;color:var(--muted);margin-left:6px">¥${d.original_price}</span>` : ""}
+            </td>
+            <td><button class="btn btn-danger" onclick="deleteDeal(${d.id})" style="padding:4px 10px;font-size:12px">删除</button></td>
+          </tr>`).join("")}
+        </tbody></table>`;
+    } catch(e) { showToast(e.message, "error"); }
+  }
+
+  async function deleteDeal(id) {
+    if (!confirm("确认删除该优惠？")) return;
+    try { await AdminAPI.deleteDeal(id); showToast("已删除", "success"); loadDeals(); }
+    catch(e) { showToast(e.message, "error"); }
+  }
+
+  async function loadReviews() {
+    try {
+      const data = await RestaurantAPI.list({ page_size: 20 });
+      const reviews = [];
+      for (const r of data.items.slice(0, 5)) {
+        const rv = await ReviewAPI.list(r.id);
+        rv.forEach(v => reviews.push({ ...v, restaurant_name: r.name }));
+      }
+      if (reviews.length === 0) {
+        document.getElementById("reviewsTable").innerHTML = `<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--muted)">暂无评价</td></tr>`;
+        return;
+      }
+      document.getElementById("reviewsTable").innerHTML = reviews.slice(0,30).map(r => `
+        <tr>
+          <td>${r.restaurant_name}</td>
+          <td>${r.is_anonymous ? "匿名用户" : (r.user?.nickname || r.user?.username || "—")}</td>
+          <td style="color:var(--accent)">★ ${r.rating}</td>
+          <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.content || "（无文字评价）"}</td>
+          <td style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace">${r.created_at.slice(0,10)}</td>
+          <td><button class="btn btn-danger" onclick="deleteReview(${r.id})" style="padding:4px 10px;font-size:12px">删除</button></td>
+        </tr>`).join("");
+    } catch(e) { showToast(e.message, "error"); }
+  }
+
+  async function deleteReview(id) {
+    if (!confirm("确认删除该评价？")) return;
+    try { await AdminAPI.deleteReview(id); showToast("已删除", "success"); loadReviews(); }
+    catch(e) { showToast(e.message, "error"); }
+  }
+
+  async function loadUsers() {
+    try {
+      const users = await AdminAPI.users();
+      document.getElementById("usersTable").innerHTML = users.map(u => `
+        <tr>
+          <td style="color:var(--muted);font-family:'DM Mono',monospace">#${u.id}</td>
+          <td><strong>${u.username}</strong></td>
+          <td>${u.nickname}</td>
+          <td style="font-size:12px;color:var(--muted)">${u.email}</td>
+          <td>${u.campus || "—"}</td>
+          <td>${u.is_admin ? '<span class="badge badge-yellow">管理员</span>' : '<span class="badge" style="background:var(--paper)">普通用户</span>'}</td>
+          <td><span class="badge ${u.is_active ? 'badge-green':'badge-red'}">${u.is_active ? '正常':'禁用'}</span></td>
+          <td>${u.is_admin ? '' : `<button class="btn btn-danger" onclick="toggleUser(${u.id})" style="padding:4px 10px;font-size:12px">${u.is_active ? '禁用':'启用'}</button>`}</td>
+        </tr>`).join("");
+    } catch(e) { showToast(e.message, "error"); }
+  }
+
+  async function toggleUser(id) {
+    try { const r = await AdminAPI.toggleUser(id); showToast(r.is_active ? "已启用" : "已禁用", "success"); loadUsers(); }
+    catch(e) { showToast(e.message, "error"); }
+  }
+
+  // ── Modals ──
+  function openAddRestaurant() { document.getElementById("restaurantModal").classList.add("open"); }
+  function openAddDeal()       { document.getElementById("dealModal").classList.add("open"); }
+  function closeModal(id)      { document.getElementById(id).classList.remove("open"); }
+
+  async function submitRestaurant() {
+    const data = {
+      name:        document.getElementById("r-name").value.trim(),
+      description: document.getElementById("r-desc").value.trim(),
+      cuisine:     document.getElementById("r-cuisine").value,
+      campus:      document.getElementById("r-campus").value,
+      price_min:   parseInt(document.getElementById("r-pmin").value) || 0,
+      price_max:   parseInt(document.getElementById("r-pmax").value) || 0,
+      distance_min:parseInt(document.getElementById("r-dist").value) || 0,
+      open_hours:  document.getElementById("r-hours").value.trim(),
+      address:     document.getElementById("r-addr").value.trim(),
+      phone:       document.getElementById("r-phone").value.trim(),
+      emoji:       document.getElementById("r-emoji").value.trim() || "🍽️",
+      tags:        document.getElementById("r-tags").value.trim(),
+    };
+    if (!data.name) { showToast("请填写餐厅名称", "error"); return; }
+    try {
+      await RestaurantAPI.create(data);
+      showToast("餐厅已添加！", "success");
+      closeModal("restaurantModal");
+      loadRestaurants();
+    } catch(e) { showToast(e.message, "error"); }
+  }
+
+  async function submitDeal() {
+    const data = {
+      restaurant_id:  parseInt(document.getElementById("d-rid").value),
+      title:          document.getElementById("d-title").value.trim(),
+      description:    document.getElementById("d-desc").value.trim(),
+      original_price: parseFloat(document.getElementById("d-oprice").value) || null,
+      deal_price:     parseFloat(document.getElementById("d-dprice").value) || null,
+      discount_text:  document.getElementById("d-text").value.trim(),
+    };
+    if (!data.restaurant_id || !data.title) { showToast("请填写必填项", "error"); return; }
+    try {
+      await AdminAPI.createDeal(data);
+      showToast("优惠已添加！", "success");
+      closeModal("dealModal");
+      loadDeals();
+    } catch(e) { showToast(e.message, "error"); }
+  }
+
+  // 初始加载
+  loadDashboard();
+</script>
+</body>
+</html>
