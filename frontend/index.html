@@ -5,8 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>觅食 · 大学城美食地图</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=DM+Mono:wght@400;500&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
-<!-- 高德地图 JS API  ★ 将 YOUR_AMAP_JS_KEY 替换为你的高德JS API Key ★ -->
-<script src="https://webapi.amap.com/maps?v=2.0&key=YOUR_AMAP_JS_KEY"></script>
+<script src="https://webapi.amap.com/maps?v=2.0&key=3b9eeda4ccb82d231f7b9fdb7328e9da"></script>
 <style>
   :root {
     --ink:#1a1209;--paper:#fdf6e3;--warm:#f5ede0;--accent:#e85d26;
@@ -97,9 +96,14 @@
   .card{background:var(--card-bg);border:1.5px solid var(--border);border-radius:18px;overflow:hidden;cursor:pointer;transition:all .25s;animation:fadeUp .4s ease both;}
   .card:hover{transform:translateY(-4px);box-shadow:0 12px 32px var(--shadow);border-color:var(--accent);}
   .card-thumb{height:140px;position:relative;overflow:hidden;}
-  .card-thumb-bg{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:56px;transition:transform .4s;}
-  .card:hover .card-thumb-bg{transform:scale(1.08);}
-  .card-thumb-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 40%,rgba(26,18,9,.35));}
+  .card-thumb-bg{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:68px;transition:transform .4s;position:relative;}
+  .card:hover .card-thumb-bg{transform:scale(1.06);}
+  .card-thumb-bg .deco{position:absolute;border-radius:50%;opacity:.2;}
+  .card-thumb-bg .deco1{width:100px;height:100px;top:-25px;right:-25px;}
+  .card-thumb-bg .deco2{width:70px;height:70px;bottom:-15px;left:-10px;}
+  .card-thumb-emoji{position:relative;z-index:1;filter:drop-shadow(0 4px 8px rgba(0,0,0,.15));}
+  .card.featured .card-thumb-emoji{font-size:84px;}
+  .card-thumb-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 40%,rgba(26,18,9,.3));}
   .card-badge{position:absolute;top:10px;left:10px;padding:3px 9px;border-radius:12px;font-size:10px;font-family:'DM Mono',monospace;letter-spacing:.5px;}
   .badge-hot{background:var(--accent);color:white;}
   .badge-new{background:var(--accent3);color:white;}
@@ -208,8 +212,85 @@
   .page-btn.active{background:var(--ink);color:var(--paper);border-color:var(--ink);}
   .page-btn:hover:not(.active){border-color:var(--accent);color:var(--accent);}
 </style>
+<style>
+  /* ── ONBOARDING SPLASH ── */
+  .splash{position:fixed;inset:0;background:linear-gradient(160deg,#fff8f0 0%,#fdf0dc 50%,#fff3e5 100%);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;transition:opacity .5s .9s,pointer-events 0s .9s;overflow:hidden;}
+  .splash.done{opacity:0;pointer-events:none;}
+  .splash-ring{position:absolute;border-radius:50%;border:1.5px solid rgba(232,93,38,.12);top:50%;left:50%;}
+  .splash-orbit{position:absolute;width:260px;height:260px;top:50%;left:50%;animation:splashOrbit 12s linear infinite;}
+  .splash-fi{position:absolute;font-size:20px;}
+  .splash-fi:nth-child(1){top:-14px;left:calc(50% - 10px);}
+  .splash-fi:nth-child(2){bottom:-14px;left:calc(50% - 10px);}
+  .splash-fi:nth-child(3){left:-14px;top:calc(50% - 10px);}
+  .splash-fi:nth-child(4){right:-14px;top:calc(50% - 10px);}
+  .splash-fi-inner{animation:splashOrbitR 12s linear infinite;}
+  @keyframes splashOrbit{from{transform:translate(-50%,-50%) rotate(0)}to{transform:translate(-50%,-50%) rotate(360deg)}}
+  @keyframes splashOrbitR{from{transform:rotate(0)}to{transform:rotate(-360deg)}}
+  .splash-steam{display:flex;gap:8px;height:32px;align-items:flex-end;margin-bottom:4px;}
+  .splash-st{width:3px;border-radius:3px;background:linear-gradient(to top,rgba(232,93,38,.45),transparent);animation:splashSteam 1.6s ease-in-out infinite;}
+  .splash-st:nth-child(1){height:20px;animation-delay:0s;}
+  .splash-st:nth-child(2){height:28px;animation-delay:.25s;}
+  .splash-st:nth-child(3){height:16px;animation-delay:.5s;}
+  .splash-st:nth-child(4){height:24px;animation-delay:.75s;}
+  @keyframes splashSteam{0%{opacity:.7;transform:scaleX(1) translateY(0)}100%{opacity:0;transform:scaleX(2) translateY(-18px)}}
+  .splash-bowl{font-size:88px;line-height:1;filter:drop-shadow(0 12px 24px rgba(232,93,38,.2));animation:bowlFloat 2.5s ease-in-out infinite;position:relative;z-index:2;}
+  .splash-logo{font-family:'Noto Serif SC',serif;font-size:52px;font-weight:900;color:var(--ink);letter-spacing:-2px;animation:splashIn .6s .2s ease both;display:flex;align-items:center;gap:6px;margin-top:8px;}
+  .splash-logo-dot{width:10px;height:10px;background:var(--accent);border-radius:50%;animation:pulse 2s infinite;margin-bottom:6px;}
+  .splash-sub{font-size:12px;color:var(--muted);letter-spacing:3px;font-family:'DM Mono',monospace;animation:splashIn .6s .4s ease both;}
+  .splash-chips{display:flex;gap:8px;margin-top:18px;animation:splashIn .5s .6s ease both;flex-wrap:wrap;justify-content:center;padding:0 20px;}
+  .splash-chip{background:white;border-radius:22px;padding:8px 14px;font-size:13px;display:flex;align-items:center;gap:7px;border:1px solid rgba(232,93,38,.15);box-shadow:0 4px 12px rgba(232,93,38,.08);}
+  .splash-chip-text{font-size:12px;color:var(--muted);font-weight:500;}
+  .splash-cta{margin-top:18px;padding:11px 26px;background:linear-gradient(135deg,#e85d26,#f06030);border-radius:28px;font-size:13px;color:white;font-weight:500;border:none;animation:splashIn .5s .8s ease both;box-shadow:0 6px 18px rgba(232,93,38,.26);}
+  @keyframes splashIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes rPulse{0%,100%{opacity:.3;transform:translate(-50%,-50%) scale(1)}50%{opacity:.7;transform:translate(-50%,-50%) scale(1.04)}}
+
+  /* ── FAV MODAL ── */
+  .fav-modal{position:fixed;inset:0;background:rgba(26,18,9,.6);backdrop-filter:blur(8px);z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;}
+  .fav-modal.open{opacity:1;pointer-events:all;}
+  .fav-inner{background:var(--paper);border-radius:20px;padding:28px;width:580px;max-width:95vw;max-height:80vh;overflow-y:auto;transform:scale(.96);transition:transform .3s;}
+  .fav-modal.open .fav-inner{transform:scale(1);}
+  .fav-title{font-family:'Noto Serif SC',serif;font-size:20px;font-weight:700;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;}
+  .fav-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .fav-card{background:var(--card-bg);border:1.5px solid var(--border);border-radius:14px;padding:14px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:12px;}
+  .fav-card:hover{border-color:var(--accent);transform:translateY(-2px);}
+  .fav-empty{text-align:center;padding:48px;color:var(--muted);font-size:14px;line-height:2;}
+</style>
 </head>
 <body>
+
+<!-- 首次进入动画 -->
+<div class="splash" id="splash">
+  <div class="splash-ring" style="width:320px;height:320px;animation:rPulse 4s ease-in-out infinite;"></div>
+  <div class="splash-ring" style="width:220px;height:220px;animation:rPulse 4s .5s ease-in-out infinite;"></div>
+  <div class="splash-orbit">
+    <div class="splash-fi"><div class="splash-fi-inner">🍣</div></div>
+    <div class="splash-fi"><div class="splash-fi-inner">🥗</div></div>
+    <div class="splash-fi"><div class="splash-fi-inner">☕</div></div>
+    <div class="splash-fi"><div class="splash-fi-inner">🫕</div></div>
+  </div>
+  <div class="splash-steam">
+    <div class="splash-st"></div><div class="splash-st"></div>
+    <div class="splash-st"></div><div class="splash-st"></div>
+  </div>
+  <div class="splash-bowl">🍜</div>
+  <div class="splash-logo">觅食<div class="splash-logo-dot"></div></div>
+  <div class="splash-sub">大学城美食地图</div>
+  <div class="splash-chips">
+    <div class="splash-chip"><span>🍜</span><span class="splash-chip-text">面馆</span></div>
+    <div class="splash-chip"><span>🍣</span><span class="splash-chip-text">日料</span></div>
+    <div class="splash-chip"><span>☕</span><span class="splash-chip-text">咖啡</span></div>
+    <div class="splash-chip"><span>🫕</span><span class="splash-chip-text">火锅</span></div>
+  </div>
+  <button class="splash-cta">今天吃什么，交给觅食来定 ✨</button>
+</div>
+
+<!-- 收藏夹弹窗 -->
+<div class="fav-modal" id="favModal" onclick="if(event.target===this)closeFavModal()">
+  <div class="fav-inner">
+    <div class="fav-title">❤️ 我的收藏 <button onclick="closeFavModal()" style="border:1.5px solid var(--border);border-radius:50%;width:32px;height:32px;background:var(--card-bg);cursor:pointer;font-size:14px">✕</button></div>
+    <div id="favList"><div class="fav-empty">加载中…</div></div>
+  </div>
+</div>
 
 <header>
   <div class="logo">
@@ -226,7 +307,9 @@
   </div>
   <div class="header-right">
     <div id="userArea"></div>
+    <a href="circle.html" class="hbtn" style="text-decoration:none">👥 校园圈</a>
     <button class="hbtn" onclick="toggleAI()">🤖 AI助手</button>
+    <button class="hbtn" id="favPageBtn" onclick="showFavModal()" style="display:none">❤️ 收藏</button>
     <button class="hbtn" onclick="window.location.href='login.html'" id="loginBtn">登录</button>
     <button class="hbtn" onclick="Auth.logout()" id="logoutBtn" style="display:none">退出</button>
     <button class="hbtn accent" onclick="window.location.href='admin.html'" id="adminBtn" style="display:none">后台</button>
@@ -460,6 +543,7 @@ function initHeader() {
   if (Auth.isLoggedIn() && user) {
     document.getElementById("loginBtn").style.display = "none";
     document.getElementById("logoutBtn").style.display = "";
+    document.getElementById("favPageBtn").style.display = "";
     document.getElementById("userArea").textContent = `👤 ${user.nickname || user.username}`;
     if (user.is_admin) document.getElementById("adminBtn").style.display = "";
   }
@@ -548,14 +632,20 @@ async function loadRestaurants() {
 
 // ── 渲染卡片 ──
 const thumbColors = [
-  "linear-gradient(135deg,#fff3e0,#ffe0b2)",
-  "linear-gradient(135deg,#e8f5e9,#c8e6c9)",
-  "linear-gradient(135deg,#fce4ec,#f8bbd9)",
-  "linear-gradient(135deg,#fff9c4,#fff176)",
-  "linear-gradient(135deg,#e3f2fd,#bbdefb)",
-  "linear-gradient(135deg,#f3e5f5,#e1bee7)",
-  "linear-gradient(135deg,#e0f2f1,#b2dfdb)",
-  "linear-gradient(135deg,#fbe9e7,#ffccbc)",
+  "linear-gradient(135deg,#fff3e0,#ffcc80)",
+  "linear-gradient(135deg,#e8f5e9,#a5d6a7)",
+  "linear-gradient(135deg,#fce4ec,#f48fb1)",
+  "linear-gradient(135deg,#fffde7,#fff176)",
+  "linear-gradient(135deg,#e3f2fd,#90caf9)",
+  "linear-gradient(135deg,#f3e5f5,#ce93d8)",
+  "linear-gradient(135deg,#e0f2f1,#80cbc4)",
+  "linear-gradient(135deg,#efebe9,#bcaaa4)",
+  "linear-gradient(135deg,#e8eaf6,#9fa8da)",
+  "linear-gradient(135deg,#f1f8e9,#aed581)",
+];
+const decoColors = [
+  "#e85d26","#f4b942","#2d7a4f","#e91e63",
+  "#1976d2","#7b1fa2","#00796b","#795548",
 ];
 
 function renderCard(r, i) {
@@ -564,7 +654,11 @@ function renderCard(r, i) {
   return `
     <div class="card ${featured ? 'featured' : ''}" onclick="openDetail(${r.id})">
       <div class="card-thumb">
-        <div class="card-thumb-bg" style="background:${thumbColors[i % thumbColors.length]}">${r.emoji}</div>
+        <div class="card-thumb-bg" style="background:${thumbColors[i % thumbColors.length]}">
+          <div class="deco deco1" style="background:${decoColors[i % decoColors.length]}"></div>
+          <div class="deco deco2" style="background:${decoColors[(i+2) % decoColors.length]}"></div>
+          <span class="card-thumb-emoji">${r.emoji}</span>
+        </div>
         <div class="card-thumb-overlay"></div>
         ${r.is_featured ? '<span class="card-badge badge-hot">🔥 热门</span>' : ''}
         <button class="card-fav" id="fav-${r.id}" onclick="event.stopPropagation();quickFav(${r.id}, this)">🤍</button>
@@ -875,6 +969,83 @@ function addBubble(text, type, id = "") {
 function removeLoading() {
   const el = document.getElementById("loadingBubble");
   if (el) el.remove();
+}
+
+// ── 首次进入动画 ──────────────────────────────────
+window.addEventListener("DOMContentLoaded", () => {
+  // 只有首次访问显示 splash
+  if (!sessionStorage.getItem("splashShown")) {
+    sessionStorage.setItem("splashShown", "1");
+    setTimeout(() => document.getElementById("splash").classList.add("done"), 1200);
+  } else {
+    document.getElementById("splash").classList.add("done");
+  }
+});
+
+// ── 收藏夹 ──────────────────────────────────────
+async function showFavModal() {
+  document.getElementById("favModal").classList.add("open");
+  const list = document.getElementById("favList");
+  list.innerHTML = '<div class="fav-empty">加载中…</div>';
+  try {
+    // 获取所有餐厅，过滤已收藏的
+    const data = await RestaurantAPI.list({ page_size: 50 });
+    const favs = [];
+    for (const r of data.items) {
+      const res = await RestaurantAPI.isFavorited(r.id);
+      if (res.favorited) favs.push(r);
+    }
+    if (!favs.length) {
+      list.innerHTML = '<div class="fav-empty">还没有收藏任何餐厅<br>去美食地图发现好店吧 🍜</div>';
+      return;
+    }
+    list.innerHTML = `<div class="fav-grid">${favs.map(r => `
+      <div class="fav-card" onclick="closeFavModal();openDetail(${r.id})">
+        <span style="font-size:28px">${r.emoji}</span>
+        <div>
+          <div style="font-size:14px;font-weight:600">${r.name}</div>
+          <div style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace">★ ${r.avg_rating} · ${priceRange(r)}</div>
+        </div>
+      </div>`).join('')}</div>`;
+  } catch(e) {
+    list.innerHTML = `<div class="fav-empty">加载失败：${e.message}</div>`;
+  }
+}
+function closeFavModal() { document.getElementById("favModal").classList.remove("open"); }
+
+// ── 增强地图点击：点击地图可选择定位 ─────────────────
+function initAmap() {
+  if (typeof AMap === "undefined") {
+    document.getElementById("amap").innerHTML = `
+      <div style="height:220px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,#e8f4e8,#f0f8f0);gap:8px;cursor:pointer" onclick="showToast('请先配置高德地图 Key')">
+        <div style="font-size:32px">🗺️</div>
+        <div style="font-size:12px;color:var(--muted);font-family:'DM Mono',monospace">点击配置高德地图</div>
+      </div>`;
+    return;
+  }
+  amapInstance = new AMap.Map("amap", {
+    zoom: 15, center: [113.4008, 23.0445],
+    mapStyle: "amap://styles/light",
+  });
+  // 点击地图切换中心点
+  amapInstance.on("click", (e) => {
+    const {lng, lat} = e.lnglat;
+    showToast(`📍 已选择位置：${lat.toFixed(4)}, ${lng.toFixed(4)}`);
+    // 在点击位置放置临时标记
+    if (window._clickMarker) amapInstance.remove(window._clickMarker);
+    window._clickMarker = new AMap.Marker({
+      position: [lng, lat],
+      label: { content: '<div style="background:var(--accent);color:white;padding:3px 8px;border-radius:8px;font-size:12px">📍 我在这里</div>', offset: new AMap.Pixel(-40, -46) },
+    });
+    amapInstance.add(window._clickMarker);
+    // 搜索附近餐厅
+    const nearby = state.allRestaurants?.filter(r => {
+      if (!r.latitude || !r.longitude) return false;
+      const d = Math.sqrt(Math.pow(r.latitude - lat, 2) + Math.pow(r.longitude - lng, 2));
+      return d < 0.02;
+    });
+    if (nearby?.length) showToast(`📍 附近有 ${nearby.length} 家餐厅`);
+  });
 }
 </script>
 </body>

@@ -1,5 +1,17 @@
 from pydantic_settings import BaseSettings
 from typing import List
+import os
+
+# 找到项目根目录（.env 所在位置）
+def find_project_root():
+    # 从 backend/app/core 往上找
+    current = os.path.dirname(os.path.abspath(__file__))
+    # backend/app/core -> backend/app -> backend -> project_root
+    for _ in range(3):
+        current = os.path.dirname(current)
+    return current
+
+PROJECT_ROOT = find_project_root()
 
 class Settings(BaseSettings):
     APP_NAME: str = "觅食·大学城美食地图"
@@ -25,7 +37,7 @@ class Settings(BaseSettings):
         return [o.strip() for o in self.ALLOWED_ORIGINS.split(",")]
 
     class Config:
-        env_file = ".env"
+        env_file = os.path.join(PROJECT_ROOT, ".env")
         extra = "ignore"
 
 settings = Settings()

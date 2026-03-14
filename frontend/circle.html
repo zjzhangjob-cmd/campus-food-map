@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>校园圈 · 觅食</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@700;900&family=Noto+Sans+SC:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:#1a1209;--paper:#fdf6e3;--accent:#e85d26;--accent2:#f4b942;
+    --accent3:#2d7a4f;--muted:#8a7a6a;--border:#e8dcc8;--card:#fffdf7;--tag-bg:#f0e8d8;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--paper);color:var(--ink);font-family:'Noto Sans SC',sans-serif;min-height:100vh;}
+
+  header{position:sticky;top:0;z-index:100;background:rgba(253,246,227,.95);border-bottom:1.5px solid var(--border);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:64px;backdrop-filter:blur(12px);}
+  .logo{display:flex;align-items:baseline;gap:8px;}
+  .logo-main{font-family:'Noto Serif SC',serif;font-size:20px;font-weight:900;}
+  .logo-dot{width:7px;height:7px;background:var(--accent);border-radius:50%;display:inline-block;margin-bottom:2px;}
+  .nav-tabs{display:flex;gap:4px;}
+  .nav-tab{padding:6px 14px;border-radius:20px;font-size:13px;cursor:pointer;color:var(--muted);border:none;background:transparent;font-family:'Noto Sans SC',sans-serif;transition:all .2s;}
+  .nav-tab.active,.nav-tab:hover{background:var(--ink);color:var(--paper);}
+  .hbtn{padding:7px 16px;border-radius:20px;border:1.5px solid var(--border);background:var(--card);font-size:13px;cursor:pointer;font-family:'Noto Sans SC',sans-serif;transition:all .2s;}
+  .hbtn:hover{background:var(--ink);color:var(--paper);}
+  .hbtn.accent{background:var(--accent);color:white;border-color:var(--accent);}
+
+  .page-wrap{max-width:960px;margin:0 auto;padding:32px 24px 80px;display:grid;grid-template-columns:1fr 300px;gap:28px;align-items:start;}
+
+  /* Post compose */
+  .compose-box{background:var(--card);border:1.5px solid var(--border);border-radius:18px;padding:20px;margin-bottom:20px;}
+  .compose-header{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+  .avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;color:white;font-weight:700;}
+  .compose-placeholder{flex:1;padding:10px 16px;background:var(--tag-bg);border-radius:24px;font-size:14px;color:var(--muted);cursor:pointer;border:none;font-family:'Noto Sans SC',sans-serif;text-align:left;}
+  .compose-placeholder:hover{background:var(--border);}
+  .compose-actions{display:flex;gap:8px;justify-content:flex-end;}
+  .compose-btn{padding:6px 16px;border-radius:20px;border:1.5px solid var(--border);background:transparent;font-size:12px;cursor:pointer;color:var(--muted);font-family:'Noto Sans SC',sans-serif;transition:all .2s;display:flex;align-items:center;gap:4px;}
+  .compose-btn:hover{border-color:var(--accent);color:var(--accent);}
+
+  /* Feed */
+  .feed{display:flex;flex-direction:column;gap:16px;}
+  .post-card{background:var(--card);border:1.5px solid var(--border);border-radius:18px;padding:20px;animation:fadeUp .4s ease both;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+  .post-header{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+  .post-avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+  .post-user{flex:1;}
+  .post-username{font-size:14px;font-weight:600;}
+  .post-meta{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;display:flex;align-items:center;gap:6px;margin-top:2px;}
+  .post-time{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;}
+
+  .post-content{font-size:14px;line-height:1.7;margin-bottom:14px;}
+  .post-tag{display:inline-block;padding:2px 10px;border-radius:12px;background:var(--tag-bg);font-size:12px;color:var(--accent);margin-right:6px;margin-bottom:6px;cursor:pointer;}
+  .post-tag:hover{background:var(--accent);color:white;}
+
+  .post-images{display:grid;gap:6px;margin-bottom:14px;border-radius:12px;overflow:hidden;}
+  .post-images.one{grid-template-columns:1fr;}
+  .post-images.two{grid-template-columns:1fr 1fr;}
+  .post-images.three{grid-template-columns:1fr 1fr 1fr;}
+  .post-img{background:var(--tag-bg);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:40px;aspect-ratio:1;cursor:pointer;transition:transform .2s;}
+  .post-img:hover{transform:scale(1.02);}
+
+  .post-restaurant{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--tag-bg);border-radius:12px;margin-bottom:14px;cursor:pointer;transition:all .2s;}
+  .post-restaurant:hover{background:var(--border);}
+  .post-restaurant-emoji{font-size:22px;}
+  .post-restaurant-name{font-size:13px;font-weight:600;}
+  .post-restaurant-rating{font-size:12px;color:var(--accent);}
+
+  .post-footer{display:flex;align-items:center;gap:4px;padding-top:12px;border-top:1px solid var(--border);}
+  .post-action{display:flex;align-items:center;gap:5px;padding:6px 14px;border-radius:20px;border:none;background:transparent;font-size:13px;cursor:pointer;color:var(--muted);font-family:'Noto Sans SC',sans-serif;transition:all .2s;flex:1;justify-content:center;}
+  .post-action:hover{background:var(--tag-bg);color:var(--ink);}
+  .post-action.liked{color:var(--accent);}
+  .post-action.liked .action-icon{animation:heartBeat .3s ease;}
+  @keyframes heartBeat{0%{transform:scale(1)}50%{transform:scale(1.4)}100%{transform:scale(1)}}
+
+  /* Comments */
+  .comments-section{margin-top:12px;padding-top:12px;border-top:1px solid var(--border);display:none;}
+  .comments-section.open{display:block;}
+  .comment{display:flex;gap:10px;margin-bottom:12px;}
+  .comment-avatar{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;background:var(--tag-bg);}
+  .comment-body{flex:1;background:var(--tag-bg);border-radius:12px;padding:8px 12px;}
+  .comment-user{font-size:12px;font-weight:600;margin-bottom:3px;}
+  .comment-text{font-size:13px;line-height:1.5;}
+  .comment-input-wrap{display:flex;gap:8px;margin-top:8px;}
+  .comment-input{flex:1;border:1.5px solid var(--border);border-radius:24px;padding:8px 14px;font-size:13px;font-family:'Noto Sans SC',sans-serif;background:var(--paper);outline:none;}
+  .comment-input:focus{border-color:var(--accent);}
+  .comment-send{width:34px;height:34px;border-radius:50%;background:var(--accent);border:none;color:white;cursor:pointer;font-size:14px;flex-shrink:0;}
+
+  /* Sidebar */
+  .sidebar{display:flex;flex-direction:column;gap:16px;}
+  .side-box{background:var(--card);border:1.5px solid var(--border);border-radius:18px;padding:18px;}
+  .side-title{font-family:'Noto Serif SC',serif;font-size:15px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:6px;}
+  .hot-topic{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);cursor:pointer;transition:all .15s;}
+  .hot-topic:last-child{border-bottom:none;}
+  .hot-topic:hover{transform:translateX(4px);}
+  .hot-rank{font-family:'Noto Serif SC',serif;font-size:16px;font-weight:900;width:20px;}
+  .hot-rank.r1{color:var(--accent);}
+  .hot-rank.r2{color:var(--accent2);}
+  .hot-rank.r3{color:#cd7f32;}
+  .hot-rank.rest{color:var(--border);}
+  .hot-text{flex:1;font-size:13px;line-height:1.4;}
+  .hot-count{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;}
+
+  .active-user{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);}
+  .active-user:last-child{border-bottom:none;}
+  .active-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+  .active-name{font-size:13px;font-weight:500;}
+  .active-posts{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;}
+  .follow-btn{padding:4px 12px;border-radius:12px;border:1.5px solid var(--border);background:transparent;font-size:11px;cursor:pointer;font-family:'Noto Sans SC',sans-serif;transition:all .15s;}
+  .follow-btn:hover,.follow-btn.following{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+
+  /* Compose Modal */
+  .modal-overlay{position:fixed;inset:0;background:rgba(26,18,9,.6);backdrop-filter:blur(8px);z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;}
+  .modal-overlay.open{opacity:1;pointer-events:all;}
+  .compose-modal{background:var(--paper);border-radius:20px;padding:28px;width:560px;max-width:95vw;transform:scale(.95);transition:transform .3s;}
+  .modal-overlay.open .compose-modal{transform:scale(1);}
+  .modal-title{font-family:'Noto Serif SC',serif;font-size:18px;font-weight:700;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;}
+  .modal-close-btn{width:32px;height:32px;border-radius:50%;border:1.5px solid var(--border);background:var(--card);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;}
+  .compose-textarea{width:100%;min-height:120px;border:1.5px solid var(--border);border-radius:12px;padding:14px;font-size:14px;font-family:'Noto Sans SC',sans-serif;background:var(--paper);resize:vertical;outline:none;margin-bottom:14px;line-height:1.7;}
+  .compose-textarea:focus{border-color:var(--accent);}
+  .compose-options{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+  .compose-opt{padding:6px 14px;border-radius:20px;border:1.5px solid var(--border);background:transparent;font-size:12px;cursor:pointer;color:var(--muted);font-family:'Noto Sans SC',sans-serif;transition:all .2s;}
+  .compose-opt:hover,.compose-opt.sel{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .compose-submit{width:100%;padding:14px;border-radius:12px;background:var(--accent);color:white;border:none;font-size:15px;cursor:pointer;font-family:'Noto Sans SC',sans-serif;box-shadow:0 4px 16px rgba(232,93,38,.3);transition:all .2s;}
+  .compose-submit:hover{background:#d14e1a;}
+
+  .filter-tabs{display:flex;gap:8px;margin-bottom:20px;}
+  .filter-tab{padding:6px 16px;border-radius:20px;border:1.5px solid var(--border);background:var(--card);font-size:13px;cursor:pointer;color:var(--muted);font-family:'Noto Sans SC',sans-serif;transition:all .2s;}
+  .filter-tab.active{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+</style>
+</head>
+<body>
+
+<header>
+  <div style="display:flex;align-items:center;gap:16px">
+    <a href="index.html" style="text-decoration:none">
+      <div class="logo"><span class="logo-main">觅食</span><span class="logo-dot"></span></div>
+    </a>
+    <div class="nav-tabs">
+      <div class="nav-tab" onclick="location.href='index.html'">美食地图</div>
+      <div class="nav-tab active">校园圈</div>
+    </div>
+  </div>
+  <div style="display:flex;gap:10px;align-items:center">
+    <div id="userArea" style="font-size:12px;color:var(--muted)"></div>
+    <button class="hbtn accent" onclick="openCompose()">✏️ 发帖</button>
+    <button class="hbtn" onclick="location.href='login.html'" id="loginBtn">登录</button>
+    <button class="hbtn" onclick="Auth.logout()" id="logoutBtn" style="display:none">退出</button>
+  </div>
+</header>
+
+<div class="page-wrap">
+  <div>
+    <!-- 发帖入口 -->
+    <div class="compose-box">
+      <div class="compose-header">
+        <div class="avatar" id="composeAvatar">😊</div>
+        <button class="compose-placeholder" onclick="openCompose()">分享你的觅食体验，或者问问大家推荐什么…</button>
+      </div>
+      <div class="compose-actions">
+        <button class="compose-btn" onclick="openCompose()">📸 晒美食</button>
+        <button class="compose-btn" onclick="openCompose()">⭐ 写评测</button>
+        <button class="compose-btn" onclick="openCompose()">❓ 求推荐</button>
+      </div>
+    </div>
+
+    <!-- 筛选 -->
+    <div class="filter-tabs">
+      <div class="filter-tab active" onclick="setTab(this,'all')">全部动态</div>
+      <div class="filter-tab" onclick="setTab(this,'review')">🍽️ 美食评测</div>
+      <div class="filter-tab" onclick="setTab(this,'ask')">❓ 求推荐</div>
+      <div class="filter-tab" onclick="setTab(this,'share')">📸 晒图</div>
+    </div>
+
+    <!-- 动态列表 -->
+    <div class="feed" id="feed"></div>
+  </div>
+
+  <!-- 侧边栏 -->
+  <div class="sidebar">
+    <div class="side-box">
+      <div class="side-title">🔥 热门话题</div>
+      <div id="hotTopics"></div>
+    </div>
+    <div class="side-box">
+      <div class="side-title">👥 活跃吃货</div>
+      <div id="activeUsers"></div>
+    </div>
+    <div class="side-box" style="background:linear-gradient(135deg,#1a1209,#2d1a05);color:var(--paper)">
+      <div style="font-family:'Noto Serif SC',serif;font-size:15px;font-weight:700;margin-bottom:8px">📢 校园圈守则</div>
+      <div style="font-size:12px;line-height:1.8;color:rgba(253,246,227,.7)">
+        1. 真实分享，拒绝虚假广告<br>
+        2. 友善互动，不恶意刷屏<br>
+        3. 附上餐厅标签，方便大家找到<br>
+        4. 图片清晰，让美食更诱人 🍜
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 发帖 Modal -->
+<div class="modal-overlay" id="composeModal" onclick="closeComposeCheck(event)">
+  <div class="compose-modal">
+    <div class="modal-title">
+      ✏️ 发布动态
+      <button class="modal-close-btn" onclick="closeCompose()">✕</button>
+    </div>
+    <textarea class="compose-textarea" id="postContent" placeholder="分享你的觅食体验、推荐好店、或者求推荐都可以…"></textarea>
+    <div style="margin-bottom:12px">
+      <div style="font-size:12px;color:var(--muted);margin-bottom:8px;font-family:'DM Mono',monospace">动态类型</div>
+      <div class="compose-options">
+        <div class="compose-opt sel" onclick="selectType(this,'review')">🍽️ 美食评测</div>
+        <div class="compose-opt" onclick="selectType(this,'ask')">❓ 求推荐</div>
+        <div class="compose-opt" onclick="selectType(this,'share')">📸 晒图</div>
+        <div class="compose-opt" onclick="selectType(this,'checkin')">📍 打卡</div>
+      </div>
+    </div>
+    <div style="margin-bottom:16px">
+      <div style="font-size:12px;color:var(--muted);margin-bottom:8px;font-family:'DM Mono',monospace">关联餐厅（选填）</div>
+      <div class="compose-options" id="restaurantPicker"></div>
+    </div>
+    <button class="compose-submit" onclick="submitPost()">发布</button>
+  </div>
+</div>
+
+<script src="assets/api.js"></script>
+<script>
+// ── 示例数据 ────────────────────────────────────
+const POSTS = [
+  { id:1, type:'review', avatar:'🍜', username:'小米同学', campus:'理工大·计算机系', time:'10分钟前',
+    content:'重庆秀山小面真的绝了！今天点了牛肉面，汤底鲜辣，牛肉软烂入味，面条很有嚼劲。早上7点去还排了15分钟的队，完全值得！强烈推荐给没去过的同学 🔥',
+    restaurant:{emoji:'🍜', name:'重庆秀山小面', rating:4.9, id:2},
+    tags:['#小面推荐','#大学城美食','#早餐首选'],
+    images:['🍜','📸'], likes:48, comments:12, liked:false },
+  { id:2, type:'ask', avatar:'🤔', username:'爱吃的阿宝', campus:'师范大·中文系', time:'32分钟前',
+    content:'明天是室友生日，想找一个适合6-8人聚餐、有生日服务、人均60-80元的餐厅，最好在大学城内或附近。有没有推荐的？求助！🙏',
+    restaurant:null,
+    tags:['#求推荐','#聚餐','#生日'],
+    images:[], likes:23, comments:31, liked:false },
+  { id:3, type:'share', avatar:'☕', username:'咖啡星人', campus:'华师大·设计系', time:'1小时前',
+    content:'豆舍咖啡的桂花冷萃真的好喝！坐在落地窗边写作业，一下午过去了。WiFi很稳，插座也多，强推给需要在外面高效学习的同学。附赠一张今天的工位 ✨',
+    restaurant:{emoji:'☕', name:'Café Beanery 豆舍咖啡', rating:4.7, id:10},
+    tags:['#咖啡推荐','#学习圣地','#豆舍'],
+    images:['☕','🌸','💻'], likes:89, comments:24, liked:true },
+  { id:4, type:'checkin', avatar:'🥩', username:'烤肉爱好者', campus:'暨南大·金融系', time:'2小时前',
+    content:'韩尚宫五花肉今天超级香！老板娘说猪肉是今早刚到的，果然新鲜，烤出来焦香四溢。泡菜是自制的，酸辣爽口完全不像外面买的。4个人吃了3盘五花肉哈哈哈，太能吃了 😂',
+    restaurant:{emoji:'🥩', name:'韩尚宫韩式烤肉', rating:4.5, id:7},
+    tags:['#韩式烤肉','#五花肉','#打卡'],
+    images:['🥩','🥬'], likes:67, comments:18, liked:false },
+  { id:5, type:'review', avatar:'🥗', username:'健身达人Lisa', campus:'理工大·体育学院', time:'3小时前',
+    content:'减脂期的福音！绿·植物基轻食的超级食物碗，鸡胸肉+藜麦+牛油果+各种蔬菜，营养均衡热量只有480卡。最重要是好吃！不像其他轻食吃完还很饿，这个真的很扛饿。已经连续吃了两周的午餐了💪',
+    restaurant:{emoji:'🥗', name:'绿·植物基轻食', rating:4.6, id:8},
+    tags:['#轻食','#减脂','#健康饮食'],
+    images:['🥗'], likes:112, comments:45, liked:false },
+];
+
+const HOT_TOPICS = [
+  {text:'重庆秀山小面到底有多好吃？', count:'2.3k热度'},
+  {text:'大学城宵夜地图2026最新版', count:'1.8k热度'},
+  {text:'一个人吃饭推荐哪些？', count:'1.2k热度'},
+  {text:'豆舍咖啡vs其他咖啡馆对比', count:'986热度'},
+  {text:'食堂vs校外，你选哪个？', count:'743热度'},
+];
+
+const ACTIVE_USERS = [
+  {emoji:'🍜', name:'小米同学', campus:'理工大', posts:32},
+  {emoji:'☕', name:'咖啡星人', campus:'华师大', posts:28},
+  {emoji:'🥗', name:'健身达人Lisa', campus:'理工大', posts:21},
+  {emoji:'🤔', name:'爱吃的阿宝', campus:'师范大', posts:19},
+];
+
+// ── 渲染 ────────────────────────────────────────
+function renderFeed(posts) {
+  document.getElementById('feed').innerHTML = posts.map((p,i) => `
+    <div class="post-card" style="animation-delay:${i*0.07}s">
+      <div class="post-header">
+        <div class="post-avatar" style="background:${['#fff3e0','#e8f5e9','#fce4ec','#e3f2fd','#f3e5f5'][i%5]};font-size:20px">${p.avatar}</div>
+        <div class="post-user">
+          <div class="post-username">${p.username}</div>
+          <div class="post-meta">
+            <span>📍 ${p.campus}</span>
+            <span style="background:${typeColor(p.type)};color:white;padding:1px 7px;border-radius:10px;font-size:10px">${typeLabel(p.type)}</span>
+          </div>
+        </div>
+        <div class="post-time">${p.time}</div>
+      </div>
+      <div class="post-content">${p.content}</div>
+      ${p.images.length ? `<div class="post-images ${['','one','two','three'][Math.min(p.images.length,3)]}">
+        ${p.images.slice(0,3).map(img => `<div class="post-img">${img}</div>`).join('')}
+      </div>` : ''}
+      ${p.tags.map(t => `<span class="post-tag">${t}</span>`).join('')}
+      ${p.restaurant ? `
+        <div class="post-restaurant" onclick="location.href='index.html'">
+          <span class="post-restaurant-emoji">${p.restaurant.emoji}</span>
+          <div>
+            <div class="post-restaurant-name">${p.restaurant.name}</div>
+            <div class="post-restaurant-rating">★ ${p.restaurant.rating} · 点击查看详情</div>
+          </div>
+          <span style="margin-left:auto;color:var(--muted);font-size:12px">→</span>
+        </div>` : ''}
+      <div class="post-footer">
+        <button class="post-action ${p.liked?'liked':''}" onclick="toggleLike(this,${p.id})">
+          <span class="action-icon">${p.liked?'❤️':'🤍'}</span> <span class="like-count">${p.likes}</span>
+        </button>
+        <button class="post-action" onclick="toggleComments(${p.id})">
+          💬 <span>${p.comments}</span>
+        </button>
+        <button class="post-action" onclick="sharePost(${p.id})">
+          🔗 分享
+        </button>
+      </div>
+      <div class="comments-section" id="comments-${p.id}">
+        <div class="comment">
+          <div class="comment-avatar">😊</div>
+          <div class="comment-body">
+            <div class="comment-user">路人甲</div>
+            <div class="comment-text">太馋了！明天就去！</div>
+          </div>
+        </div>
+        <div class="comment-input-wrap">
+          <input class="comment-input" placeholder="发表评论…" onkeydown="if(event.key==='Enter')addComment(this,${p.id})">
+          <button class="comment-send" onclick="addComment(this.previousElementSibling,${p.id})">↑</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function typeLabel(t){return{review:'美食评测',ask:'求推荐',share:'晒图',checkin:'打卡'}[t]||'动态';}
+function typeColor(t){return{review:'#e85d26',ask:'#2d7a4f',share:'#f4b942',checkin:'#7c5cbf'}[t]||'#8a7a6a';}
+
+function renderHotTopics() {
+  document.getElementById('hotTopics').innerHTML = HOT_TOPICS.map((t,i) => `
+    <div class="hot-topic">
+      <span class="hot-rank ${['r1','r2','r3','rest','rest'][i]}">${i+1}</span>
+      <span class="hot-text">${t.text}</span>
+      <span class="hot-count">${t.count}</span>
+    </div>`).join('');
+}
+
+function renderActiveUsers() {
+  document.getElementById('activeUsers').innerHTML = ACTIVE_USERS.map(u => `
+    <div class="active-user">
+      <div class="active-avatar" style="background:var(--tag-bg)">${u.emoji}</div>
+      <div style="flex:1">
+        <div class="active-name">${u.name}</div>
+        <div class="active-posts">${u.campus} · ${u.posts}篇动态</div>
+      </div>
+      <button class="follow-btn" onclick="this.classList.toggle('following');this.textContent=this.classList.contains('following')?'已关注':'关注'">关注</button>
+    </div>`).join('');
+}
+
+// ── 交互 ────────────────────────────────────────
+function toggleLike(btn, id) {
+  if (!Auth.isLoggedIn()) { showToast('请先登录', 'error'); return; }
+  const liked = btn.classList.toggle('liked');
+  const icon = btn.querySelector('.action-icon');
+  const count = btn.querySelector('.like-count');
+  icon.textContent = liked ? '❤️' : '🤍';
+  count.textContent = parseInt(count.textContent) + (liked ? 1 : -1);
+}
+
+function toggleComments(id) {
+  const el = document.getElementById(`comments-${id}`);
+  el.classList.toggle('open');
+}
+
+function addComment(input, id) {
+  if (!Auth.isLoggedIn()) { showToast('请先登录', 'error'); return; }
+  const text = input.value.trim();
+  if (!text) return;
+  const section = document.getElementById(`comments-${id}`);
+  const user = Auth.getUser();
+  const div = document.createElement('div');
+  div.className = 'comment';
+  div.innerHTML = `
+    <div class="comment-avatar">😊</div>
+    <div class="comment-body">
+      <div class="comment-user">${user?.nickname || '我'}</div>
+      <div class="comment-text">${text}</div>
+    </div>`;
+  section.insertBefore(div, section.querySelector('.comment-input-wrap'));
+  input.value = '';
+  showToast('评论发布成功！', 'success');
+}
+
+function sharePost(id) { showToast('链接已复制到剪贴板', 'success'); }
+
+function setTab(el, type) {
+  document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  const filtered = type === 'all' ? POSTS : POSTS.filter(p => p.type === type);
+  renderFeed(filtered);
+}
+
+// ── 发帖 Modal ────────────────────────────────────
+let selectedType = 'review';
+function openCompose() {
+  if (!Auth.isLoggedIn()) { showToast('请先登录再发帖', 'error'); setTimeout(() => location.href='login.html', 800); return; }
+  document.getElementById('composeModal').classList.add('open');
+  loadRestaurantPicker();
+}
+function closeCompose() { document.getElementById('composeModal').classList.remove('open'); }
+function closeComposeCheck(e) { if (e.target === document.getElementById('composeModal')) closeCompose(); }
+
+function selectType(el, type) {
+  document.querySelectorAll('.compose-opt').forEach(o => o.classList.remove('sel'));
+  el.classList.add('sel');
+  selectedType = type;
+}
+
+async function loadRestaurantPicker() {
+  try {
+    const data = await RestaurantAPI.list({ page_size: 6, sort: 'rating' });
+    document.getElementById('restaurantPicker').innerHTML =
+      data.items.map(r => `<div class="compose-opt" onclick="this.classList.toggle('sel')">${r.emoji} ${r.name}</div>`).join('');
+  } catch(e) {}
+}
+
+function submitPost() {
+  const content = document.getElementById('postContent').value.trim();
+  if (!content) { showToast('请输入内容', 'error'); return; }
+  const user = Auth.getUser();
+  const newPost = {
+    id: Date.now(), type: selectedType,
+    avatar: '😊', username: user?.nickname || user?.username || '我',
+    campus: user?.campus || '大学城', time: '刚刚',
+    content, restaurant: null, tags: [], images: [],
+    likes: 0, comments: 0, liked: false,
+  };
+  POSTS.unshift(newPost);
+  renderFeed(POSTS);
+  closeCompose();
+  document.getElementById('postContent').value = '';
+  showToast('发布成功！', 'success');
+}
+
+// ── 初始化 ────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  const user = Auth.getUser();
+  if (Auth.isLoggedIn() && user) {
+    document.getElementById('loginBtn').style.display = 'none';
+    document.getElementById('logoutBtn').style.display = '';
+    document.getElementById('userArea').textContent = `👤 ${user.nickname || user.username}`;
+    document.getElementById('composeAvatar').textContent = '😊';
+  }
+  renderFeed(POSTS);
+  renderHotTopics();
+  renderActiveUsers();
+});
+</script>
+</body>
+</html>
