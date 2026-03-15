@@ -11,7 +11,7 @@
 
 > 无需部署，点击直接在浏览器查看所有页面效果：
 >
-> **[👉 点击查看在线预览 Demo](https://zhangzijun.github.io/campus-food-map/)**
+> **[👉 点击查看在线预览 Demo](https://zjzhangjob-cmd.github.io/campus-food-map/)**
 
 ---
 
