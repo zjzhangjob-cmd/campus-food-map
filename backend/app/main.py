@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.core.database import Base, engine
-from app.api import auth, restaurants, reviews, ai, admin
+from app.api import auth, restaurants, reviews, ai, admin, points
 
 # 创建数据库表
 Base.metadata.create_all(bind=engine)
@@ -30,6 +30,8 @@ app.include_router(restaurants.router)
 app.include_router(reviews.router)
 app.include_router(ai.router)
 app.include_router(admin.router)
+app.include_router(points.router)
+
 
 @app.get("/", tags=["健康检查"])
 def root():

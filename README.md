@@ -11,7 +11,7 @@
 
 > 无需部署，点击直接在浏览器查看所有页面效果：
 >
-> **[👉 点击查看在线预览 Demo](https://zhangzijun.github.io/campus-food-map/)**
+> **[👉 点击查看在线预览 Demo](https://zjzhangjob-cmd.github.io/campus-food-map/)**
 
 ---
 
@@ -22,9 +22,11 @@
 | 🔍 智能搜索 | 按名称、菜系、标签实时搜索 |
 | 🤖 AI 推荐 | 描述心情即可获得个性化推荐 |
 | 🗺️ 高德地图 | 餐厅位置可视化，点击定位，一键导航 |
-| 🎟️ 学生优惠 | 聚合周边优惠活动，一键领取 |
+| 🎟️ 学生优惠 | 聚合周边优惠活动 |
 | ❤️ 收藏 & 评价 | 登录后可收藏餐厅、发布评价 |
-| 🏆 口碑榜 | 实时评分排名 |
+| 🎯 趣味模式 | 随机转盘 + 美食PK赛，还能赚积分 |
+| 🏆 积分体系 | 签到/评价/PK赛获得积分，兑换优惠券 |
+| 👤 个人主页 | 积分等级、美食专家徽章、收藏、关注 |
 | 👥 校园圈 | 发帖、评论、点赞、求推荐 |
 | 🛠️ 管理后台 | 餐厅 / 优惠 / 用户 / 评价管理 |
 
@@ -36,85 +38,129 @@
 前端：HTML5 + CSS3 + Vanilla JS + 高德地图 JS API
 后端：Python 3.11 + FastAPI + SQLAlchemy ORM
 数据库：SQLite（内置，无需安装任何数据库）
-AI：Anthropic Claude API（选填）
+AI：Anthropic Claude API（选填，不填则用规则推荐）
 ```
 
 ---
 
-## 🚀 快速开始（3步启动）
+## 🚀 快速开始
 
-### 环境要求
+### ⚠️ 环境要求
 
 - macOS / Linux
-- Python 3.9 ~ 3.13（**推荐 3.11**，3.14 暂不支持）
+- **Python 3.9 ~ 3.12**（**强烈推荐 3.11**）
+- ❌ **不支持 Python 3.13 / 3.14**（pydantic-core 不兼容）
 
-> ⚠️ 如果你是 Python 3.14，请先安装 3.11：
-> ```bash
-> brew install python@3.11
-> ```
+查看 Python 版本：
+```bash
+python3 --version
+```
+
+如果版本不对，安装 3.11：
+```bash
+brew install python@3.11
+```
 
 ---
 
 ### 第一步：克隆项目
 
 ```bash
-git clone https://github.com/你的用户名/campus-food-map.git
+git clone https://github.com/zjzhangjob-cmd/campus-food-map.git
 cd campus-food-map
 ```
 
 ---
 
-### 第二步：一键初始化
+### 第二步：创建 .env 配置文件
 
 ```bash
-bash setup.sh
+cp .env.example .env
 ```
 
-首次运行会生成 `.env` 文件，**用文本编辑器打开填写配置后再运行一次**：
+用文本编辑器打开 `.env`，**只需改这一行**（把路径换成你电脑上的实际路径）：
 
 ```bash
-open -e .env   # macOS
+# 打开编辑
+open -e .env
 ```
 
-**.env 只需填这一行（其余可选）：**
-
-```bash
-# SQLite 无需安装数据库，保持默认即可
-DATABASE_URL=sqlite:////完整路径/campus-food-map/backend/campus_food.db
-
-# 可选：Claude AI 推荐（不填则用规则推荐，功能正常）
-# 申请：https://console.anthropic.com
-ANTHROPIC_API_KEY=sk-ant-xxxxxxxx
-
-# 可选：高德地图（不填则显示占位图）
-# 申请：https://console.amap.com → Web服务 Key
-AMAP_KEY=你的高德Key
+找到这一行，改成你的实际路径：
+```
+DATABASE_URL=sqlite:////你的用户名/路径/campus-food-map/backend/campus_food.db
 ```
 
-> 💡 `DATABASE_URL` 中的完整路径示例：
-> `/Users/yourname/Downloads/campus-food-map/backend/campus_food.db`
+例如用户名是 `zhangsan`，路径是 Downloads：
+```
+DATABASE_URL=sqlite:////Users/zhangsan/Downloads/campus-food-map/backend/campus_food.db
+```
 
-再次运行初始化：
+> 💡 查看你的实际路径：在终端执行 `pwd`，把结果中的 `campus-food-map` 后面加上 `/backend/campus_food.db`
+
+其余配置均为选填，不影响基本功能：
 ```bash
-bash setup.sh
+# 选填：Claude AI 推荐（不填则用规则推荐，功能正常）
+ANTHROPIC_API_KEY=
+
+# 选填：高德地图 Web 服务 Key（不填地图不显示）
+AMAP_KEY=
+
+# 选填：高德地图 JS API Key（不填地图不显示）
+# 申请地址：https://console.amap.com → 创建应用 → JS API
+AMAP_JS_KEY=
 ```
 
 ---
 
-### 第三步：启动
+### 第三步：初始化环境（首次运行）
 
 ```bash
-bash start.sh
+bash setup.sh
 ```
 
-浏览器自动打开，访问地址：
+> 如果遇到 Python 版本问题，手动执行：
+> ```bash
+> cd backend
+> python3.11 -m venv venv
+> source venv/bin/activate
+> pip install -r requirements.txt --break-system-packages
+> cd ..
+> ```
+
+---
+
+### 第四步：启动项目
+
+**终端一（后端）：**
+```bash
+cd backend
+source venv/bin/activate
+python -m app.init_db   # 首次运行建表并导入餐厅数据
+uvicorn app.main:app --reload --port 8000
+```
+
+看到 `Uvicorn running on http://127.0.0.1:8000` 表示后端启动成功。
+
+**终端二（前端）：**
+```bash
+cd campus-food-map   # 项目根目录
+python3 -m http.server 3000 --directory frontend
+```
+
+浏览器打开：**http://localhost:3000**
+
+---
+
+### 页面入口
 
 | 地址 | 说明 |
 |------|------|
 | http://localhost:3000 | 🌐 美食地图主页 |
+| http://localhost:3000/fun.html | 🎯 趣味模式（转盘+PK赛）|
+| http://localhost:3000/profile.html | 👤 个人主页 & 积分中心 |
+| http://localhost:3000/circle.html | 👥 校园圈 |
 | http://localhost:3000/login.html | 🔐 登录 / 注册 |
 | http://localhost:3000/admin.html | 🛠️ 管理后台 |
-| http://localhost:3000/circle.html | 👥 校园圈 |
 | http://localhost:8000/docs | 📖 API 交互文档 |
 
 **内置测试账号：**
@@ -124,9 +170,95 @@ bash start.sh
 | 管理员 | `admin` | `admin123` |
 | 普通用户 | `student` | `student123` |
 
+---
+
+## ❓ 常见问题
+
+### 后端启动报 MySQL 连接错误
+
+`.env` 里的 `DATABASE_URL` 路径不对，或者 `config.py` 默认值是 MySQL。
+
+**解决：** 直接在终端覆盖 config.py 的默认值：
 ```bash
-bash stop.sh   # 停止所有服务
+cat > backend/app/core/config.py << 'EOF'
+from pydantic_settings import BaseSettings
+from typing import List
+import os
+
+_ENV_PATH = os.path.join(os.path.dirname(__file__), "../../../.env")
+
+class Settings(BaseSettings):
+    APP_NAME: str = "觅食·大学城美食地图"
+    DEBUG: bool = True
+    DATABASE_URL: str = "sqlite:///./campus_food.db"
+    SECRET_KEY: str = "campus-food-map-secret-key"
+    ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 10080
+    ANTHROPIC_API_KEY: str = ""
+    AMAP_KEY: str = ""
+    AMAP_JS_KEY: str = ""
+    ALLOWED_ORIGINS: str = "http://localhost:3000,http://127.0.0.1:3000"
+
+    @property
+    def origins(self) -> List[str]:
+        return [o.strip() for o in self.ALLOWED_ORIGINS.split(",")]
+
+    class Config:
+        env_file = _ENV_PATH
+        extra = "ignore"
+
+settings = Settings()
+EOF
 ```
+
+### 餐厅加载失败 / Failed to fetch
+
+后端没有在运行，或端口不对。
+
+**解决：**
+```bash
+# 确认后端是否在跑
+curl http://localhost:8000/health
+
+# 确认前端请求的端口
+grep BASE_URL frontend/assets/api.js
+# 应该显示 http://localhost:8000
+```
+
+### Python 版本不兼容（3.13/3.14）
+
+```bash
+brew install python@3.11
+cd backend
+rm -rf venv
+python3.11 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
+### 地图显示「点击配置高德地图」
+
+需要配置高德 JS API Key：
+1. 前往 [高德开放平台](https://console.amap.com) 注册并创建应用
+2. 申请「JS API」类型的 Key
+3. 在 `.env` 里填入：`AMAP_JS_KEY=你的Key`
+4. 执行注入：
+```bash
+sed -i '' "s/AMAP_JS_KEY_PLACEHOLDER/你的Key/g" frontend/index.html
+```
+
+### 端口被占用
+
+```bash
+# 查看占用 8000 端口的进程
+lsof -i :8000
+# 杀掉进程（把 PID 换成上面看到的数字）
+kill -9 PID
+```
+
+### 登录很慢或超时
+
+说明后端没有在运行，不是代码慢。检查后端终端是否有报错，重启后端即可。
 
 ---
 
@@ -137,23 +269,26 @@ campus-food-map/
 ├── backend/
 │   ├── app/
 │   │   ├── main.py              # FastAPI 入口
-│   │   ├── init_db.py           # 数据库初始化 & 10家示例餐厅
-│   │   ├── api/                 # 路由：auth / restaurants / reviews / ai / admin
+│   │   ├── init_db.py           # 数据库初始化 & 示例餐厅数据
+│   │   ├── api/                 # 路由：auth/restaurants/reviews/ai/admin/points
 │   │   ├── models/              # SQLAlchemy 数据库模型
 │   │   ├── schemas/             # Pydantic 数据验证
-│   │   ├── core/                # 配置 / 数据库连接 / JWT 认证
+│   │   ├── core/                # 配置/数据库连接/JWT 认证
 │   │   └── services/            # Claude AI 推荐服务
 │   └── requirements.txt
 ├── frontend/
 │   ├── index.html               # 主页（美食地图）
+│   ├── fun.html                 # 趣味模式（转盘+PK赛）
+│   ├── profile.html             # 个人主页 & 积分中心
+│   ├── circle.html              # 校园圈
 │   ├── login.html               # 登录 / 注册
 │   ├── admin.html               # 管理后台
-│   ├── circle.html              # 校园圈
 │   └── assets/api.js            # 统一 API 请求封装
+├── docs/
+│   └── index.html               # GitHub Pages 在线预览
 ├── setup.sh                     # 初始化脚本
-├── start.sh                     # 启动脚本
+├── start.sh                     # 启动脚本（含高德Key注入）
 ├── stop.sh                      # 停止脚本
-├── update.sh                    # 更新脚本
 ├── .env.example                 # 环境变量模板
 └── .gitignore
 ```
@@ -168,56 +303,18 @@ campus-food-map/
 | POST | `/api/auth/login` | 用户登录 |
 | GET  | `/api/restaurants` | 餐厅列表（筛选/排序/分页）|
 | GET  | `/api/restaurants/{id}` | 餐厅详情 |
-| POST | `/api/restaurants/{id}/favorite` | 收藏 / 取消 |
+| POST | `/api/restaurants/{id}/favorite` | 收藏/取消 |
 | POST | `/api/reviews` | 发布评价 |
 | POST | `/api/ai/recommend` | AI 推荐 |
-| GET  | `/api/admin/stats` | 管理员统计 |
+| GET  | `/api/points/me` | 我的积分 |
+| POST | `/api/points/earn` | 获取积分 |
+| POST | `/api/points/redeem` | 兑换积分 |
+| GET  | `/api/points/ranking` | 积分排行榜 |
 
-完整交互文档：http://localhost:8000/docs
-
----
-
-## ❓ 常见问题
-
-**Python 3.14 安装依赖失败**
-```bash
-brew install python@3.11
-cd backend && rm -rf venv
-python3.11 -m venv venv && source venv/bin/activate
-pip install -r requirements.txt
-```
-
-**端口被占用**
-```bash
-lsof -i :8000   # 查看占用进程
-kill -9 <PID>   # 终止进程
-```
-
-**餐厅加载失败 / Failed to fetch**
-```bash
-# 确认后端在运行
-curl http://localhost:8000/health
-# 确认 api.js 端口正确
-grep BASE_URL frontend/assets/api.js
-```
-
-**数据库重置（清空所有数据重新初始化）**
-```bash
-rm backend/campus_food.db
-cd backend && source venv/bin/activate && python -m app.init_db
-```
-
----
-
-## 🔄 更新到最新版本
-
-```bash
-cd campus-food-map
-bash update.sh
-```
+完整文档：http://localhost:8000/docs
 
 ---
 
 ## 📄 License
 
-MIT License — 自由使用，欢迎 Star ⭐ 和 Fork 🍴
+MIT License · 欢迎 Star ⭐ 和 Fork 🍴

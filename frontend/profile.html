@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>我的主页 · 觅食</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@700;900&family=Noto+Sans+SC:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1a1209;--paper:#fdf6e3;--accent:#e85d26;--accent2:#f4b942;
+  --accent3:#2d7a4f;--muted:#8a7a6a;--border:#e8dcc8;--card:#fffdf7;--tag:#f0e8d8;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Noto Sans SC',sans-serif;background:#f0e8d8;color:var(--ink);min-height:100vh;max-width:480px;margin:0 auto;}
+
+/* ── 动画 ── */
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.2)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes barGrow{from{width:0}to{width:var(--w)}}
+@keyframes glow{0%,100%{box-shadow:0 0 12px rgba(244,185,66,.3)}50%{box-shadow:0 0 24px rgba(244,185,66,.6)}}
+@keyframes badgePop{0%{transform:scale(0) rotate(-10deg)}60%{transform:scale(1.1) rotate(3deg)}100%{transform:scale(1) rotate(0)}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+
+/* ── Header ── */
+.hdr{background:rgba(253,246,227,.95);border-bottom:1px solid var(--border);padding:0 16px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;backdrop-filter:blur(12px);}
+.hdr-back{display:flex;align-items:center;gap:5px;font-size:13px;color:var(--muted);cursor:pointer;text-decoration:none;}
+.hdr-back svg{width:16px;height:16px;}
+.hdr-title{font-family:'Noto Serif SC',serif;font-size:16px;font-weight:700;}
+.hdr-action{font-size:12px;color:var(--accent);cursor:pointer;display:flex;align-items:center;gap:4px;}
+.hdr-action svg{width:14px;height:14px;}
+
+/* ── Tab 导航 ── */
+.tabs{display:flex;background:var(--card);border-bottom:1px solid var(--border);position:sticky;top:52px;z-index:40;}
+.tab{flex:1;padding:11px 0;text-align:center;font-size:12px;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:4px;}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent);font-weight:500;}
+.tab svg{width:13px;height:13px;}
+
+/* ── 内容区 ── */
+.panel{display:none;padding-bottom:80px;}
+.panel.active{display:block;}
+
+/* ── 封面 & 头像 ── */
+.cover{height:160px;position:relative;overflow:hidden;}
+.cover-bg{width:100%;height:100%;background:linear-gradient(135deg,#1a1209 0%,#3d2010 35%,#e85d26 100%);}
+.cover-pattern{position:absolute;inset:0;opacity:.06;background-image:radial-gradient(circle,#fff 1px,transparent 1px);background-size:18px 18px;}
+.cover-stars{position:absolute;inset:0;overflow:hidden;}
+.star{position:absolute;background:#f4b942;border-radius:50%;animation:pulse 2s infinite;}
+.cover-title{position:absolute;bottom:50px;left:20px;font-family:'Noto Serif SC',serif;font-size:22px;font-weight:900;color:rgba(253,246,227,.15);letter-spacing:-1px;white-space:nowrap;}
+.cover-emoji{position:absolute;bottom:8px;right:16px;font-size:52px;opacity:.2;animation:float 4s ease-in-out infinite;}
+.avatar-wrap{position:absolute;bottom:-44px;left:20px;}
+.avatar{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:32px;border:4px solid #f0e8d8;box-shadow:0 4px 20px rgba(0,0,0,.2);position:relative;}
+.avatar-level{position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);padding:2px 10px;border-radius:12px;font-size:10px;font-weight:700;letter-spacing:.5px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.2);}
+
+/* ── 用户信息 ── */
+.user-info{background:var(--card);padding:54px 20px 16px;border-bottom:1px solid var(--border);}
+.user-name-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap;}
+.user-name{font-family:'Noto Serif SC',serif;font-size:20px;font-weight:700;}
+.expert-badge{display:flex;align-items:center;gap:4px;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:500;}
+.user-bio{font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:10px;}
+.user-meta{display:flex;gap:12px;font-size:11px;color:var(--muted);margin-bottom:14px;flex-wrap:wrap;}
+.user-meta span{display:flex;align-items:center;gap:3px;}
+.user-meta svg{width:12px;height:12px;}
+.follow-row{display:flex;gap:0;border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:12px;}
+.follow-stat{flex:1;text-align:center;padding:10px 0;cursor:pointer;border-right:1px solid var(--border);transition:background .15s;}
+.follow-stat:last-child{border-right:none;}
+.follow-stat:hover{background:var(--tag);}
+.follow-stat .n{font-size:18px;font-weight:500;}
+.follow-stat .l{font-size:10px;color:var(--muted);margin-top:1px;}
+.btn-row{display:flex;gap:8px;}
+.btn{flex:1;padding:9px;border-radius:10px;font-size:13px;cursor:pointer;font-family:'Noto Sans SC',sans-serif;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:5px;}
+.btn svg{width:14px;height:14px;}
+.btn-outline{border:1px solid var(--border);background:transparent;color:var(--ink);}
+.btn-outline:hover{border-color:var(--accent);color:var(--accent);}
+.btn-accent{border:none;background:var(--accent);color:white;box-shadow:0 3px 10px rgba(232,93,38,.25);}
+
+/* ── 游戏化积分卡 ── */
+.points-hero{margin:14px;border-radius:20px;overflow:hidden;animation:glow 3s infinite;}
+.ph-top{background:linear-gradient(135deg,#1a1209,#2d1a05);padding:20px;position:relative;overflow:hidden;}
+.ph-deco1{position:absolute;width:180px;height:180px;border-radius:50%;background:rgba(244,185,66,.07);top:-80px;right:-60px;}
+.ph-deco2{position:absolute;width:100px;height:100px;border-radius:50%;background:rgba(232,93,38,.08);bottom:-40px;left:-20px;}
+.ph-row{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;position:relative;z-index:1;}
+.ph-left{}
+.ph-label{font-size:10px;color:rgba(253,246,227,.4);letter-spacing:1px;margin-bottom:4px;}
+.ph-pts{font-size:38px;font-weight:500;color:var(--accent2);line-height:1;}
+.ph-expire{font-size:10px;color:rgba(253,246,227,.35);margin-top:4px;}
+.ph-right{text-align:right;}
+.ph-badge-wrap{display:flex;flex-direction:column;align-items:flex-end;gap:4px;}
+.ph-badge-icon{font-size:36px;animation:float 3s ease-in-out infinite;filter:drop-shadow(0 4px 8px rgba(0,0,0,.3));}
+.ph-badge-name{font-size:12px;font-weight:500;color:var(--accent2);}
+.ph-badge-next{font-size:10px;color:rgba(253,246,227,.4);}
+.ph-progress{position:relative;z-index:1;}
+.ph-prog-labels{display:flex;justify-content:space-between;font-size:9px;color:rgba(253,246,227,.4);margin-bottom:5px;}
+.ph-prog-bg{height:7px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden;}
+.ph-prog-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--accent2),var(--accent));width:0;animation:barGrow 1.2s ease .4s forwards;}
+.ph-bottom{background:linear-gradient(135deg,#2d1a05,#1a1209);padding:14px 20px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;border-top:1px solid rgba(255,255,255,.06);}
+.ph-stat{text-align:center;border-right:1px solid rgba(255,255,255,.06);padding:4px 0;}
+.ph-stat:last-child{border-right:none;}
+.ph-stat-n{font-size:16px;font-weight:500;color:var(--accent2);}
+.ph-stat-l{font-size:9px;color:rgba(253,246,227,.35);margin-top:2px;}
+
+/* ── 美食专家徽章 ── */
+.expert-section{margin:0 14px 14px;}
+.section-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.section-title{font-family:'Noto Serif SC',serif;font-size:15px;font-weight:700;display:flex;align-items:center;gap:6px;}
+.section-more{font-size:12px;color:var(--accent);cursor:pointer;}
+.expert-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.expert-card{background:var(--card);border-radius:14px;padding:14px;border:1px solid var(--border);position:relative;overflow:hidden;transition:all .2s;}
+.expert-card:hover{transform:translateY(-2px);box-shadow:0 8px 20px var(--shadow);}
+.expert-card.unlocked{border-color:var(--accent2);}
+.expert-card.locked{opacity:.6;}
+.ec-deco{position:absolute;width:80px;height:80px;border-radius:50%;opacity:.1;top:-20px;right:-20px;}
+.ec-icon{font-size:32px;margin-bottom:8px;display:block;position:relative;z-index:1;}
+.ec-icon.anim{animation:float 3s ease-in-out infinite;}
+.ec-name{font-size:13px;font-weight:500;margin-bottom:2px;}
+.ec-desc{font-size:10px;color:var(--muted);line-height:1.4;margin-bottom:8px;}
+.ec-prog-bg{height:4px;background:var(--tag);border-radius:2px;overflow:hidden;}
+.ec-prog-fill{height:100%;border-radius:2px;}
+.ec-prog-label{display:flex;justify-content:space-between;font-size:9px;color:var(--muted);margin-top:3px;}
+.ec-lock{position:absolute;top:10px;right:10px;font-size:14px;}
+.ec-unlocked-badge{position:absolute;top:10px;right:10px;width:20px;height:20px;background:var(--accent2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;}
+
+/* ── 积分用途 ── */
+.uses-section{margin:0 14px 14px;}
+.use-list{display:flex;flex-direction:column;gap:8px;}
+.use-item{background:var(--card);border-radius:14px;padding:14px;border:1px solid var(--border);display:flex;align-items:center;gap:12px;cursor:pointer;transition:all .2s;}
+.use-item:hover{border-color:var(--accent);transform:translateX(3px);}
+.use-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.use-info{flex:1;}
+.use-name{font-size:13px;font-weight:500;margin-bottom:2px;}
+.use-desc{font-size:11px;color:var(--muted);line-height:1.4;}
+.use-cost{text-align:right;}
+.use-pts{font-size:14px;font-weight:500;color:var(--accent);}
+.use-pts-label{font-size:9px;color:var(--muted);margin-top:1px;}
+.use-btn{margin-top:4px;padding:4px 12px;background:var(--accent);color:white;border:none;border-radius:8px;font-size:11px;cursor:pointer;font-family:'Noto Sans SC',sans-serif;}
+
+/* ── 等级排行 ── */
+.rank-section{margin:0 14px 14px;}
+.rank-item{background:var(--card);border-radius:14px;padding:12px 14px;border:1px solid var(--border);display:flex;align-items:center;gap:12px;margin-bottom:8px;transition:all .2s;}
+.rank-item:hover{transform:translateX(3px);}
+.rank-item.me{border-color:var(--accent2);background:linear-gradient(135deg,#fffdf7,#fff8ee);}
+.rank-num{font-family:'Noto Serif SC',serif;font-size:18px;font-weight:900;width:28px;text-align:center;flex-shrink:0;}
+.rank-avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.rank-info{flex:1;}
+.rank-name{font-size:13px;font-weight:500;display:flex;align-items:center;gap:5px;}
+.rank-badge-sm{font-size:10px;padding:1px 6px;border-radius:8px;font-weight:500;}
+.rank-pts{font-size:11px;color:var(--muted);margin-top:1px;}
+.rank-score{font-family:'DM Mono',monospace;font-size:14px;font-weight:500;color:var(--accent2);}
+
+/* ── 积分明细 ── */
+.history-section{margin:0 14px 14px;}
+.history-item{background:var(--card);border-radius:12px;padding:11px 14px;border:1px solid var(--border);display:flex;align-items:center;gap:11px;margin-bottom:7px;}
+.hi-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;}
+.hi-info{flex:1;}
+.hi-name{font-size:12px;font-weight:500;}
+.hi-time{font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:1px;}
+.hi-pts{font-size:14px;font-weight:500;}
+.hi-pts.pos{color:var(--accent3);}
+.hi-pts.neg{color:var(--accent);}
+
+/* ── 收藏 ── */
+.fav-filter{display:flex;gap:6px;padding:12px 14px;overflow-x:auto;background:var(--card);border-bottom:1px solid var(--border);}
+.fav-filter::-webkit-scrollbar{display:none;}
+.ff-chip{flex-shrink:0;padding:5px 12px;border-radius:14px;border:1px solid var(--border);font-size:12px;cursor:pointer;color:var(--muted);background:transparent;font-family:'Noto Sans SC',sans-serif;transition:all .15s;}
+.ff-chip.active{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+.fav-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px;}
+.fav-card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;cursor:pointer;transition:all .2s;}
+.fav-card:hover{transform:translateY(-3px);box-shadow:0 8px 20px var(--shadow);}
+.fav-thumb{height:90px;position:relative;display:flex;align-items:center;justify-content:center;}
+.fav-deco{position:absolute;border-radius:50%;opacity:.2;}
+.fav-emoji{font-size:46px;position:relative;z-index:1;filter:drop-shadow(0 3px 6px rgba(0,0,0,.1));}
+.fav-rm{position:absolute;top:6px;right:6px;width:22px;height:22px;background:rgba(255,255,255,.9);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;cursor:pointer;border:none;z-index:2;transition:transform .2s;}
+.fav-rm:hover{transform:scale(1.2);}
+.fav-body{padding:9px 11px;}
+.fav-name{font-size:12px;font-weight:500;margin-bottom:2px;}
+.fav-meta{font-size:10px;color:var(--muted);display:flex;align-items:center;gap:3px;}
+.fav-rating{color:var(--accent);font-weight:500;}
+
+/* ── 关注 ── */
+.follow-list{padding:10px 14px;}
+.follow-item{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:11px;margin-bottom:8px;transition:all .2s;}
+.follow-item:hover{transform:translateX(3px);}
+.fi-avatar{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;}
+.fi-info{flex:1;}
+.fi-name{font-size:13px;font-weight:500;display:flex;align-items:center;gap:5px;flex-wrap:wrap;}
+.fi-bio{font-size:11px;color:var(--muted);margin-top:2px;}
+.fi-btn{padding:5px 13px;border-radius:12px;font-size:11px;cursor:pointer;font-family:'Noto Sans SC',sans-serif;transition:all .15s;border:1px solid var(--border);background:transparent;color:var(--muted);}
+.fi-btn.following{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+
+/* ── 底部导航 ── */
+.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:var(--card);border-top:1px solid var(--border);display:flex;z-index:50;}
+.bn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 0;cursor:pointer;font-size:9px;color:var(--muted);gap:4px;transition:all .2s;text-decoration:none;}
+.bn.active{color:var(--accent);}
+.bn svg{width:20px;height:20px;}
+.bn-dot{width:5px;height:5px;background:var(--accent);border-radius:50%;position:absolute;top:8px;}
+
+/* 动态发帖列表 */
+.posts-list{padding:10px 14px;}
+.post-item{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px 14px;margin-bottom:10px;}
+.pi-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.pi-type{font-size:10px;padding:2px 8px;border-radius:8px;}
+.pi-time{font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;}
+.pi-content{font-size:13px;line-height:1.7;margin-bottom:8px;color:var(--ink);}
+.pi-tags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px;}
+.pi-tag{font-size:10px;color:var(--accent);background:#fce4e4;padding:1px 7px;border-radius:8px;}
+.pi-foot{display:flex;gap:14px;font-size:11px;color:var(--muted);border-top:1px solid var(--border);padding-top:8px;}
+.pi-action{display:flex;align-items:center;gap:3px;cursor:pointer;}
+.pi-action svg{width:13px;height:13px;}
+</style>
+</head>
+<body>
+<script src="assets/api.js"></script>
+
+<div class="hdr">
+  <a href="index.html" class="hdr-back">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    返回
+  </a>
+  <div class="hdr-title">我的主页</div>
+  <div class="hdr-action">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+    设置
+  </div>
+</div>
+
+<!-- 封面 & 头像 -->
+<div class="cover">
+  <div class="cover-bg"></div>
+  <div class="cover-pattern"></div>
+  <div class="cover-stars">
+    <div class="star" style="width:3px;height:3px;top:20%;left:15%;animation-delay:.2s;animation-duration:2.5s;"></div>
+    <div class="star" style="width:2px;height:2px;top:40%;left:60%;animation-delay:.8s;"></div>
+    <div class="star" style="width:4px;height:4px;top:15%;left:80%;animation-delay:1.2s;animation-duration:3s;"></div>
+    <div class="star" style="width:2px;height:2px;top:60%;left:30%;animation-delay:.4s;animation-duration:2s;"></div>
+    <div class="star" style="width:3px;height:3px;top:30%;left:45%;animation-delay:1.5s;"></div>
+  </div>
+  <div class="cover-title">FOOD MASTER</div>
+  <div class="cover-emoji">🍜</div>
+  <div class="avatar-wrap">
+    <div class="avatar">
+      😊
+      <div class="avatar-level" style="background:linear-gradient(135deg,#f4b942,#e85d26);color:white;">Lv.3 · 面食达人</div>
+    </div>
+  </div>
+</div>
+
+<!-- 用户信息 -->
+<div class="user-info">
+  <div class="user-name-row">
+    <div class="user-name">张同学</div>
+    <div class="expert-badge" style="background:linear-gradient(135deg,#fff3e0,#ffe0b2);color:#e85d26;">🥢 面食达人</div>
+  </div>
+  <div class="user-bio">理工大 · 计算机系大三 | 大学城觅食老司机，面食爱好者 🍜</div>
+  <div class="user-meta">
+    <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>理工大</span>
+    <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>加入 2024.09</span>
+    <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>口碑分 4.8</span>
+  </div>
+  <div class="follow-row">
+    <div class="follow-stat"><div class="n">32</div><div class="l">动态</div></div>
+    <div class="follow-stat"><div class="n">128</div><div class="l">关注</div></div>
+    <div class="follow-stat"><div class="n">256</div><div class="l">粉丝</div></div>
+    <div class="follow-stat"><div class="n">18</div><div class="l">收藏</div></div>
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-outline"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>编辑资料</button>
+    <button class="btn btn-outline"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>分享主页</button>
+  </div>
+</div>
+
+<!-- Tab 导航 -->
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('points', this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+    积分&等级
+  </div>
+  <div class="tab" onclick="switchTab('fav', this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+    收藏
+  </div>
+  <div class="tab" onclick="switchTab('follow', this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    关注
+  </div>
+  <div class="tab" onclick="switchTab('posts', this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    动态
+  </div>
+</div>
+
+<!-- ── 积分&等级面板 ── -->
+<div class="panel active" id="panel-points">
+
+  <!-- 积分英雄卡 -->
+  <div class="points-hero">
+    <div class="ph-top">
+      <div class="ph-deco1"></div>
+      <div class="ph-deco2"></div>
+      <div class="ph-row">
+        <div class="ph-left">
+          <div class="ph-label">当前积分</div>
+          <div class="ph-pts" id="pts-total">1,650</div>
+          <div class="ph-expire">有效期至 2026.12.31</div>
+        </div>
+        <div class="ph-right">
+          <div class="ph-badge-wrap">
+            <div class="ph-badge-icon">🥢</div>
+            <div class="ph-badge-name" id="pts-level-name">面食达人</div>
+            <div class="ph-badge-next" id="pts-next-desc">距「美食鉴赏家」还差 350分</div>
+          </div>
+        </div>
+      </div>
+      <div class="ph-progress">
+        <div class="ph-prog-labels"><span>面食达人 (1000)</span><span>美食鉴赏家 (2000)</span></div>
+        <div class="ph-prog-bg"><div class="ph-prog-fill" style="--w:65%"></div></div>
+      </div>
+    </div>
+    <div class="ph-bottom">
+      <div class="ph-stat"><div class="ph-stat-n">32</div><div class="ph-stat-l">评价次数</div></div>
+      <div class="ph-stat"><div class="ph-stat-n">18</div><div class="ph-stat-l">签到天数</div></div>
+      <div class="ph-stat"><div class="ph-stat-n" id="pts-month">+320</div><div class="ph-stat-l">本月获得</div></div>
+    </div>
+  </div>
+
+  <!-- 签到 -->
+  <div style="margin:0 14px 14px;">
+    <button id="checkin-btn" onclick="doCheckin()" style="width:100%;padding:13px;border-radius:14px;background:linear-gradient(135deg,#1a1209,#2d1a05);color:#f4b942;border:none;font-size:14px;font-weight:500;cursor:pointer;font-family:'Noto Sans SC',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 14px rgba(26,18,9,.2);transition:opacity .2s;">
+      📅 每日签到 +5
+    </button>
+  </div>
+
+  <!-- 积分用途 -->
+  <div class="uses-section">
+    <div class="section-hdr">
+      <div class="section-title">🎁 积分可以做什么</div>
+    </div>
+    <div class="use-list">
+      <div class="use-item">
+        <div class="use-icon" style="background:#fff3e0;">🎟️</div>
+        <div class="use-info">
+          <div class="use-name">兑换餐厅优惠券</div>
+          <div class="use-desc">可兑换周边餐厅专属折扣券，直接抵扣消费</div>
+        </div>
+        <div class="use-cost">
+          <div class="use-pts">200起</div>
+          <div class="use-pts-label">积分/张</div>
+          <button class="use-btn" onclick="doRedeem(200,'兑换餐厅优惠券')">去兑换</button>
+        </div>
+      </div>
+      <div class="use-item">
+        <div class="use-icon" style="background:#e8f5e9;">🤖</div>
+        <div class="use-info">
+          <div class="use-name">解锁 AI 推荐次数</div>
+          <div class="use-desc">每天免费3次，用积分可额外解锁更多次数</div>
+        </div>
+        <div class="use-cost">
+          <div class="use-pts">50</div>
+          <div class="use-pts-label">积分/5次</div>
+          <button class="use-btn" onclick="doRedeem(50,'解锁AI推荐×5次')">解锁</button>
+        </div>
+      </div>
+      <div class="use-item">
+        <div class="use-icon" style="background:#f3e5f5;">📌</div>
+        <div class="use-info">
+          <div class="use-name">校园圈帖子置顶</div>
+          <div class="use-desc">你的帖子置顶展示1天，获得更多曝光和互动</div>
+        </div>
+        <div class="use-cost">
+          <div class="use-pts">300</div>
+          <div class="use-pts-label">积分/天</div>
+          <button class="use-btn" onclick="doRedeem(300,'校园圈帖子置顶1天')">置顶</button>
+        </div>
+      </div>
+      <div class="use-item">
+        <div class="use-icon" style="background:#fff8e1;">🏆</div>
+        <div class="use-info">
+          <div class="use-name">荣耀排行榜展示</div>
+          <div class="use-desc">积分越高，在校园圈排行榜越靠前，获得更多关注</div>
+        </div>
+        <div class="use-cost">
+          <div class="use-pts">自动</div>
+          <div class="use-pts-label">按积分排名</div>
+          <button class="use-btn" onclick="switchTab('rank', document.querySelector('.tab'))">查看榜</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 美食专家徽章 -->
+  <div class="expert-section">
+    <div class="section-hdr">
+      <div class="section-title">🏅 美食专家徽章</div>
+      <div class="section-more" onclick="showRulesModal()">规则说明 ℹ️</div>
+    </div>
+    <div class="expert-grid">
+      <div class="expert-card unlocked">
+        <div class="ec-deco" style="background:#e85d26;"></div>
+        <span class="ec-icon anim">🥢</span>
+        <div class="ec-name">面食达人</div>
+        <div class="ec-desc">评价面食餐厅 10+ 次解锁</div>
+        <div class="ec-prog-bg"><div class="ec-prog-fill" style="width:100%;background:linear-gradient(90deg,#e85d26,#f4b942);"></div></div>
+        <div class="ec-prog-label"><span>12/10 已达成</span><span>✅ 已解锁</span></div>
+        <div class="ec-unlocked-badge">✓</div>
+      </div>
+      <div class="expert-card unlocked">
+        <div class="ec-deco" style="background:#795548;"></div>
+        <span class="ec-icon anim" style="animation-delay:.5s">☕</span>
+        <div class="ec-name">咖啡专家</div>
+        <div class="ec-desc">评价咖啡店 8+ 次解锁</div>
+        <div class="ec-prog-bg"><div class="ec-prog-fill" style="width:100%;background:linear-gradient(90deg,#795548,#bcaaa4);"></div></div>
+        <div class="ec-prog-label"><span>9/8 已达成</span><span>✅ 已解锁</span></div>
+        <div class="ec-unlocked-badge">✓</div>
+      </div>
+      <div class="expert-card">
+        <div class="ec-deco" style="background:#e91e63;"></div>
+        <span class="ec-icon">🍣</span>
+        <div class="ec-name">日料行家</div>
+        <div class="ec-desc">评价日料餐厅 8+ 次解锁</div>
+        <div class="ec-prog-bg"><div class="ec-prog-fill" style="width:37%;background:linear-gradient(90deg,#e91e63,#f48fb1);"></div></div>
+        <div class="ec-prog-label"><span>3/8</span><span>进行中</span></div>
+        <div class="ec-lock">🔒</div>
+      </div>
+      <div class="expert-card">
+        <div class="ec-deco" style="background:#e85d26;"></div>
+        <span class="ec-icon">🫕</span>
+        <div class="ec-name">火锅狂人</div>
+        <div class="ec-desc">评价火锅店 8+ 次解锁</div>
+        <div class="ec-prog-bg"><div class="ec-prog-fill" style="width:25%;background:linear-gradient(90deg,#e85d26,#ff8a65);"></div></div>
+        <div class="ec-prog-label"><span>2/8</span><span>进行中</span></div>
+        <div class="ec-lock">🔒</div>
+      </div>
+      <div class="expert-card locked">
+        <div class="ec-deco" style="background:#7b1fa2;"></div>
+        <span class="ec-icon">🥩</span>
+        <div class="ec-name">烤肉达人</div>
+        <div class="ec-desc">评价烤肉餐厅 8+ 次解锁</div>
+        <div class="ec-prog-bg"><div class="ec-prog-fill" style="width:12%;background:#7b1fa2;"></div></div>
+        <div class="ec-prog-label"><span>1/8</span><span>进行中</span></div>
+        <div class="ec-lock">🔒</div>
+      </div>
+      <div class="expert-card locked">
+        <div class="ec-deco" style="background:#2d7a4f;"></div>
+        <span class="ec-icon">🥗</span>
+        <div class="ec-name">健康轻食家</div>
+        <div class="ec-desc">评价轻食餐厅 8+ 次解锁</div>
+        <div class="ec-prog-bg"><div class="ec-prog-fill" style="width:0%;background:#2d7a4f;"></div></div>
+        <div class="ec-prog-label"><span>0/8</span><span>未开始</span></div>
+        <div class="ec-lock">🔒</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 荣耀排行榜 -->
+  <div class="rank-section">
+    <div class="section-hdr">
+      <div class="section-title">🏆 本月荣耀榜</div>
+      <div class="section-more">查看完整榜单</div>
+    </div>
+    <div class="rank-item">
+      <div class="rank-num" style="color:#f4b942;">1</div>
+      <div class="rank-avatar" style="background:#fff3e0;">🍜</div>
+      <div class="rank-info">
+        <div class="rank-name">觅食达人小陈 <span class="rank-badge-sm" style="background:#fff3e0;color:#e85d26;">🥢 面食达人</span></div>
+        <div class="rank-pts">本月获得 680 积分</div>
+      </div>
+      <div class="rank-score">4,280</div>
+    </div>
+    <div class="rank-item">
+      <div class="rank-num" style="color:#9ca3af;">2</div>
+      <div class="rank-avatar" style="background:#efebe9;">☕</div>
+      <div class="rank-info">
+        <div class="rank-name">咖啡星人 <span class="rank-badge-sm" style="background:#efebe9;color:#795548;">☕ 咖啡专家</span></div>
+        <div class="rank-pts">本月获得 520 积分</div>
+      </div>
+      <div class="rank-score">3,960</div>
+    </div>
+    <div class="rank-item me">
+      <div class="rank-num" style="color:#f4b942;">3</div>
+      <div class="rank-avatar" style="background:linear-gradient(135deg,#e85d26,#f4b942);">😊</div>
+      <div class="rank-info">
+        <div class="rank-name">张同学（我） <span class="rank-badge-sm" style="background:#fff3e0;color:#e85d26;">🥢 面食达人</span></div>
+        <div class="rank-pts">本月获得 320 积分</div>
+      </div>
+      <div class="rank-score" style="color:#f4b942;">1,650</div>
+    </div>
+    <div class="rank-item">
+      <div class="rank-num" style="color:#b45309;">4</div>
+      <div class="rank-avatar" style="background:#e8f5e9;">🥗</div>
+      <div class="rank-info">
+        <div class="rank-name">健身达人Lisa</div>
+        <div class="rank-pts">本月获得 298 积分</div>
+      </div>
+      <div class="rank-score">1,480</div>
+    </div>
+  </div>
+
+  <!-- 获取积分方式 -->
+  <div style="margin:0 14px 14px;">
+    <div class="section-hdr"><div class="section-title">📥 如何获得积分</div></div>
+    <div style="background:var(--card);border-radius:14px;overflow:hidden;border:1px solid var(--border);">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;">
+        <div style="padding:12px 14px;border-right:1px solid var(--border);border-bottom:1px solid var(--border);">
+          <div style="font-size:16px;margin-bottom:4px;">📝</div>
+          <div style="font-size:12px;font-weight:500;">发布评价</div>
+          <div style="font-size:18px;font-weight:500;color:var(--accent3);margin:2px 0;">+10</div>
+          <div style="font-size:10px;color:var(--muted);">每日上限50分</div>
+        </div>
+        <div style="padding:12px 14px;border-bottom:1px solid var(--border);">
+          <div style="font-size:16px;margin-bottom:4px;">📅</div>
+          <div style="font-size:12px;font-weight:500;">每日签到</div>
+          <div style="font-size:18px;font-weight:500;color:var(--accent3);margin:2px 0;">+5</div>
+          <div style="font-size:10px;color:var(--muted);">连签7天翻倍+20</div>
+        </div>
+        <div style="padding:12px 14px;border-right:1px solid var(--border);">
+          <div style="font-size:16px;margin-bottom:4px;">👍</div>
+          <div style="font-size:12px;font-weight:500;">帖子被点赞</div>
+          <div style="font-size:18px;font-weight:500;color:var(--accent3);margin:2px 0;">+2</div>
+          <div style="font-size:10px;color:var(--muted);">每日上限30分</div>
+        </div>
+        <div style="padding:12px 14px;">
+          <div style="font-size:16px;margin-bottom:4px;">🎯</div>
+          <div style="font-size:12px;font-weight:500;">邀请新用户</div>
+          <div style="font-size:18px;font-weight:500;color:var(--accent3);margin:2px 0;">+50</div>
+          <div style="font-size:10px;color:var(--muted);">无上限</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 积分明细 -->
+  <div class="history-section">
+    <div class="section-hdr">
+      <div class="section-title">📋 积分明细</div>
+      <div class="section-more">查看全部</div>
+    </div>
+    <div class="history-item">
+      <div class="hi-icon" style="background:#e8f5e9;">📝</div>
+      <div class="hi-info"><div class="hi-name">发布评价「重庆秀山小面」</div><div class="hi-time">今天 14:32</div></div>
+      <div class="hi-pts pos">+10</div>
+    </div>
+    <div class="history-item">
+      <div class="hi-icon" style="background:#fff3e0;">👍</div>
+      <div class="hi-info"><div class="hi-name">帖子被点赞 ×12</div><div class="hi-time">今天 11:20</div></div>
+      <div class="hi-pts pos">+24</div>
+    </div>
+    <div class="history-item">
+      <div class="hi-icon" style="background:#e3f2fd;">📅</div>
+      <div class="hi-info"><div class="hi-name">每日签到（连续7天奖励）</div><div class="hi-time">今天 09:00</div></div>
+      <div class="hi-pts pos">+20</div>
+    </div>
+    <div class="history-item">
+      <div class="hi-icon" style="background:#fce4ec;">🎟️</div>
+      <div class="hi-info"><div class="hi-name">兑换陶陶居9折优惠券</div><div class="hi-time">昨天 16:45</div></div>
+      <div class="hi-pts neg">-200</div>
+    </div>
+    <div class="history-item">
+      <div class="hi-icon" style="background:#e8f5e9;">🎯</div>
+      <div class="hi-info"><div class="hi-name">邀请好友「李同学」注册成功</div><div class="hi-time">3天前</div></div>
+      <div class="hi-pts pos">+50</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── 收藏面板 ── -->
+<div class="panel" id="panel-fav">
+  <div class="fav-filter">
+    <button class="ff-chip active" onclick="setFilter(this)">全部 (18)</button>
+    <button class="ff-chip" onclick="setFilter(this)">中餐 (8)</button>
+    <button class="ff-chip" onclick="setFilter(this)">日料 (3)</button>
+    <button class="ff-chip" onclick="setFilter(this)">咖啡 (4)</button>
+    <button class="ff-chip" onclick="setFilter(this)">小吃 (3)</button>
+  </div>
+  <div class="fav-grid">
+    <div class="fav-card">
+      <div class="fav-thumb" style="background:linear-gradient(135deg,#fff3e0,#ffcc80);">
+        <div class="fav-deco" style="width:80px;height:80px;background:#e85d26;top:-20px;right:-20px;"></div>
+        <div class="fav-emoji">🍜</div>
+        <button class="fav-rm" onclick="showToast('已取消收藏')">✕</button>
+      </div>
+      <div class="fav-body"><div class="fav-name">重庆秀山小面</div><div class="fav-meta"><span class="fav-rating">★ 4.9</span> · ¥12-22</div></div>
+    </div>
+    <div class="fav-card">
+      <div class="fav-thumb" style="background:linear-gradient(135deg,#efebe9,#bcaaa4);">
+        <div class="fav-deco" style="width:70px;height:70px;background:#795548;bottom:-15px;left:-15px;"></div>
+        <div class="fav-emoji">☕</div>
+        <button class="fav-rm" onclick="showToast('已取消收藏')">✕</button>
+      </div>
+      <div class="fav-body"><div class="fav-name">豆舍咖啡</div><div class="fav-meta"><span class="fav-rating">★ 4.7</span> · ¥22-45</div></div>
+    </div>
+    <div class="fav-card">
+      <div class="fav-thumb" style="background:linear-gradient(135deg,#e8eaf6,#9fa8da);">
+        <div class="fav-deco" style="width:80px;height:80px;background:#3f51b5;top:-15px;right:-15px;"></div>
+        <div class="fav-emoji">🫕</div>
+        <button class="fav-rm" onclick="showToast('已取消收藏')">✕</button>
+      </div>
+      <div class="fav-body"><div class="fav-name">川渝人家·火锅</div><div class="fav-meta"><span class="fav-rating">★ 4.8</span> · ¥35-80</div></div>
+    </div>
+    <div class="fav-card">
+      <div class="fav-thumb" style="background:linear-gradient(135deg,#fce4ec,#f48fb1);">
+        <div class="fav-deco" style="width:70px;height:70px;background:#e91e63;bottom:-10px;right:-10px;"></div>
+        <div class="fav-emoji">🍣</div>
+        <button class="fav-rm" onclick="showToast('已取消收藏')">✕</button>
+      </div>
+      <div class="fav-body"><div class="fav-name">大渔铁板烧·日料</div><div class="fav-meta"><span class="fav-rating">★ 4.7</span> · ¥88-160</div></div>
+    </div>
+    <div class="fav-card">
+      <div class="fav-thumb" style="background:linear-gradient(135deg,#fffde7,#fff176);">
+        <div class="fav-deco" style="width:70px;height:70px;background:#f4b942;top:-15px;left:-15px;"></div>
+        <div class="fav-emoji">🥞</div>
+        <button class="fav-rm" onclick="showToast('已取消收藏')">✕</button>
+      </div>
+      <div class="fav-body"><div class="fav-name">柒号煎饼铺</div><div class="fav-meta"><span class="fav-rating">★ 4.8</span> · ¥8-15</div></div>
+    </div>
+    <div class="fav-card">
+      <div class="fav-thumb" style="background:linear-gradient(135deg,#e0f2f1,#80cbc4);">
+        <div class="fav-deco" style="width:70px;height:70px;background:#00796b;bottom:-10px;right:-10px;"></div>
+        <div class="fav-emoji">🍵</div>
+        <button class="fav-rm" onclick="showToast('已取消收藏')">✕</button>
+      </div>
+      <div class="fav-body"><div class="fav-name">陶陶居早茶</div><div class="fav-meta"><span class="fav-rating">★ 4.8</span> · ¥28-55</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── 关注面板 ── -->
+<div class="panel" id="panel-follow">
+  <div class="fav-filter">
+    <button class="ff-chip active" onclick="setFilter(this)">我的关注 (128)</button>
+    <button class="ff-chip" onclick="setFilter(this)">我的粉丝 (256)</button>
+  </div>
+  <div class="follow-list">
+    <div class="follow-item">
+      <div class="fi-avatar" style="background:#fff3e0;">🍜</div>
+      <div class="fi-info">
+        <div class="fi-name">小米同学 <span style="font-size:10px;background:#fff3e0;color:#e85d26;padding:1px 6px;border-radius:8px;font-weight:500;">🥢 面食达人</span></div>
+        <div class="fi-bio">理工大 · 32篇动态</div>
+      </div>
+      <button class="fi-btn following" onclick="toggleFollow(this)">已关注</button>
+    </div>
+    <div class="follow-item">
+      <div class="fi-avatar" style="background:#e8f5e9;">🥗</div>
+      <div class="fi-info">
+        <div class="fi-name">健身达人Lisa <span style="font-size:10px;background:#e8f5e9;color:#2d7a4f;padding:1px 6px;border-radius:8px;font-weight:500;">🥗 轻食专家</span></div>
+        <div class="fi-bio">理工大体育学院 · 21篇动态</div>
+      </div>
+      <button class="fi-btn following" onclick="toggleFollow(this)">已关注</button>
+    </div>
+    <div class="follow-item">
+      <div class="fi-avatar" style="background:#efebe9;">☕</div>
+      <div class="fi-info">
+        <div class="fi-name">咖啡星人 <span style="font-size:10px;background:#efebe9;color:#795548;padding:1px 6px;border-radius:8px;font-weight:500;">☕ 咖啡专家</span></div>
+        <div class="fi-bio">华师大设计系 · 28篇动态</div>
+      </div>
+      <button class="fi-btn following" onclick="toggleFollow(this)">已关注</button>
+    </div>
+    <div class="follow-item">
+      <div class="fi-avatar" style="background:#e3f2fd;">🍲</div>
+      <div class="fi-info">
+        <div class="fi-name">爱吃的阿宝</div>
+        <div class="fi-bio">师范大中文系 · 19篇动态</div>
+      </div>
+      <button class="fi-btn" onclick="toggleFollow(this)">+ 关注</button>
+    </div>
+    <div class="follow-item">
+      <div class="fi-avatar" style="background:#fce4ec;">🍣</div>
+      <div class="fi-info">
+        <div class="fi-name">日料爱好者小王 <span style="font-size:10px;background:#fce4ec;color:#e91e63;padding:1px 6px;border-radius:8px;font-weight:500;">🍣 日料行家</span></div>
+        <div class="fi-bio">中山大 · 15篇动态</div>
+      </div>
+      <button class="fi-btn following" onclick="toggleFollow(this)">已关注</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── 动态面板 ── -->
+<div class="panel" id="panel-posts">
+  <div class="posts-list">
+    <div class="post-item">
+      <div class="pi-hdr">
+        <span class="pi-type" style="background:#fce4e4;color:#e85d26;">🍽️ 美食评测</span>
+        <span class="pi-time">2小时前</span>
+      </div>
+      <div class="pi-content">重庆秀山小面真的绝了！今天点了牛肉面，汤底鲜辣，牛肉软烂入味，面条很有嚼劲。早上7点去还排了15分钟的队，完全值得！强烈推荐🔥</div>
+      <div class="pi-tags"><span class="pi-tag">#小面推荐</span><span class="pi-tag">#大学城美食</span><span class="pi-tag">#早餐首选</span></div>
+      <div class="pi-foot">
+        <span class="pi-action"><svg viewBox="0 0 24 24" fill="#e85d26" stroke="#e85d26" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>48</span>
+        <span class="pi-action"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>12</span>
+        <span class="pi-action"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>分享</span>
+      </div>
+    </div>
+    <div class="post-item">
+      <div class="pi-hdr">
+        <span class="pi-type" style="background:#e8f5e9;color:#2d7a4f;">⭐ 发表评价</span>
+        <span class="pi-time">昨天 15:30</span>
+      </div>
+      <div class="pi-content">陶陶居的虾饺皇真的是大学城最好吃的！皮薄馅足，虾仁鲜嫩，每次来都要点三笼。价格虽然稍贵，但绝对值得 👍 给满分！</div>
+      <div class="pi-tags"><span class="pi-tag">#陶陶居</span><span class="pi-tag">#早茶</span><span class="pi-tag">#虾饺</span></div>
+      <div class="pi-foot">
+        <span class="pi-action"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>31</span>
+        <span class="pi-action"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>8</span>
+        <span class="pi-action"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>分享</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 底部导航 -->
+<div class="bottom-nav">
+  <a href="index.html" class="bn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    首页
+  </a>
+  <a href="circle.html" class="bn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    校园圈
+  </a>
+  <a href="#" class="bn active">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    我的
+  </a>
+  <a href="admin.html" class="bn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+    后台
+  </a>
+</div>
+
+<script>
+function switchTab(name, el) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  el.classList.add('active');
+}
+
+// ── 真实积分数据加载 ─────────────────────────────────────────
+async function loadRealPoints() {
+  if (!Auth.isLoggedIn()) return;
+  try {
+    const [pts, logs, rank] = await Promise.all([
+      PointsAPI.me(),
+      PointsAPI.logs(1),
+      PointsAPI.ranking(10),
+    ]);
+
+    // 更新积分数字
+    document.getElementById('pts-total').textContent = pts.total_points.toLocaleString();
+    document.getElementById('pts-level-name').textContent = pts.level_name;
+    document.getElementById('pts-next-desc').textContent =
+      pts.points_to_next ? `距「${pts.next_level_name}」还差 ${pts.points_to_next} 分` : '已达最高等级 👑';
+
+    // 更新进度条
+    const levelRanges = [
+      [0,199],[200,999],[1000,1999],[2000,4999],[5000,999999]
+    ];
+    const lvIdx = Math.min(pts.level - 1, 4);
+    const [lvMin, lvMax] = levelRanges[lvIdx];
+    const pct = lvMax === 999999 ? 100 :
+      Math.min(100, Math.round((pts.total_earned - lvMin) / (lvMax - lvMin + 1) * 100));
+    const bar = document.querySelector('.ph-prog-fill');
+    if (bar) bar.style.setProperty('--w', pct + '%');
+
+    // 更新本月/累计
+    document.getElementById('pts-month').textContent = '+' + (pts.total_earned > 0 ? Math.min(pts.total_earned, 999) : 0);
+    document.getElementById('pts-earned').textContent = pts.total_earned.toLocaleString();
+
+    // 更新积分明细
+    if (logs.items && logs.items.length) {
+      const histEl = document.querySelector('.history-section');
+      if (histEl) {
+        histEl.innerHTML = `
+          <div class="section-hdr">
+            <div class="section-title">📋 积分明细</div>
+            <div class="section-more" onclick="loadMoreLogs()">查看全部</div>
+          </div>` +
+          logs.items.slice(0, 5).map(l => `
+          <div class="history-item">
+            <div class="hi-icon" style="background:${l.points > 0 ? '#e8f5e9' : '#fce4ec'}">
+              ${l.points > 0 ? '📥' : '🎁'}
+            </div>
+            <div class="hi-info">
+              <div class="hi-name">${l.desc}${l.note && l.note !== l.desc ? ' · ' + l.note : ''}</div>
+              <div class="hi-time">${new Date(l.created_at).toLocaleString('zh-CN',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})}</div>
+            </div>
+            <div class="hi-pts ${l.points > 0 ? 'pos' : 'neg'}">${l.points > 0 ? '+' : ''}${l.points}</div>
+          </div>`).join('');
+      }
+    }
+
+    // 更新排行榜
+    const rankEl = document.querySelector('.rank-section');
+    if (rankEl && rank.length) {
+      const numCls = ['gold','silver','bronze','rest-rank','rest-rank'];
+      const myId = Auth.getUser()?.id;
+      rankEl.querySelector('.section-title').textContent = '🏆 本月荣耀榜';
+      const rankItems = rankEl.querySelectorAll('.rank-item');
+      rank.slice(0, rankItems.length).forEach((r, i) => {
+        const item = rankItems[i];
+        if (!item) return;
+        item.classList.toggle('me', r.user_id === myId);
+        item.querySelector('.rank-num').className = `rank-num`;
+        item.querySelector('.rank-num').textContent = r.rank;
+        const nameEl = item.querySelector('.rank-name');
+        if (nameEl) nameEl.childNodes[0].textContent = r.user_id === myId ? r.nickname + '（我）' : r.nickname;
+        const ptsEl = item.querySelector('.rank-pts');
+        if (ptsEl) ptsEl.textContent = `积分 ${r.total_points.toLocaleString()}`;
+        const scoreEl = item.querySelector('.rank-score');
+        if (scoreEl) scoreEl.textContent = r.total_points.toLocaleString();
+      });
+    }
+
+    // 签到按钮 - 检查今日是否已签到
+    const today = await PointsAPI.today();
+    const checkinEl = document.getElementById('checkin-btn');
+    if (checkinEl) {
+      const done = today.checkin && today.checkin.earned >= 5;
+      checkinEl.textContent = done ? '✅ 今日已签到' : '📅 每日签到 +5';
+      checkinEl.disabled = done;
+      checkinEl.style.opacity = done ? '.6' : '1';
+    }
+
+  } catch(e) {
+    // 未登录或网络问题，静默处理
+    console.log('积分数据加载失败:', e.message);
+  }
+}
+
+async function doCheckin() {
+  if (!Auth.isLoggedIn()) { showToast('请先登录', 'error'); return; }
+  try {
+    const res = await PointsAPI.earn('checkin', '每日签到');
+    if (res.ok) {
+      showToast(`✅ 签到成功！+${res.points} 积分`);
+      document.getElementById('pts-total').textContent = res.total_points.toLocaleString();
+      const btn = document.getElementById('checkin-btn');
+      if (btn) { btn.textContent = '✅ 今日已签到'; btn.disabled = true; btn.style.opacity = '.6'; }
+    } else {
+      showToast(res.message);
+    }
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+async function doRedeem(pts, note) {
+  if (!Auth.isLoggedIn()) { showToast('请先登录', 'error'); return; }
+  try {
+    const res = await PointsAPI.redeem(pts, note);
+    showToast(`✅ 兑换成功！消耗 ${pts} 积分`);
+    document.getElementById('pts-total').textContent = res.total_points.toLocaleString();
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+// 页面加载时初始化
+window.addEventListener('DOMContentLoaded', () => {
+  loadRealPoints();
+});
+
+function setFilter(el) {
+  el.closest('.fav-filter').querySelectorAll('.ff-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function toggleFollow(btn) {
+  const isFollowing = btn.classList.toggle('following');
+  btn.textContent = isFollowing ? '已关注' : '+ 关注';
+  showToast(isFollowing ? '已关注' : '已取消关注');
+}
+
+let toastTimer;
+function showToast(msg) {
+  let t = document.getElementById('_toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = '_toast';
+    t.style.cssText = 'position:fixed;bottom:84px;left:50%;transform:translateX(-50%) translateY(80px);background:#1a1209;color:#fdf6e3;padding:10px 18px;border-radius:12px;font-size:13px;z-index:999;transition:transform .3s;white-space:nowrap;box-shadow:0 8px 24px rgba(0,0,0,.2);font-family:"Noto Sans SC",sans-serif;';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.transform = 'translateX(-50%) translateY(0)';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.style.transform = 'translateX(-50%) translateY(80px)'; }, 2000);
+}
+
+function showRulesModal() {
+  document.getElementById('rulesModal').classList.add('open');
+}
+function closeRulesModal() {
+  document.getElementById('rulesModal').classList.remove('open');
+}
+</script>
+
+<!-- ── 积分规则弹窗 ── -->
+<div id="rulesModal" style="position:fixed;inset:0;background:rgba(26,18,9,.6);backdrop-filter:blur(8px);z-index:200;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;" onclick="if(event.target===this)closeRulesModal()">
+  <div style="background:var(--paper);border-radius:24px 24px 0 0;width:100%;max-width:480px;max-height:88vh;overflow-y:auto;transform:translateY(100%);transition:transform .4s cubic-bezier(.16,1,.3,1);">
+    <div style="padding:20px 20px 0;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);padding-bottom:14px;">
+      <div style="font-family:'Noto Serif SC',serif;font-size:18px;font-weight:700;">🏆 积分完整规则</div>
+      <button onclick="closeRulesModal()" style="width:32px;height:32px;border-radius:50%;border:1px solid var(--border);background:var(--card);cursor:pointer;font-size:16px;">✕</button>
+    </div>
+    <div style="padding:20px;">
+
+      <!-- 获取积分 -->
+      <div style="font-size:13px;font-weight:600;color:var(--accent);margin-bottom:10px;display:flex;align-items:center;gap:6px;">📥 如何获得积分</div>
+      <div style="background:var(--card);border-radius:14px;overflow:hidden;border:1px solid var(--border);margin-bottom:16px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;">
+          <div style="padding:12px 14px;border-right:1px solid var(--border);border-bottom:1px solid var(--border);">
+            <div style="font-size:16px;margin-bottom:4px;">📝</div>
+            <div style="font-size:12px;font-weight:500;">发布评价</div>
+            <div style="font-size:20px;font-weight:500;color:var(--accent3);margin:3px 0;">+10分</div>
+            <div style="font-size:10px;color:var(--muted);">每日上限 50分</div>
+          </div>
+          <div style="padding:12px 14px;border-bottom:1px solid var(--border);">
+            <div style="font-size:16px;margin-bottom:4px;">📅</div>
+            <div style="font-size:12px;font-weight:500;">每日签到</div>
+            <div style="font-size:20px;font-weight:500;color:var(--accent3);margin:3px 0;">+5分</div>
+            <div style="font-size:10px;color:var(--muted);">连签7天额外+20</div>
+          </div>
+          <div style="padding:12px 14px;border-right:1px solid var(--border);border-bottom:1px solid var(--border);">
+            <div style="font-size:16px;margin-bottom:4px;">👍</div>
+            <div style="font-size:12px;font-weight:500;">帖子被点赞</div>
+            <div style="font-size:20px;font-weight:500;color:var(--accent3);margin:3px 0;">+2分</div>
+            <div style="font-size:10px;color:var(--muted);">每日上限 30分</div>
+          </div>
+          <div style="padding:12px 14px;border-bottom:1px solid var(--border);">
+            <div style="font-size:16px;margin-bottom:4px;">🎯</div>
+            <div style="font-size:12px;font-weight:500;">邀请新用户</div>
+            <div style="font-size:20px;font-weight:500;color:var(--accent3);margin:3px 0;">+50分</div>
+            <div style="font-size:10px;color:var(--muted);">无上限</div>
+          </div>
+          <div style="padding:12px 14px;border-right:1px solid var(--border);">
+            <div style="font-size:16px;margin-bottom:4px;">🎯</div>
+            <div style="font-size:12px;font-weight:500;">趣味转盘</div>
+            <div style="font-size:20px;font-weight:500;color:var(--accent3);margin:3px 0;">+3分</div>
+            <div style="font-size:10px;color:var(--muted);">每日上限 15分</div>
+          </div>
+          <div style="padding:12px 14px;">
+            <div style="font-size:16px;margin-bottom:4px;">⚔️</div>
+            <div style="font-size:12px;font-weight:500;">美食PK赛</div>
+            <div style="font-size:20px;font-weight:500;color:var(--accent3);margin:3px 0;">+5分</div>
+            <div style="font-size:10px;color:var(--muted);">每日1次</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 积分用途 -->
+      <div style="font-size:13px;font-weight:600;color:var(--accent);margin-bottom:10px;display:flex;align-items:center;gap:6px;">🎁 积分可以做什么</div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
+        <div style="display:flex;align-items:center;gap:12px;padding:11px 14px;background:var(--card);border-radius:12px;border:1px solid var(--border);">
+          <span style="font-size:22px;">🎟️</span>
+          <div style="flex:1;"><div style="font-size:13px;font-weight:500;">兑换餐厅优惠券</div><div style="font-size:11px;color:var(--muted);">周边餐厅折扣券，直接抵扣消费</div></div>
+          <div style="font-size:13px;font-weight:500;color:var(--accent);">200起</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;padding:11px 14px;background:var(--card);border-radius:12px;border:1px solid var(--border);">
+          <span style="font-size:22px;">🤖</span>
+          <div style="flex:1;"><div style="font-size:13px;font-weight:500;">解锁额外 AI 推荐次数</div><div style="font-size:11px;color:var(--muted);">每天免费3次，积分可额外解锁</div></div>
+          <div style="font-size:13px;font-weight:500;color:var(--accent);">50/5次</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;padding:11px 14px;background:var(--card);border-radius:12px;border:1px solid var(--border);">
+          <span style="font-size:22px;">📌</span>
+          <div style="flex:1;"><div style="font-size:13px;font-weight:500;">校园圈帖子置顶</div><div style="font-size:11px;color:var(--muted);">置顶展示1天，获得更多曝光</div></div>
+          <div style="font-size:13px;font-weight:500;color:var(--accent);">300/天</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;padding:11px 14px;background:var(--card);border-radius:12px;border:1px solid var(--border);">
+          <span style="font-size:22px;">🏆</span>
+          <div style="flex:1;"><div style="font-size:13px;font-weight:500;">荣耀排行榜展示</div><div style="font-size:11px;color:var(--muted);">积分越高排名越靠前，自动展示</div></div>
+          <div style="font-size:13px;font-weight:500;color:var(--accent);">自动</div>
+        </div>
+      </div>
+
+      <!-- 等级说明 -->
+      <div style="font-size:13px;font-weight:600;color:var(--accent);margin-bottom:10px;display:flex;align-items:center;gap:6px;">⭐ 等级体系</div>
+      <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:16px;">
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--card);border-radius:10px;border:1px solid var(--border);">
+          <span style="font-size:20px;">🌱</span><div style="flex:1;"><div style="font-size:12px;font-weight:500;">觅食新人</div><div style="font-size:10px;color:var(--muted);">0 - 199 积分</div></div><div style="font-size:11px;color:var(--muted);">基础功能</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--card);border-radius:10px;border:1px solid var(--border);">
+          <span style="font-size:20px;">🍽️</span><div style="flex:1;"><div style="font-size:12px;font-weight:500;">美食探索者</div><div style="font-size:10px;color:var(--muted);">200 - 999 积分</div></div><div style="font-size:11px;color:var(--muted);">AI推荐·发帖</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:linear-gradient(135deg,#fffdf7,#fff8ee);border-radius:10px;border:1.5px solid var(--accent2);">
+          <span style="font-size:20px;">🥢</span><div style="flex:1;"><div style="font-size:12px;font-weight:500;">面食达人 <span style="font-size:9px;background:var(--accent2);color:var(--ink);padding:1px 5px;border-radius:6px;">当前示例</span></div><div style="font-size:10px;color:var(--muted);">1000 - 1999 积分</div></div><div style="font-size:11px;color:var(--muted);">优惠券·头衔</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--card);border-radius:10px;border:1px solid var(--border);">
+          <span style="font-size:20px;">🌟</span><div style="flex:1;"><div style="font-size:12px;font-weight:500;">美食鉴赏家</div><div style="font-size:10px;color:var(--muted);">2000 - 4999 积分</div></div><div style="font-size:11px;color:var(--muted);">置顶·加权</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--card);border-radius:10px;border:1px solid var(--border);">
+          <span style="font-size:20px;">👑</span><div style="flex:1;"><div style="font-size:12px;font-weight:500;">大学城食神</div><div style="font-size:10px;color:var(--muted);">5000+ 积分</div></div><div style="font-size:11px;color:var(--muted);">全部特权</div>
+        </div>
+      </div>
+
+      <!-- 有效期说明 -->
+      <div style="background:linear-gradient(135deg,#fff8f0,#fff3e8);border:1px solid rgba(244,185,66,.4);border-radius:12px;padding:14px;font-size:12px;line-height:1.8;color:#5a4a3a;">
+        <div style="font-weight:600;margin-bottom:4px;">📋 积分说明</div>
+        · 积分有效期至<strong>当年12月31日</strong>，每年1月1日清零并结算等级<br>
+        · 每日获取积分有上限，防止刷分<br>
+        · 兑换消耗的积分不可退回<br>
+        · 恶意刷评价等违规行为将扣除积分
+      </div>
+
+      <button onclick="closeRulesModal()" style="width:100%;margin-top:16px;padding:13px;border-radius:12px;background:var(--ink);color:var(--paper);border:none;font-size:14px;cursor:pointer;font-family:'Noto Sans SC',sans-serif;">我知道了</button>
+    </div>
+  </div>
+</div>
+
+<style>
+#rulesModal.open { opacity:1; pointer-events:all; }
+#rulesModal.open > div { transform:translateY(0); }
+</style>
+</body>
+</html>

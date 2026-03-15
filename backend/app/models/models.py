@@ -36,6 +36,8 @@ class User(Base):
 
     reviews     = relationship("Review", back_populates="user")
     favorites   = relationship("Favorite", back_populates="user")
+    points_logs = relationship("PointsLog", back_populates="user")
+    user_points = relationship("UserPoints", back_populates="user", uselist=False)
 
 # ── 餐厅 ──
 class Restaurant(Base):
@@ -127,3 +129,30 @@ class Deal(Base):
     is_active     = Column(Boolean, default=True)
 
     restaurant    = relationship("Restaurant", back_populates="deals")
+
+# ── 积分记录 ──
+class PointsLog(Base):
+    __tablename__ = "points_logs"
+
+    id         = Column(Integer, primary_key=True, index=True)
+    user_id    = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    points     = Column(Integer, nullable=False)          # 正数=获得，负数=消耗
+    action     = Column(String(50), nullable=False)       # 动作类型 见 PointsAction
+    note       = Column(String(200), default="")          # 备注（如关联餐厅名）
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    user       = relationship("User", back_populates="points_logs")
+
+# ── 用户积分汇总（冗余字段，避免每次全表 SUM）──
+class UserPoints(Base):
+    __tablename__ = "user_points"
+
+    user_id       = Column(Integer, ForeignKey("users.id"), primary_key=True)
+    total_points  = Column(Integer, default=0)    # 当前有效积分
+    total_earned  = Column(Integer, default=0)    # 累计获得
+    level         = Column(Integer, default=1)    # 1-5
+    level_name    = Column(String(30), default="觅食新人")
+    expert_badges = Column(String(200), default="")  # 逗号分隔已解锁徽章
+    updated_at    = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+    user          = relationship("User", back_populates="user_points")

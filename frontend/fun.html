@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>今天吃什么 · 觅食趣味模式</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@700;900&family=Noto+Sans+SC:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1a1209;--paper:#fdf6e3;--accent:#e85d26;--accent2:#f4b942;
+  --accent3:#2d7a4f;--muted:#8a7a6a;--border:#e8dcc8;--card:#fffdf7;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Noto Sans SC',sans-serif;background:var(--paper);color:var(--ink);min-height:100vh;max-width:480px;margin:0 auto;overflow-x:hidden;}
+
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(var(--deg))}}
+@keyframes bounce{0%,100%{transform:translateY(0)}30%{transform:translateY(-12px)}60%{transform:translateY(-6px)}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+@keyframes pop{0%{transform:scale(0) rotate(-10deg);opacity:0}60%{transform:scale(1.15) rotate(3deg)}100%{transform:scale(1) rotate(0);opacity:1}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes confettiFall{0%{transform:translateY(-20px) rotate(0deg);opacity:1}100%{transform:translateY(600px) rotate(720deg);opacity:0}}
+@keyframes glow{0%,100%{box-shadow:0 0 20px rgba(244,185,66,.3)}50%{box-shadow:0 0 40px rgba(244,185,66,.7)}}
+@keyframes resultPop{0%{transform:scale(.5);opacity:0}70%{transform:scale(1.05)}100%{transform:scale(1);opacity:1}}
+
+/* ── Header ── */
+.hdr{background:rgba(253,246,227,.95);border-bottom:1px solid var(--border);padding:0 16px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;backdrop-filter:blur(12px);}
+.hdr-back{display:flex;align-items:center;gap:5px;font-size:13px;color:var(--muted);cursor:pointer;text-decoration:none;}
+.hdr-title{font-family:'Noto Serif SC',serif;font-size:16px;font-weight:700;}
+.mode-badge{font-size:11px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:white;padding:3px 10px;border-radius:12px;}
+
+/* ── Mode selector ── */
+.mode-selector{display:flex;gap:8px;padding:16px 16px 0;}
+.mode-btn{flex:1;padding:12px 8px;border-radius:14px;border:1.5px solid var(--border);background:var(--card);cursor:pointer;font-family:'Noto Sans SC',sans-serif;text-align:center;transition:all .2s;}
+.mode-btn.active{border-color:var(--accent);background:linear-gradient(135deg,#fff8f5,#fff3ee);}
+.mode-btn:hover:not(.active){border-color:var(--accent2);}
+.mode-btn .mb-icon{font-size:26px;display:block;margin-bottom:5px;}
+.mode-btn .mb-name{font-size:12px;font-weight:500;}
+.mode-btn .mb-desc{font-size:10px;color:var(--muted);margin-top:2px;}
+
+/* ── 转盘区 ── */
+.wheel-section{padding:20px 16px;display:none;}
+.wheel-section.active{display:block;}
+.wheel-wrap{position:relative;width:300px;height:300px;margin:0 auto 20px;}
+.wheel-pointer{position:absolute;top:-16px;left:50%;transform:translateX(-50%);z-index:10;font-size:32px;filter:drop-shadow(0 2px 4px rgba(0,0,0,.2));}
+#wheelCanvas{border-radius:50%;box-shadow:0 8px 32px rgba(26,18,9,.15);cursor:pointer;transition:transform .1s;}
+#wheelCanvas:active{transform:scale(.97);}
+.wheel-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:56px;height:56px;background:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:0 4px 16px rgba(0,0,0,.15);z-index:5;border:3px solid var(--paper);}
+.spin-btn{width:100%;padding:16px;border-radius:16px;background:linear-gradient(135deg,var(--accent),#f06030);color:white;border:none;font-size:16px;font-family:'Noto Sans SC',sans-serif;font-weight:500;cursor:pointer;box-shadow:0 6px 20px rgba(232,93,38,.3);transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;}
+.spin-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(232,93,38,.4);}
+.spin-btn:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+.spin-btn svg{width:20px;height:20px;}
+
+/* 结果卡 */
+.result-card{background:var(--card);border:2px solid var(--accent2);border-radius:20px;padding:20px;text-align:center;margin-top:16px;display:none;animation:resultPop .5s cubic-bezier(.16,1,.3,1);}
+.result-card.show{display:block;}
+.result-emoji{font-size:64px;display:block;margin-bottom:10px;animation:bounce 1s ease;}
+.result-name{font-family:'Noto Serif SC',serif;font-size:22px;font-weight:700;margin-bottom:6px;}
+.result-meta{font-size:13px;color:var(--muted);margin-bottom:14px;}
+.result-tags{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;margin-bottom:14px;}
+.result-tag{padding:3px 10px;border-radius:12px;background:var(--border);font-size:11px;color:var(--muted);}
+.result-actions{display:flex;gap:8px;}
+.r-btn{flex:1;padding:11px;border-radius:12px;font-size:13px;cursor:pointer;font-family:'Noto Sans SC',sans-serif;border:1.5px solid var(--border);background:transparent;transition:all .2s;}
+.r-btn:hover{border-color:var(--accent);color:var(--accent);}
+.r-btn.primary{background:var(--accent);color:white;border-color:var(--accent);box-shadow:0 3px 12px rgba(232,93,38,.25);}
+.r-btn.primary:hover{background:#d14e1a;color:white;}
+
+/* 自定义选项 */
+.custom-section{margin-top:16px;background:var(--card);border-radius:14px;padding:14px;border:1px solid var(--border);}
+.custom-title{font-size:12px;color:var(--muted);margin-bottom:10px;font-family:'DM Mono',monospace;}
+.custom-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;}
+.custom-chip{padding:5px 12px;border-radius:14px;border:1.5px solid var(--border);font-size:12px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:4px;background:var(--paper);}
+.custom-chip.selected{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+.custom-chip:hover:not(.selected){border-color:var(--accent);}
+.custom-chip .rm{width:14px;height:14px;background:rgba(255,255,255,.3);border-radius:50%;display:none;align-items:center;justify-content:center;font-size:9px;}
+.custom-chip.selected .rm{display:flex;}
+
+/* ── PK 对决区 ── */
+.battle-section{padding:20px 16px;display:none;}
+.battle-section.active{display:block;}
+.battle-intro{text-align:center;margin-bottom:20px;}
+.battle-intro h2{font-family:'Noto Serif SC',serif;font-size:20px;font-weight:700;margin-bottom:6px;}
+.battle-intro p{font-size:13px;color:var(--muted);line-height:1.6;}
+
+.battle-arena{position:relative;}
+.battle-cards{display:flex;gap:12px;align-items:center;margin-bottom:16px;}
+.battle-card{flex:1;background:var(--card);border:2px solid var(--border);border-radius:18px;padding:16px;text-align:center;cursor:pointer;transition:all .25s;position:relative;overflow:hidden;}
+.battle-card:hover{transform:translateY(-4px);box-shadow:0 10px 28px rgba(26,18,9,.1);}
+.battle-card.selected{border-color:var(--accent2);background:linear-gradient(135deg,#fffdf7,#fff8ee);animation:glow 2s infinite;}
+.battle-card.winner{border-color:var(--accent3);background:linear-gradient(135deg,#f0faf5,#e8f5e9);animation:none;}
+.battle-card.loser{opacity:.5;transform:scale(.95);}
+.bc-emoji{font-size:52px;display:block;margin-bottom:8px;animation:float 3s ease-in-out infinite;}
+.bc-name{font-size:14px;font-weight:500;margin-bottom:4px;}
+.bc-price{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;}
+.bc-vote{margin-top:10px;padding:7px;border-radius:10px;background:var(--accent);color:white;border:none;font-size:12px;cursor:pointer;font-family:'Noto Sans SC',sans-serif;width:100%;transition:all .2s;}
+.bc-vote:hover{background:#d14e1a;}
+.bc-winner-badge{position:absolute;top:8px;right:8px;background:var(--accent3);color:white;font-size:10px;padding:2px 8px;border-radius:10px;font-weight:500;}
+
+.vs-badge{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-family:'Noto Serif SC',serif;font-size:14px;font-weight:700;color:white;flex-shrink:0;box-shadow:0 4px 12px rgba(232,93,38,.3);animation:pulse 2s infinite;}
+
+.battle-progress{margin-bottom:14px;}
+.bp-label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:4px;}
+.bp-bar{height:8px;background:var(--border);border-radius:4px;overflow:hidden;display:flex;}
+.bp-left{height:100%;background:linear-gradient(90deg,var(--accent),#f06030);transition:width .5s cubic-bezier(.16,1,.3,1);}
+.bp-right{height:100%;background:linear-gradient(90deg,#1976d2,#42a5f5);transition:width .5s cubic-bezier(.16,1,.3,1);}
+
+.round-info{text-align:center;font-size:12px;color:var(--muted);margin-bottom:14px;font-family:'DM Mono',monospace;}
+.round-badge{display:inline-block;padding:3px 12px;background:var(--tag-bg);border-radius:12px;font-size:11px;margin-right:8px;}
+
+.skip-btn{width:100%;padding:11px;border-radius:12px;border:1.5px solid var(--border);background:transparent;font-size:13px;cursor:pointer;font-family:'Noto Sans SC',sans-serif;color:var(--muted);transition:all .2s;}
+.skip-btn:hover{border-color:var(--accent2);color:var(--ink);}
+
+/* ── 最终冠军 ── */
+.champion-card{background:linear-gradient(135deg,#1a1209,#2d1a05);border-radius:20px;padding:28px 20px;text-align:center;display:none;animation:resultPop .6s cubic-bezier(.16,1,.3,1);}
+.champion-card.show{display:block;}
+.champion-crown{font-size:40px;display:block;margin-bottom:8px;animation:bounce 1.5s ease infinite;}
+.champion-title{font-family:'DM Mono',monospace;font-size:11px;color:rgba(253,246,227,.5);letter-spacing:2px;margin-bottom:10px;}
+.champion-emoji{font-size:72px;display:block;margin-bottom:10px;filter:drop-shadow(0 8px 20px rgba(244,185,66,.4));}
+.champion-name{font-family:'Noto Serif SC',serif;font-size:24px;font-weight:700;color:var(--accent2);margin-bottom:6px;}
+.champion-desc{font-size:13px;color:rgba(253,246,227,.6);line-height:1.6;margin-bottom:20px;}
+.champion-btns{display:flex;gap:8px;}
+.champ-btn{flex:1;padding:12px;border-radius:12px;font-size:13px;cursor:pointer;font-family:'Noto Sans SC',sans-serif;transition:all .2s;font-weight:500;}
+.champ-btn.primary{background:linear-gradient(135deg,var(--accent),#f06030);color:white;border:none;box-shadow:0 4px 14px rgba(232,93,38,.3);}
+.champ-btn.secondary{background:rgba(253,246,227,.1);color:rgba(253,246,227,.8);border:1px solid rgba(253,246,227,.2);}
+
+/* ── 彩纸 ── */
+.confetti{position:fixed;pointer-events:none;z-index:999;}
+.confetti-piece{position:absolute;width:8px;height:8px;border-radius:2px;animation:confettiFall 2s ease-in forwards;}
+
+/* ── 历史记录 ── */
+.history-section{padding:0 16px 16px;}
+.history-item{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--card);border-radius:12px;border:1px solid var(--border);margin-bottom:7px;}
+.hi-emoji{font-size:24px;flex-shrink:0;}
+.hi-info{flex:1;}
+.hi-name{font-size:13px;font-weight:500;}
+.hi-time{font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:1px;}
+.hi-mode{font-size:10px;padding:1px 7px;border-radius:8px;background:var(--border);}
+
+/* ── Toast ── */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--ink);color:var(--paper);padding:11px 18px;border-radius:12px;font-size:13px;z-index:999;transition:transform .3s cubic-bezier(.16,1,.3,1);white-space:nowrap;box-shadow:0 8px 24px rgba(0,0,0,.2);}
+.toast.show{transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <a href="index.html" class="hdr-back">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    返回
+  </a>
+  <div class="hdr-title">今天吃什么</div>
+  <div class="mode-badge" onclick="showFunRules()" style="cursor:pointer;">✨ 积分规则</div>
+</div>
+
+<!-- 模式选择 -->
+<div class="mode-selector">
+  <div class="mode-btn active" onclick="switchMode('wheel', this)">
+    <span class="mb-icon">🎯</span>
+    <div class="mb-name">随机转盘</div>
+    <div class="mb-desc">转它！让命运决定</div>
+  </div>
+  <div class="mode-btn" onclick="switchMode('battle', this)">
+    <span class="mb-icon">⚔️</span>
+    <div class="mb-name">美食PK</div>
+    <div class="mb-desc">一对一淘汰赛</div>
+  </div>
+</div>
+
+<!-- ══ 转盘模式 ══ -->
+<div class="wheel-section active" id="mode-wheel">
+  <div class="wheel-wrap">
+    <div class="wheel-pointer">👆</div>
+    <canvas id="wheelCanvas" width="300" height="300"></canvas>
+    <div class="wheel-center" id="wheelCenter">🎲</div>
+  </div>
+
+  <button class="spin-btn" id="spinBtn" onclick="spinWheel()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>
+    转动命运之轮
+  </button>
+
+  <!-- 结果卡 -->
+  <div class="result-card" id="resultCard">
+    <span class="result-emoji" id="resultEmoji">🍜</span>
+    <div class="result-name" id="resultName">重庆秀山小面</div>
+    <div class="result-meta" id="resultMeta">中餐 · ¥12-22 · 步行3分钟</div>
+    <div class="result-tags" id="resultTags"></div>
+    <div class="result-actions">
+      <button class="r-btn" onclick="spinWheel()">🔄 再转一次</button>
+      <button class="r-btn primary" onclick="goToRestaurant()">📍 去这里！</button>
+    </div>
+  </div>
+
+  <!-- 自定义范围 -->
+  <div class="custom-section">
+    <div class="custom-title">选择参与转盘的餐厅类型</div>
+    <div class="custom-chips" id="customChips"></div>
+    <div style="font-size:11px;color:var(--muted);">点击选中/取消，已选 <span id="selectedCount" style="color:var(--accent);font-weight:500;">全部</span></div>
+  </div>
+</div>
+
+<!-- ══ PK 模式 ══ -->
+<div class="battle-section" id="mode-battle">
+  <div class="battle-intro">
+    <h2>⚔️ 美食大擂台</h2>
+    <p>两两对决，选你更想吃的那个<br>最终胜者就是今天的午餐！</p>
+  </div>
+
+  <div class="round-info">
+    <span class="round-badge" id="roundBadge">第 1 轮</span>
+    共 <span id="totalRounds">?</span> 轮 · 剩余 <span id="remainRounds">?</span> 轮
+  </div>
+
+  <div class="battle-progress">
+    <div class="bp-label">
+      <span id="leftName">—</span>
+      <span id="rightName">—</span>
+    </div>
+    <div class="bp-bar">
+      <div class="bp-left" id="bpLeft" style="width:50%"></div>
+      <div class="bp-right" id="bpRight" style="width:50%"></div>
+    </div>
+  </div>
+
+  <div class="battle-cards" id="battleCards">
+    <div class="battle-card" id="cardA" onclick="vote('A')">
+      <span class="bc-emoji" id="emojiA">🍜</span>
+      <div class="bc-name" id="nameA">加载中…</div>
+      <div class="bc-price" id="priceA"></div>
+      <button class="bc-vote">✅ 选这个！</button>
+    </div>
+    <div class="vs-badge">VS</div>
+    <div class="battle-card" id="cardB" onclick="vote('B')">
+      <span class="bc-emoji" id="emojiB">🍣</span>
+      <div class="bc-name" id="nameB">加载中…</div>
+      <div class="bc-price" id="priceB"></div>
+      <button class="bc-vote">✅ 选这个！</button>
+    </div>
+  </div>
+
+  <button class="skip-btn" onclick="skipRound()">😐 两个都不想吃，换一换</button>
+
+  <!-- 冠军卡 -->
+  <div class="champion-card" id="championCard">
+    <span class="champion-crown">👑</span>
+    <div class="champion-title">今日食神 · 冠军</div>
+    <span class="champion-emoji" id="champEmoji">🍜</span>
+    <div class="champion-name" id="champName">重庆秀山小面</div>
+    <div class="champion-desc" id="champDesc">经过激烈对决，它脱颖而出！</div>
+    <div class="champion-btns">
+      <button class="champ-btn secondary" onclick="restartBattle()">🔄 再来一局</button>
+      <button class="champ-btn primary" onclick="goToChampion()">📍 就决定是你了！</button>
+    </div>
+  </div>
+</div>
+
+<!-- 历史记录 -->
+<div class="history-section" id="historySection" style="display:none;">
+  <div style="font-size:14px;font-weight:500;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;">
+    📋 最近决定
+    <span style="font-size:12px;color:var(--accent);cursor:pointer;" onclick="clearHistory()">清空</span>
+  </div>
+  <div id="historyList"></div>
+</div>
+
+<!-- 彩纸容器 -->
+<div class="confetti" id="confetti"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ── 餐厅数据（与后端同步，fallback本地数据）──────────────────
+const RESTAURANTS = [
+  {id:1, name:'重庆秀山小面', emoji:'🍜', cuisine:'中餐', price:'¥12-22', distance:3, tags:['小面','麻辣','早餐'], color:'#ff8c42'},
+  {id:2, name:'陶陶居早茶', emoji:'🍵', cuisine:'粤菜', price:'¥28-55', distance:6, tags:['早茶','虾饺','粤菜'], color:'#e85d26'},
+  {id:3, name:'柒号煎饼铺', emoji:'🥞', cuisine:'小吃', price:'¥8-15', distance:1, tags:['早餐','快','便宜'], color:'#f4b942'},
+  {id:4, name:'大渔铁板烧', emoji:'🍣', cuisine:'日料', price:'¥88-160', distance:14, tags:['刺身','约会','精致'], color:'#e91e63'},
+  {id:5, name:'外婆家江南菜', emoji:'🥘', cuisine:'中餐', price:'¥38-75', distance:10, tags:['聚餐','东坡肉'], color:'#9c27b0'},
+  {id:6, name:'一笼小确幸', emoji:'🧋', cuisine:'港式', price:'¥18-42', distance:8, tags:['港式','奶茶','宵夜'], color:'#00bcd4'},
+  {id:7, name:'韩尚宫烤肉', emoji:'🥩', cuisine:'韩餐', price:'¥55-95', distance:16, tags:['烤肉','聚餐'], color:'#f44336'},
+  {id:8, name:'绿·植物基轻食', emoji:'🥗', cuisine:'轻食', price:'¥28-52', distance:7, tags:['健康','低卡'], color:'#4caf50'},
+  {id:9, name:'川渝人家火锅', emoji:'🫕', cuisine:'川菜', price:'¥35-80', distance:4, tags:['火锅','麻辣','宵夜'], color:'#ff5722'},
+  {id:10, name:'豆舍咖啡', emoji:'☕', cuisine:'咖啡', price:'¥22-45', distance:9, tags:['咖啡','学习','WiFi'], color:'#795548'},
+];
+
+// 尝试从后端加载数据
+async function loadFromAPI() {
+  try {
+    const res = await fetch('http://localhost:8000/api/restaurants?page_size=20');
+    if (!res.ok) return;
+    const data = await res.json();
+    if (data.items && data.items.length > 0) {
+      RESTAURANTS.length = 0;
+      const colors = ['#ff8c42','#e85d26','#f4b942','#e91e63','#9c27b0','#00bcd4','#f44336','#4caf50','#ff5722','#795548'];
+      data.items.forEach((r, i) => {
+        RESTAURANTS.push({
+          id: r.id,
+          name: r.name,
+          emoji: r.emoji || '🍽️',
+          cuisine: r.cuisine,
+          price: `¥${r.price_min}-${r.price_max}`,
+          distance: r.distance_min,
+          tags: r.tags ? r.tags.split(',').slice(0,3) : [],
+          color: colors[i % colors.length],
+        });
+      });
+      initWheel();
+      initBattle();
+    }
+  } catch(e) { /* 使用本地数据 */ }
+}
+
+// ── 转盘逻辑 ────────────────────────────────────────────────
+let selectedRestaurants = [...RESTAURANTS];
+let isSpinning = false;
+let lastResult = null;
+let spinAngle = 0;
+
+function initWheel() {
+  // 初始化自定义选项
+  const container = document.getElementById('customChips');
+  container.innerHTML = '';
+  RESTAURANTS.forEach(r => {
+    const chip = document.createElement('div');
+    chip.className = 'custom-chip selected';
+    chip.dataset.id = r.id;
+    chip.innerHTML = `${r.emoji} ${r.name} <span class="rm">✕</span>`;
+    chip.onclick = () => toggleChip(chip, r);
+    container.appendChild(chip);
+  });
+  drawWheel();
+}
+
+function toggleChip(chip, r) {
+  chip.classList.toggle('selected');
+  selectedRestaurants = RESTAURANTS.filter(rest =>
+    document.querySelector(`.custom-chip[data-id="${rest.id}"]`)?.classList.contains('selected')
+  );
+  if (selectedRestaurants.length === 0) {
+    selectedRestaurants = [...RESTAURANTS];
+    document.querySelectorAll('.custom-chip').forEach(c => c.classList.add('selected'));
+  }
+  const count = selectedRestaurants.length;
+  document.getElementById('selectedCount').textContent = count === RESTAURANTS.length ? '全部' : `${count}家`;
+  drawWheel();
+}
+
+function drawWheel() {
+  const canvas = document.getElementById('wheelCanvas');
+  const ctx = canvas.getContext('2d');
+  const cx = 150, cy = 150, r = 145;
+  const n = selectedRestaurants.length;
+  const arc = (2 * Math.PI) / n;
+  ctx.clearRect(0, 0, 300, 300);
+
+  // 外圈阴影
+  ctx.save();
+  ctx.shadowColor = 'rgba(0,0,0,.15)';
+  ctx.shadowBlur = 20;
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, 2*Math.PI);
+  ctx.fillStyle = '#fff';
+  ctx.fill();
+  ctx.restore();
+
+  selectedRestaurants.forEach((rest, i) => {
+    const startAngle = arc * i - Math.PI/2;
+    const endAngle = startAngle + arc;
+    const midAngle = startAngle + arc/2;
+
+    // 扇形
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r - 2, startAngle, endAngle);
+    ctx.closePath();
+    ctx.fillStyle = rest.color + (i % 2 === 0 ? 'ee' : 'cc');
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,.5)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // 文字
+    ctx.save();
+    ctx.translate(cx + Math.cos(midAngle) * (r * 0.62), cy + Math.sin(midAngle) * (r * 0.62));
+    ctx.rotate(midAngle + Math.PI/2);
+    ctx.fillStyle = 'white';
+    ctx.font = `bold ${n > 8 ? 10 : 12}px "Noto Sans SC", sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.shadowColor = 'rgba(0,0,0,.3)';
+    ctx.shadowBlur = 3;
+    // 截断长名称
+    const displayName = rest.name.length > 5 ? rest.name.slice(0,5)+'…' : rest.name;
+    ctx.fillText(displayName, 0, 0);
+    ctx.restore();
+
+    // emoji
+    ctx.save();
+    ctx.translate(cx + Math.cos(midAngle) * (r * 0.82), cy + Math.sin(midAngle) * (r * 0.82));
+    ctx.font = `${n > 8 ? 14 : 18}px serif`;
+    ctx.textAlign = 'center';
+    ctx.fillText(rest.emoji, 0, 5);
+    ctx.restore();
+  });
+
+  // 中心圆
+  ctx.beginPath();
+  ctx.arc(cx, cy, 28, 0, 2*Math.PI);
+  ctx.fillStyle = 'white';
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(0,0,0,.1)';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+}
+
+function spinWheel() {
+  if (isSpinning || selectedRestaurants.length === 0) return;
+  isSpinning = true;
+
+  const spinBtn = document.getElementById('spinBtn');
+  spinBtn.disabled = true;
+  document.getElementById('resultCard').classList.remove('show');
+  document.getElementById('wheelCenter').textContent = '🌀';
+
+  const n = selectedRestaurants.length;
+  const arc = 360 / n;
+  const targetIdx = Math.floor(Math.random() * n);
+  const extraSpins = 5 + Math.random() * 5; // 5-10圈
+  const targetDeg = extraSpins * 360 + (360 - targetIdx * arc - arc/2);
+  const totalDeg = spinAngle + targetDeg;
+
+  const canvas = document.getElementById('wheelCanvas');
+  const duration = 3000 + Math.random() * 1000;
+  const start = performance.now();
+  const startAngle = spinAngle;
+
+  function easeOut(t) { return 1 - Math.pow(1 - t, 4); }
+
+  function animate(now) {
+    const elapsed = now - start;
+    const progress = Math.min(elapsed / duration, 1);
+    const currentDeg = startAngle + (totalDeg - startAngle) * easeOut(progress);
+
+    const ctx = canvas.getContext('2d');
+    ctx.save();
+    ctx.translate(150, 150);
+    ctx.rotate((currentDeg * Math.PI) / 180);
+    ctx.translate(-150, -150);
+    drawWheel();
+    ctx.restore();
+    // 重新绘制旋转状态
+    canvas.style.transform = `rotate(${currentDeg}deg)`;
+
+    if (progress < 1) {
+      requestAnimationFrame(animate);
+    } else {
+      spinAngle = totalDeg % 360;
+      isSpinning = false;
+      spinBtn.disabled = false;
+      document.getElementById('wheelCenter').textContent = '🎯';
+      showResult(selectedRestaurants[targetIdx]);
+    }
+  }
+  requestAnimationFrame(animate);
+}
+
+function showResult(restaurant) {
+  lastResult = restaurant;
+  document.getElementById('resultEmoji').textContent = restaurant.emoji;
+  document.getElementById('resultName').textContent = restaurant.name;
+  document.getElementById('resultMeta').textContent = `${restaurant.cuisine} · ${restaurant.price} · 步行${restaurant.distance}分钟`;
+  document.getElementById('resultTags').innerHTML = restaurant.tags.map(t =>
+    `<span class="result-tag">${t}</span>`).join('');
+  const card = document.getElementById('resultCard');
+  card.classList.add('show');
+  addHistory(restaurant, '转盘');
+  launchConfetti();
+  // 积分奖励提示
+  awardPoints(3, '转盘决策');
+  showToast(`🎉 今天就吃${restaurant.name}！`);
+}
+
+function goToRestaurant() {
+  if (lastResult) window.location.href = `index.html#restaurant-${lastResult.id}`;
+}
+
+// ── PK 对决逻辑 ─────────────────────────────────────────────
+let battlePool = [];
+let currentPair = [];
+let round = 1;
+let battleHistory = [];
+let battleChampion = null;
+
+function initBattle() {
+  battlePool = [...RESTAURANTS].sort(() => Math.random() - 0.5);
+  round = 1;
+  battleHistory = [];
+  battleChampion = null;
+  document.getElementById('championCard').classList.remove('show');
+  document.getElementById('battleCards').style.display = 'flex';
+  document.getElementById('totalRounds').textContent = Math.ceil(Math.log2(battlePool.length)) + 1;
+  nextPair();
+}
+
+function nextPair() {
+  if (battlePool.length === 1) {
+    // 产生冠军
+    showChampion(battlePool[0]);
+    return;
+  }
+  if (battlePool.length === 0) {
+    battlePool = [...RESTAURANTS].sort(() => Math.random() - 0.5);
+  }
+  currentPair = battlePool.splice(0, 2);
+  if (currentPair.length < 2) {
+    // 奇数情况，直接晋级
+    battleHistory.push(currentPair[0]);
+    if (battlePool.length === 0 && battleHistory.length === 1) {
+      showChampion(battleHistory[0]);
+    } else {
+      battlePool = [...battleHistory, ...battlePool];
+      battleHistory = [];
+      nextPair();
+    }
+    return;
+  }
+
+  const [a, b] = currentPair;
+  document.getElementById('emojiA').textContent = a.emoji;
+  document.getElementById('nameA').textContent = a.name;
+  document.getElementById('priceA').textContent = `${a.cuisine} · ${a.price}`;
+  document.getElementById('emojiB').textContent = b.emoji;
+  document.getElementById('nameB').textContent = b.name;
+  document.getElementById('priceB').textContent = `${b.cuisine} · ${b.price}`;
+  document.getElementById('leftName').textContent = a.name;
+  document.getElementById('rightName').textContent = b.name;
+  document.getElementById('roundBadge').textContent = `第 ${round} 轮`;
+  document.getElementById('remainRounds').textContent = battlePool.length + battleHistory.length + 1;
+
+  // 进度条
+  const total = RESTAURANTS.length;
+  const survived = battlePool.length + battleHistory.length + 2;
+  const pct = Math.round((1 - survived/total) * 100);
+  document.getElementById('bpLeft').style.width = `${50 + pct/2}%`;
+  document.getElementById('bpRight').style.width = `${50 - pct/2}%`;
+
+  // 重置卡片状态
+  document.getElementById('cardA').className = 'battle-card';
+  document.getElementById('cardB').className = 'battle-card';
+  document.querySelectorAll('.bc-winner-badge').forEach(b => b.remove());
+}
+
+function vote(side) {
+  if (!currentPair.length) return;
+  const winner = side === 'A' ? currentPair[0] : currentPair[1];
+  const loser  = side === 'A' ? currentPair[1] : currentPair[0];
+
+  // 视觉反馈
+  document.getElementById(`card${side}`).classList.add('winner');
+  document.getElementById(`card${side === 'A' ? 'B' : 'A'}`).classList.add('loser');
+
+  const badge = document.createElement('div');
+  badge.className = 'bc-winner-badge';
+  badge.textContent = '晋级 ✓';
+  document.getElementById(`card${side}`).appendChild(badge);
+
+  battleHistory.push(winner);
+  round++;
+
+  setTimeout(() => {
+    if (battlePool.length === 0 && battleHistory.length >= 2) {
+      // 进入下一轮
+      battlePool = [...battleHistory].sort(() => Math.random() - 0.5);
+      battleHistory = [];
+    } else if (battlePool.length === 0 && battleHistory.length === 1) {
+      showChampion(battleHistory[0]);
+      return;
+    }
+    nextPair();
+  }, 800);
+}
+
+function skipRound() {
+  if (!currentPair.length) return;
+  // 随机晋级一个
+  const winner = currentPair[Math.floor(Math.random() * 2)];
+  battleHistory.push(winner);
+  round++;
+  showToast('🎲 随机晋级一个！');
+  if (battlePool.length === 0 && battleHistory.length === 1) {
+    showChampion(battleHistory[0]);
+    return;
+  }
+  if (battlePool.length === 0) {
+    battlePool = [...battleHistory].sort(() => Math.random() - 0.5);
+    battleHistory = [];
+  }
+  nextPair();
+}
+
+function showChampion(restaurant) {
+  battleChampion = restaurant;
+  document.getElementById('battleCards').style.display = 'none';
+  document.getElementById('champEmoji').textContent = restaurant.emoji;
+  document.getElementById('champName').textContent = restaurant.name;
+  document.getElementById('champDesc').textContent = `${restaurant.cuisine} · ${restaurant.price} · 步行${restaurant.distance}分钟\n经过${round-1}轮激烈对决，它脱颖而出！`;
+  document.getElementById('championCard').classList.add('show');
+  addHistory(restaurant, 'PK赛');
+  launchConfetti();
+  // 积分奖励
+  awardPoints(5, 'PK赛冠军');
+  showToast(`👑 ${restaurant.name} 荣登今日食神！`);
+}
+
+function restartBattle() {
+  document.getElementById('battleCards').style.display = 'flex';
+  initBattle();
+}
+
+function goToChampion() {
+  if (battleChampion) window.location.href = `index.html`;
+}
+
+// ── 模式切换 ─────────────────────────────────────────────────
+function switchMode(mode, btn) {
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('mode-wheel').classList.toggle('active', mode === 'wheel');
+  document.getElementById('mode-battle').classList.toggle('active', mode === 'battle');
+  if (mode === 'battle') initBattle();
+}
+
+// ── 历史记录 ─────────────────────────────────────────────────
+let history = JSON.parse(localStorage.getItem('funmode_history') || '[]');
+
+function addHistory(restaurant, mode) {
+  history.unshift({ name: restaurant.name, emoji: restaurant.emoji, mode, time: new Date().toLocaleTimeString('zh-CN', {hour:'2-digit', minute:'2-digit'}) });
+  if (history.length > 10) history = history.slice(0, 10);
+  localStorage.setItem('funmode_history', JSON.stringify(history));
+  renderHistory();
+}
+
+function renderHistory() {
+  if (!history.length) { document.getElementById('historySection').style.display = 'none'; return; }
+  document.getElementById('historySection').style.display = 'block';
+  document.getElementById('historyList').innerHTML = history.slice(0,5).map(h => `
+    <div class="history-item">
+      <span class="hi-emoji">${h.emoji}</span>
+      <div class="hi-info">
+        <div class="hi-name">${h.name}</div>
+        <div class="hi-time">今天 ${h.time}</div>
+      </div>
+      <span class="hi-mode" style="background:${h.mode==='转盘'?'#fff3e0':'#e8f5e9'};color:${h.mode==='转盘'?'#e85d26':'#2d7a4f'}">${h.mode==='转盘'?'🎯':'⚔️'} ${h.mode}</span>
+    </div>`).join('');
+}
+
+function clearHistory() {
+  history = [];
+  localStorage.removeItem('funmode_history');
+  renderHistory();
+}
+
+// ── 彩纸特效 ─────────────────────────────────────────────────
+function launchConfetti() {
+  const container = document.getElementById('confetti');
+  container.innerHTML = '';
+  const colors = ['#e85d26','#f4b942','#2d7a4f','#e91e63','#1976d2','#9c27b0'];
+  for (let i = 0; i < 40; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.cssText = `
+      left:${Math.random()*100}%;
+      top:0;
+      background:${colors[Math.floor(Math.random()*colors.length)]};
+      border-radius:${Math.random()>0.5?'50%':'2px'};
+      width:${6+Math.random()*6}px;
+      height:${6+Math.random()*6}px;
+      animation-delay:${Math.random()*0.5}s;
+      animation-duration:${1.5+Math.random()}s;
+    `;
+    container.appendChild(piece);
+  }
+  setTimeout(() => { container.innerHTML = ''; }, 3000);
+}
+
+// ── Toast ─────────────────────────────────────────────────────
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ── 积分奖励（调用真实后端 API）────────────────────────────────
+async function awardPoints(pts, reason) {
+  if (!Auth || !Auth.isLoggedIn()) return;
+  const actionMap = { '转盘决策': 'wheel_spin', 'PK赛冠军': 'battle_win' };
+  const action = actionMap[reason] || 'wheel_spin';
+  try {
+    const res = await PointsAPI.earn(action, reason);
+    if (res.ok) {
+      // 浮动积分提示
+      const el = document.createElement('div');
+      el.textContent = `+${res.points} 积分 🏆`;
+      el.style.cssText = 'position:fixed;top:80px;right:20px;background:linear-gradient(135deg,#f4b942,#e85d26);color:white;padding:8px 16px;border-radius:20px;font-size:13px;font-weight:500;z-index:999;animation:ptsFly 2s ease forwards;pointer-events:none;font-family:"Noto Sans SC",sans-serif;box-shadow:0 4px 16px rgba(244,185,66,.4);';
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 2100);
+    } else {
+      // 已达上限静默处理
+      console.log(res.message);
+    }
+  } catch(e) {
+    // 未登录或网络失败：降级为本地提示
+    const el = document.createElement('div');
+    el.textContent = `+${pts} 积分（登录后记录）`;
+    el.style.cssText = 'position:fixed;top:80px;right:20px;background:#8a7a6a;color:white;padding:8px 16px;border-radius:20px;font-size:12px;z-index:999;animation:ptsFly 2s ease forwards;pointer-events:none;font-family:"Noto Sans SC",sans-serif;';
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 2100);
+  }
+}
+
+// ── 积分规则弹窗 ─────────────────────────────────────────────
+function showFunRules() {
+  document.getElementById('funRulesModal').classList.add('open');
+}
+function closeFunRules() {
+  document.getElementById('funRulesModal').classList.remove('open');
+}
+
+// ── 初始化 ────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  initWheel();
+  renderHistory();
+  loadFromAPI();
+});
+</script>
+<script src="assets/api.js"></script>
+
+<style>
+@keyframes ptsFly {
+  0%  { opacity:1; transform:translateY(0) scale(1); }
+  70% { opacity:1; transform:translateY(-40px) scale(1.1); }
+  100%{ opacity:0; transform:translateY(-70px) scale(.9); }
+}
+#funRulesModal.open { opacity:1 !important; pointer-events:all !important; }
+#funRulesModal.open > div { transform:translateY(0) !important; }
+</style>
+
+<!-- 积分规则弹窗 -->
+<div id="funRulesModal" style="position:fixed;inset:0;background:rgba(26,18,9,.6);backdrop-filter:blur(8px);z-index:200;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;" onclick="if(event.target===this)closeFunRules()">
+  <div style="background:var(--paper);border-radius:24px 24px 0 0;width:100%;max-width:480px;max-height:85vh;overflow-y:auto;transform:translateY(100%);transition:transform .4s cubic-bezier(.16,1,.3,1);">
+    <div style="padding:20px 20px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);">
+      <div style="font-family:'Noto Serif SC',serif;font-size:18px;font-weight:700;">🎮 趣味模式 · 积分规则</div>
+      <button onclick="closeFunRules()" style="width:32px;height:32px;border-radius:50%;border:1px solid var(--border);background:var(--card);cursor:pointer;font-size:16px;">✕</button>
+    </div>
+    <div style="padding:20px;">
+
+      <!-- 趣味模式专属积分 -->
+      <div style="font-size:13px;font-weight:600;color:var(--accent);margin-bottom:10px;">🎯 趣味模式专属积分</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px;">
+        <div style="background:var(--card);border-radius:12px;padding:14px;border:1px solid var(--border);text-align:center;">
+          <div style="font-size:28px;margin-bottom:6px;">🎯</div>
+          <div style="font-size:13px;font-weight:500;margin-bottom:4px;">随机转盘</div>
+          <div style="font-size:22px;font-weight:500;color:var(--accent3);">+3分</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:3px;">每次使用转盘<br>每日上限 15分</div>
+        </div>
+        <div style="background:var(--card);border-radius:12px;padding:14px;border:1px solid var(--border);text-align:center;">
+          <div style="font-size:28px;margin-bottom:6px;">⚔️</div>
+          <div style="font-size:13px;font-weight:500;margin-bottom:4px;">美食PK赛</div>
+          <div style="font-size:22px;font-weight:500;color:var(--accent3);">+5分</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:3px;">完成一局PK赛<br>每日1次</div>
+        </div>
+      </div>
+
+      <!-- 全部积分来源 -->
+      <div style="font-size:13px;font-weight:600;color:var(--accent);margin-bottom:10px;">📥 全部积分来源</div>
+      <div style="background:var(--card);border-radius:12px;overflow:hidden;border:1px solid var(--border);margin-bottom:16px;">
+        <div style="display:flex;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border);font-size:12px;"><span>📝 发布评价</span><span style="color:var(--accent3);font-weight:500;">+10分 · 日限50</span></div>
+        <div style="display:flex;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border);font-size:12px;"><span>📅 每日签到</span><span style="color:var(--accent3);font-weight:500;">+5分 · 连签翻倍</span></div>
+        <div style="display:flex;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border);font-size:12px;"><span>👍 帖子被点赞</span><span style="color:var(--accent3);font-weight:500;">+2分 · 日限30</span></div>
+        <div style="display:flex;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border);font-size:12px;"><span>🎯 使用随机转盘</span><span style="color:var(--accent3);font-weight:500;">+3分 · 日限15</span></div>
+        <div style="display:flex;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border);font-size:12px;"><span>⚔️ 完成PK赛</span><span style="color:var(--accent3);font-weight:500;">+5分 · 日限1次</span></div>
+        <div style="display:flex;justify-content:space-between;padding:10px 14px;font-size:12px;"><span>🎯 邀请新用户</span><span style="color:var(--accent3);font-weight:500;">+50分 · 无上限</span></div>
+      </div>
+
+      <!-- 积分用途 -->
+      <div style="font-size:13px;font-weight:600;color:var(--accent);margin-bottom:10px;">🎁 积分用途</div>
+      <div style="background:var(--card);border-radius:12px;overflow:hidden;border:1px solid var(--border);margin-bottom:16px;">
+        <div style="display:flex;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border);font-size:12px;"><span>🎟️ 兑换餐厅优惠券</span><span style="color:var(--accent);font-weight:500;">200积分起</span></div>
+        <div style="display:flex;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border);font-size:12px;"><span>🤖 解锁AI推荐次数×5</span><span style="color:var(--accent);font-weight:500;">50积分</span></div>
+        <div style="display:flex;justify-content:space-between;padding:10px 14px;font-size:12px;"><span>📌 校园圈帖子置顶1天</span><span style="color:var(--accent);font-weight:500;">300积分</span></div>
+      </div>
+
+      <div style="background:linear-gradient(135deg,#fff8f0,#fff3e8);border:1px solid rgba(244,185,66,.4);border-radius:12px;padding:12px 14px;font-size:11px;line-height:1.8;color:#5a4a3a;margin-bottom:16px;">
+        📋 积分有效期至<strong>当年12月31日</strong>，每年1月1日清零<br>
+        📋 前往<strong>「我的主页」→「积分中心」</strong>查看完整详情和兑换
+      </div>
+
+      <button onclick="closeFunRules()" style="width:100%;padding:13px;border-radius:12px;background:var(--ink);color:var(--paper);border:none;font-size:14px;cursor:pointer;font-family:'Noto Sans SC',sans-serif;font-weight:500;">开始玩，赚积分！</button>
+    </div>
+  </div>
+</div>
+</body>
+</html>

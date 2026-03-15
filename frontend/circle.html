@@ -355,6 +355,12 @@ function toggleLike(btn, id) {
   const count = btn.querySelector('.like-count');
   icon.textContent = liked ? '❤️' : '🤍';
   count.textContent = parseInt(count.textContent) + (liked ? 1 : -1);
+  // 被点赞者获得积分（此处模拟：点赞者触发，实际应由帖子作者获得，后端接入后改造）
+  if (liked && typeof PointsAPI !== 'undefined' && Auth.isLoggedIn()) {
+    PointsAPI.earn('liked', '帖子被点赞').then(res => {
+      if (res && res.ok && typeof showPointsFloat === 'function') showPointsFloat(res.points, '点赞互动');
+    }).catch(() => {});
+  }
 }
 
 function toggleComments(id) {

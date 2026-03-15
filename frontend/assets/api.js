@@ -96,6 +96,32 @@ const AdminAPI = {
   deleteMenuItem:(id)   => del(`/api/admin/menu-items/${id}`),
 };
 
+// ── 积分 API ────────────────────────────────────────────────
+const PointsAPI = {
+  me:      ()                  => get("/api/points/me"),
+  logs:    (page=1)            => get("/api/points/logs", {page}),
+  today:   ()                  => get("/api/points/today"),
+  ranking: (limit=10)          => get("/api/points/ranking", {limit}),
+  earn:    (action, note="")   => post("/api/points/earn", {action, note}),
+  redeem:  (points, note)      => post("/api/points/redeem", {points, note}),
+};
+
+// 积分浮动动画
+function showPointsFloat(pts, msg="") {
+  if (!Auth.isLoggedIn()) return;
+  const el = document.createElement("div");
+  el.textContent = `+${pts} 积分${msg ? " · "+msg : ""}`;
+  el.style.cssText = "position:fixed;top:72px;right:16px;background:linear-gradient(135deg,#f4b942,#e85d26);color:white;padding:8px 16px;border-radius:20px;font-size:13px;font-weight:500;z-index:9999;pointer-events:none;font-family:'Noto Sans SC',sans-serif;box-shadow:0 4px 16px rgba(244,185,66,.4);animation:ptsFly 2s ease forwards;";
+  if (!document.getElementById("_pts_style")) {
+    const s = document.createElement("style");
+    s.id = "_pts_style";
+    s.textContent = "@keyframes ptsFly{0%{opacity:1;transform:translateY(0)}70%{opacity:1;transform:translateY(-40px)}100%{opacity:0;transform:translateY(-70px)}}";
+    document.head.appendChild(s);
+  }
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 2100);
+}
+
 // ── UI 工具 ─────────────────────────────────────────
 function showToast(msg, type = "info") {
   let t = document.getElementById("_toast");
