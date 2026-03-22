@@ -3,253 +3,249 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>觅食 · 大学城美食地图 - 在线预览</title>
+<title>觅食 · 大学城美食地图 - 项目介绍</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@700;900&family=Noto+Sans+SC:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap');
-:root{--ink:#1a1209;--paper:#fdf6e3;--accent:#e85d26;--accent2:#f4b942;--accent3:#2d7a4f;--muted:#8a7a6a;--border:#e8dcc8;--card:#fffdf7;}
+:root{
+  --ink:#1a1209;--paper:#fdf6e3;--accent:#e85d26;--accent2:#f4b942;
+  --accent3:#2d7a4f;--muted:#8a7a6a;--border:#e8dcc8;--card:#fffdf7;
+}
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:'Noto Sans SC',sans-serif;background:#f0e8d8;color:var(--ink);}
+
 @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.2)}}
 @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-@keyframes bowlB{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-8px) rotate(2deg)}}
-@keyframes foodFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes bowlB{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-10px) rotate(2deg)}}
 @keyframes spin{from{transform:translate(-50%,-50%) rotate(0)}to{transform:translate(-50%,-50%) rotate(360deg)}}
 @keyframes spinR{from{transform:rotate(0)}to{transform:rotate(-360deg)}}
-@keyframes steamUp{0%{opacity:.7;transform:scaleX(1) translateY(0)}100%{opacity:0;transform:scaleX(2) translateY(-16px)}}
+@keyframes steamUp{0%{opacity:.7;transform:scaleX(1) translateY(0)}100%{opacity:0;transform:scaleX(2) translateY(-18px)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 
-/* Banner */
-.banner{background:linear-gradient(160deg,#1a1209 0%,#2d1a05 100%);padding:40px 24px 32px;text-align:center;position:relative;overflow:hidden;}
-.banner::before{content:'';position:absolute;width:400px;height:400px;border-radius:50%;background:rgba(232,93,38,.08);top:-150px;left:-100px;}
-.banner::after{content:'';position:absolute;width:300px;height:300px;border-radius:50%;background:rgba(244,185,66,.06);bottom:-100px;right:-80px;}
-.banner-foods{font-size:26px;display:flex;justify-content:center;gap:14px;margin-bottom:18px;position:relative;z-index:1;}
-.banner-food{animation:foodFloat 3s ease-in-out infinite;}
-.banner-food:nth-child(2){animation-delay:.4s;}
-.banner-food:nth-child(3){animation-delay:.8s;}
-.banner-food:nth-child(4){animation-delay:1.2s;}
-.banner-food:nth-child(5){animation-delay:1.6s;}
-.banner-title{font-family:'Noto Serif SC',serif;font-size:44px;font-weight:900;color:#fdf6e3;letter-spacing:-2px;position:relative;z-index:1;display:flex;align-items:center;justify-content:center;gap:8px;}
-.banner-dot{width:10px;height:10px;background:var(--accent);border-radius:50%;animation:pulse 2s infinite;margin-bottom:5px;}
-.banner-sub{font-size:13px;color:rgba(253,246,227,.5);letter-spacing:3px;margin-top:8px;position:relative;z-index:1;}
-.banner-desc{font-size:14px;color:rgba(253,246,227,.65);max-width:480px;margin:14px auto 0;line-height:1.7;position:relative;z-index:1;}
-.banner-btns{display:flex;gap:12px;justify-content:center;margin-top:22px;position:relative;z-index:1;flex-wrap:wrap;}
-.banner-btn{padding:10px 22px;border-radius:24px;font-size:13px;font-family:'Noto Sans SC',sans-serif;cursor:pointer;border:none;transition:all .2s;display:flex;align-items:center;gap:6px;text-decoration:none;}
-.banner-btn.primary{background:linear-gradient(135deg,var(--accent),#f06030);color:white;box-shadow:0 6px 18px rgba(232,93,38,.3);}
+/* ── HERO BANNER ── */
+.banner{background:linear-gradient(160deg,#1a1209 0%,#2d1a05 45%,#3d1f08 100%);padding:52px 24px 44px;text-align:center;position:relative;overflow:hidden;}
+.banner::before{content:'';position:absolute;width:500px;height:500px;border-radius:50%;background:rgba(232,93,38,.07);top:-200px;left:-150px;}
+.banner::after{content:'';position:absolute;width:400px;height:400px;border-radius:50%;background:rgba(244,185,66,.05);bottom:-150px;right:-100px;}
+.banner-foods{font-size:28px;display:flex;justify-content:center;gap:16px;margin-bottom:20px;position:relative;z-index:1;}
+.banner-food{animation:float 3s ease-in-out infinite;}
+.banner-food:nth-child(1){animation-delay:0s}
+.banner-food:nth-child(2){animation-delay:.4s}
+.banner-food:nth-child(3){animation-delay:.8s}
+.banner-food:nth-child(4){animation-delay:1.2s}
+.banner-food:nth-child(5){animation-delay:1.6s}
+.banner-title{font-family:'Noto Serif SC',serif;font-size:52px;font-weight:900;color:#fdf6e3;letter-spacing:-2.5px;position:relative;z-index:1;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:6px;}
+.banner-dot{width:12px;height:12px;background:var(--accent);border-radius:50%;animation:pulse 2s infinite;margin-bottom:6px;}
+.banner-sub{font-size:13px;color:rgba(253,246,227,.45);letter-spacing:3px;font-family:'DM Mono',monospace;position:relative;z-index:1;}
+.banner-desc{font-size:15px;color:rgba(253,246,227,.7);max-width:520px;margin:16px auto 0;line-height:1.8;position:relative;z-index:1;}
+.banner-btns{display:flex;gap:12px;justify-content:center;margin-top:26px;position:relative;z-index:1;flex-wrap:wrap;}
+.banner-btn{padding:11px 24px;border-radius:26px;font-size:13px;font-family:'Noto Sans SC',sans-serif;cursor:pointer;border:none;transition:all .2s;display:flex;align-items:center;gap:7px;text-decoration:none;font-weight:500;}
+.banner-btn.primary{background:linear-gradient(135deg,var(--accent),#f06030);color:white;box-shadow:0 6px 20px rgba(232,93,38,.35);}
+.banner-btn.primary:hover{transform:translateY(-2px);box-shadow:0 8px 26px rgba(232,93,38,.45);}
 .banner-btn.secondary{background:rgba(253,246,227,.1);color:#fdf6e3;border:1px solid rgba(253,246,227,.2);}
+.banner-btn.secondary:hover{background:rgba(253,246,227,.18);}
+.banner-stats{display:flex;gap:32px;justify-content:center;margin-top:28px;position:relative;z-index:1;flex-wrap:wrap;}
+.banner-stat{text-align:center;}
+.banner-stat-n{font-family:'Noto Serif SC',serif;font-size:26px;font-weight:900;color:var(--accent2);}
+.banner-stat-l{font-size:11px;color:rgba(253,246,227,.4);margin-top:2px;letter-spacing:.5px;}
 
-/* Features */
-.features{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;padding:18px 20px;background:var(--paper);border-bottom:1px solid var(--border);}
-.feat-chip{display:flex;align-items:center;gap:5px;padding:5px 13px;border-radius:18px;background:var(--card);border:1px solid var(--border);font-size:12px;color:var(--muted);}
+/* ── FEATURE CHIPS ── */
+.features{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;padding:20px 20px;background:var(--paper);border-bottom:1px solid var(--border);}
+.feat-chip{display:flex;align-items:center;gap:5px;padding:6px 14px;border-radius:20px;background:var(--card);border:1px solid var(--border);font-size:12px;color:var(--muted);transition:all .2s;}
+.feat-chip:hover{border-color:var(--accent);color:var(--accent);}
 
-/* Main */
-.main{max-width:1000px;margin:0 auto;padding:28px 20px 60px;}
-.device-section{margin-bottom:44px;}
-.section-label{display:flex;align-items:center;gap:10px;margin-bottom:18px;}
-.section-label h2{font-family:'Noto Serif SC',serif;font-size:19px;font-weight:700;}
-.num{width:28px;height:28px;background:var(--accent);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;}
+/* ── SECTION ── */
+.section{padding:48px 24px;}
+.section.dark{background:linear-gradient(160deg,#1a1209,#2d1a05);color:#fdf6e3;}
+.section.warm{background:linear-gradient(135deg,#fffaf0,#fff5e8);}
+.section.light{background:var(--paper);}
+.section-inner{max-width:1000px;margin:0 auto;}
+.section-tag{display:inline-flex;align-items:center;gap:6px;background:var(--accent);color:white;padding:4px 14px;border-radius:14px;font-size:11px;font-family:'DM Mono',monospace;letter-spacing:.5px;margin-bottom:14px;}
+.section-tag.green{background:var(--accent3);}
+.section-tag.gold{background:var(--accent2);color:var(--ink);}
+.section-tag.dark-tag{background:rgba(253,246,227,.15);color:rgba(253,246,227,.8);}
+.section-title{font-family:'Noto Serif SC',serif;font-size:28px;font-weight:900;margin-bottom:10px;line-height:1.2;}
+.section-desc{font-size:14px;line-height:1.8;color:var(--muted);max-width:600px;margin-bottom:32px;}
+.section.dark .section-desc{color:rgba(253,246,227,.55);}
 
-/* Browser frame */
-.browser-frame{background:#2d2d2d;border-radius:12px;overflow:hidden;box-shadow:0 16px 48px rgba(0,0,0,.2);}
-.browser-bar{background:#3d3d3d;padding:10px 14px;display:flex;align-items:center;gap:8px;}
+/* ── BROWSER FRAME ── */
+.browser{background:#2d2d2d;border-radius:14px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.2);}
+.browser-bar{background:#3d3d3d;padding:10px 16px;display:flex;align-items:center;gap:8px;}
 .bdots{display:flex;gap:6px;}
 .bdot{width:12px;height:12px;border-radius:50%;}
 .bdot.r{background:#ff5f57;}
 .bdot.y{background:#febc2e;}
 .bdot.g{background:#28c840;}
-.browser-url{flex:1;background:#1d1d1d;border-radius:6px;padding:5px 12px;font-size:12px;color:#888;font-family:'DM Mono',monospace;text-align:center;}
-.browser-content{background:var(--paper);overflow:hidden;}
+.burl{flex:1;background:#1d1d1d;border-radius:6px;padding:5px 12px;font-size:11px;color:#888;font-family:'DM Mono',monospace;text-align:center;}
 
-/* Splash preview */
-.splash{min-height:360px;background:linear-gradient(160deg,#fff8f0,#fdf0dc,#fff3e5);display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden;gap:2px;}
+/* ── SPLASH ── */
+.splash{min-height:320px;background:linear-gradient(160deg,#fff8f0,#fdf0dc,#fff3e5);display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden;gap:0;}
 .sp-ring{position:absolute;border-radius:50%;border:1.5px solid rgba(232,93,38,.1);}
 .sp-orbit{position:absolute;width:200px;height:200px;top:50%;left:50%;animation:spin 12s linear infinite;}
 .sp-food{position:absolute;font-size:17px;}
 .sp-food:nth-child(1){top:-12px;left:calc(50% - 8px);}
 .sp-food:nth-child(2){bottom:-12px;left:calc(50% - 8px);}
 .sp-food:nth-child(3){left:-12px;top:calc(50% - 8px);}
-.sp-food:nth-child(4){right:-12px;top:calc(50% - 8px);}
+.sp-food:nth-child(4){right:-12px;top:calc(50% - 8px);left:auto;}
 .sp-fi{animation:spinR 12s linear infinite;}
-.sp-steam{display:flex;gap:6px;height:26px;align-items:flex-end;margin-bottom:3px;}
+.sp-steam{display:flex;gap:7px;height:28px;align-items:flex-end;margin-bottom:3px;}
 .st{width:3px;border-radius:3px;background:linear-gradient(to top,rgba(232,93,38,.4),transparent);animation:steamUp 1.6s ease-in-out infinite;}
-.st:nth-child(1){height:16px}.st:nth-child(2){height:22px;animation-delay:.25s}.st:nth-child(3){height:12px;animation-delay:.5s}.st:nth-child(4){height:18px;animation-delay:.75s}
-.sp-bowl{font-size:72px;animation:bowlB 2.5s ease-in-out infinite;z-index:2;}
-.sp-title{font-family:'Noto Serif SC',serif;font-size:40px;font-weight:900;color:#1a1209;letter-spacing:-2px;z-index:2;display:flex;align-items:center;gap:4px;margin-top:6px;}
-.sp-tdot{width:8px;height:8px;background:var(--accent);border-radius:50%;margin-bottom:4px;animation:pulse 2s infinite;}
+.st:nth-child(1){height:18px}.st:nth-child(2){height:26px;animation-delay:.25s}.st:nth-child(3){height:14px;animation-delay:.5s}.st:nth-child(4){height:22px;animation-delay:.75s}
+.sp-bowl{font-size:80px;animation:bowlB 2.5s ease-in-out infinite;z-index:2;filter:drop-shadow(0 6px 16px rgba(232,93,38,.2));}
+.sp-title{font-family:'Noto Serif SC',serif;font-size:42px;font-weight:900;color:#1a1209;letter-spacing:-2px;z-index:2;display:flex;align-items:center;gap:4px;margin-top:6px;}
+.sp-tdot{width:9px;height:9px;background:var(--accent);border-radius:50%;margin-bottom:4px;animation:pulse 2s infinite;}
 .sp-sub{font-size:11px;color:#8a7a6a;letter-spacing:3px;z-index:2;margin-top:4px;}
-.sp-chips{display:flex;gap:7px;margin-top:14px;z-index:2;flex-wrap:wrap;justify-content:center;padding:0 16px;}
-.sp-chip{background:white;border-radius:20px;padding:6px 12px;font-size:12px;display:flex;align-items:center;gap:5px;border:1px solid rgba(232,93,38,.15);}
-.sp-chip span:last-child{font-size:10px;color:#8a7a6a;}
-.sp-cta{margin-top:14px;padding:9px 20px;background:linear-gradient(135deg,#e85d26,#f06030);border-radius:22px;font-size:12px;color:white;font-weight:500;z-index:2;border:none;}
+.sp-chips{display:flex;gap:8px;margin-top:16px;z-index:2;flex-wrap:wrap;justify-content:center;}
+.sp-chip{background:white;border-radius:20px;padding:7px 14px;font-size:12px;display:flex;align-items:center;gap:6px;border:1px solid rgba(232,93,38,.15);box-shadow:0 3px 10px rgba(232,93,38,.07);}
+.sp-chip-t{font-size:11px;color:#8a7a6a;}
+.sp-cta{margin-top:16px;padding:10px 22px;background:linear-gradient(135deg,#e85d26,#f06030);border-radius:24px;font-size:12px;color:white;font-weight:500;z-index:2;border:none;box-shadow:0 4px 14px rgba(232,93,38,.25);}
 
-/* Page header */
-.ph{background:rgba(253,246,227,.97);border-bottom:1px solid var(--border);padding:0 14px;height:48px;display:flex;align-items:center;justify-content:space-between;}
-.ph-logo{display:flex;align-items:center;gap:4px;}
-.ph-logo-t{font-family:'Noto Serif SC',serif;font-size:17px;font-weight:900;}
-.ph-logo-d{width:6px;height:6px;background:var(--accent);border-radius:50%;animation:pulse 2s infinite;margin-bottom:1px;}
-.ph-btns{display:flex;gap:5px;}
-.phb{padding:4px 10px;border-radius:14px;border:1px solid var(--border);background:transparent;font-size:11px;cursor:pointer;color:var(--muted);font-family:'Noto Sans SC',sans-serif;}
-.phb.ac{background:var(--accent);color:white;border-color:var(--accent);}
+/* ── FEATURE GRID ── */
+.feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-bottom:32px;}
+.feat-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;transition:all .2s;}
+.feat-card:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(26,18,9,.08);}
+.feat-card.highlight{border-color:var(--accent2);background:linear-gradient(135deg,#fffdf7,#fff8ee);}
+.feat-icon{font-size:32px;margin-bottom:12px;display:block;}
+.feat-title{font-size:15px;font-weight:500;margin-bottom:6px;}
+.feat-desc{font-size:13px;color:var(--muted);line-height:1.7;}
+.feat-badge{display:inline-block;margin-top:10px;padding:3px 10px;border-radius:10px;font-size:11px;background:rgba(232,93,38,.08);color:var(--accent);font-weight:500;}
 
-/* Hero */
-.hero-s{padding:18px 14px 12px;background:linear-gradient(180deg,#fdf6e3,#f7f0e6);}
-.hero-pill{display:inline-flex;align-items:center;gap:4px;background:var(--accent);color:white;padding:3px 10px;border-radius:12px;font-size:10px;margin-bottom:10px;}
-.hero-h1{font-family:'Noto Serif SC',serif;font-size:24px;font-weight:900;line-height:1.2;margin-bottom:8px;}
-.hero-h1 em{font-style:normal;color:var(--accent);}
-.hero-search{display:flex;gap:6px;margin-bottom:10px;}
-.hero-input{flex:1;display:flex;align-items:center;gap:6px;background:white;border:1.5px solid var(--border);border-radius:10px;padding:0 11px;height:38px;font-size:12px;color:var(--muted);}
-.hero-sbtn{padding:0 14px;height:38px;background:var(--accent);color:white;border:none;border-radius:10px;font-size:12px;}
-.hero-moods{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;}
-.hmood{padding:4px 10px;border-radius:14px;border:1px solid var(--border);background:white;font-size:11px;color:var(--muted);}
-.hmood.sp{background:linear-gradient(135deg,var(--accent),var(--accent2));color:white;border:none;}
-.hero-stats{display:flex;border-top:1px solid var(--border);padding-top:10px;}
-.hstat{flex:1;text-align:center;border-right:1px solid var(--border);}
-.hstat:last-child{border-right:none;}
-.hsn{font-family:'Noto Serif SC',serif;font-size:17px;font-weight:900;}
-.hsn span{color:var(--accent);}
-.hsl{font-size:9px;color:var(--muted);margin-top:1px;}
+/* ── POINTS SYSTEM ── */
+.points-hero{background:linear-gradient(135deg,#1a1209,#2d1a05);border-radius:18px;padding:24px;color:#fdf6e3;position:relative;overflow:hidden;margin-bottom:24px;}
+.pts-deco{position:absolute;border-radius:50%;background:rgba(244,185,66,.07);}
+.pts-row{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;position:relative;z-index:1;}
+.pts-num{font-size:42px;font-weight:500;color:var(--accent2);line-height:1;}
+.pts-label{font-size:10px;color:rgba(253,246,227,.4);letter-spacing:1px;margin-bottom:4px;}
+.pts-expire{font-size:10px;color:rgba(253,246,227,.35);margin-top:4px;}
+.pts-badge-icon{font-size:36px;animation:float 3s ease-in-out infinite;filter:drop-shadow(0 4px 8px rgba(0,0,0,.3));}
+.pts-badge-name{font-size:13px;color:var(--accent2);text-align:right;margin-top:4px;}
+.pts-prog-bg{height:7px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden;position:relative;z-index:1;margin-bottom:6px;}
+.pts-prog-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--accent2),var(--accent));width:65%;}
+.pts-prog-labels{display:flex;justify-content:space-between;font-size:9px;color:rgba(253,246,227,.35);margin-bottom:14px;position:relative;z-index:1;}
+.pts-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;position:relative;z-index:1;}
+.pts-stat{background:rgba(255,255,255,.06);border-radius:10px;padding:10px;text-align:center;border:1px solid rgba(255,255,255,.06);}
+.pts-stat-n{font-size:18px;font-weight:500;color:var(--accent2);}
+.pts-stat-l{font-size:9px;color:rgba(253,246,227,.35);margin-top:2px;}
 
-/* Fun banner */
-.fun-banner-prev{display:flex;align-items:center;gap:12px;padding:13px 16px;background:linear-gradient(135deg,#1a1209,#3d2010);margin:10px 12px;border-radius:13px;cursor:pointer;text-decoration:none;}
-.fb-foods{font-size:22px;display:flex;gap:4px;flex-shrink:0;}
-.fb-body{flex:1;}
-.fb-title{font-family:'Noto Serif SC',serif;font-size:14px;font-weight:700;color:#fdf6e3;margin-bottom:2px;display:flex;align-items:center;gap:6px;}
-.fb-badge{font-size:9px;padding:1px 7px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:8px;color:white;}
-.fb-desc{font-size:10px;color:rgba(253,246,227,.5);}
-.fb-arrow{font-size:18px;color:var(--accent2);flex-shrink:0;}
+.earn-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;}
+.earn-card{background:var(--card);border:1px solid var(--border);border-radius:13px;padding:14px;text-align:center;}
+.earn-icon{font-size:24px;margin-bottom:6px;display:block;}
+.earn-name{font-size:12px;font-weight:500;margin-bottom:4px;}
+.earn-pts{font-size:22px;font-weight:500;color:var(--accent3);}
+.earn-limit{font-size:10px;color:var(--muted);margin-top:2px;}
 
-/* Deals */
-.deals-p{background:linear-gradient(135deg,#fffaf0,#fff5e8);border-top:1px solid rgba(244,185,66,.2);border-bottom:1px solid rgba(244,185,66,.2);padding:10px 12px;}
-.dp-title{font-size:12px;font-weight:500;margin-bottom:8px;}
-.dp-scroll{display:flex;gap:8px;overflow-x:auto;}
-.dp-scroll::-webkit-scrollbar{display:none;}
-.dp-card{flex-shrink:0;width:120px;background:white;border-radius:10px;padding:10px;border:1px solid rgba(244,185,66,.2);}
-.dp-em{font-size:20px;margin-bottom:4px;}
-.dp-name{font-size:10px;font-weight:500;margin-bottom:2px;}
-.dp-desc{font-size:9px;color:var(--muted);margin-bottom:4px;}
-.dp-new{font-size:12px;font-weight:500;color:var(--accent);}
-.dp-old{font-size:9px;color:#c0b0a0;text-decoration:line-through;margin-left:3px;}
+.use-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+.use-card{background:var(--card);border:1px solid var(--border);border-radius:13px;padding:14px;display:flex;align-items:center;gap:12px;}
+.use-icon-wrap{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.use-name{font-size:13px;font-weight:500;margin-bottom:2px;}
+.use-desc{font-size:11px;color:var(--muted);}
+.use-cost{font-size:13px;font-weight:500;color:var(--accent);white-space:nowrap;}
 
-/* Cards */
-.cgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px;padding:10px 12px;}
-.ccard{background:white;border:1px solid #ece4d4;border-radius:13px;overflow:hidden;}
-.ccard.feat{grid-column:span 2;display:grid;grid-template-columns:160px 1fr;}
-.cthumb{position:relative;overflow:hidden;}
-.cthumb-bg{display:flex;align-items:center;justify-content:center;position:relative;}
-.cdeco{position:absolute;border-radius:50%;opacity:.2;}
-.cemoji{position:relative;z-index:1;filter:drop-shadow(0 2px 5px rgba(0,0,0,.1));}
-.coverly{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 40%,rgba(26,18,9,.28));}
-.cbadge{position:absolute;top:6px;left:6px;padding:2px 7px;border-radius:8px;font-size:9px;font-weight:500;z-index:2;}
-.cbadge.hot{background:var(--accent);color:white;}
-.cbadge.new{background:var(--accent3);color:white;}
-.cbody{padding:9px 10px;}
-.cheader{display:flex;justify-content:space-between;margin-bottom:2px;}
-.cname{font-size:11px;font-weight:500;}
-.crating{font-size:10px;color:var(--accent);font-weight:500;}
-.cmeta{font-size:9px;color:var(--muted);margin-bottom:5px;}
-.ctags{display:flex;flex-wrap:wrap;gap:2px;margin-bottom:6px;}
-.ctag{padding:1px 5px;border-radius:7px;background:#f5ede0;font-size:9px;color:var(--muted);}
-.cfoot{display:flex;justify-content:space-between;border-top:1px solid #f0e8d8;padding-top:5px;}
-.cprice{font-size:10px;font-weight:500;color:var(--accent3);}
-.cdist{font-size:9px;color:var(--muted);}
+/* ── LEVELS ── */
+.levels-row{display:flex;gap:10px;overflow-x:auto;padding-bottom:8px;margin-bottom:24px;}
+.levels-row::-webkit-scrollbar{display:none;}
+.level-card{flex-shrink:0;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 16px;text-align:center;min-width:120px;transition:all .2s;}
+.level-card.current{border-color:var(--accent2);background:linear-gradient(135deg,#fffdf7,#fff8ee);box-shadow:0 6px 20px rgba(244,185,66,.15);}
+.level-icon{font-size:28px;margin-bottom:6px;display:block;}
+.level-name{font-size:12px;font-weight:500;margin-bottom:2px;}
+.level-range{font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;}
+.level-tag{display:inline-block;margin-top:6px;font-size:9px;padding:1px 8px;border-radius:8px;background:var(--accent2);color:var(--ink);font-weight:700;}
 
-/* Fun mode */
-.fun-section{padding:14px;}
-.fun-intro{text-align:center;margin-bottom:14px;}
-.fun-intro h3{font-family:'Noto Serif SC',serif;font-size:17px;font-weight:700;margin-bottom:4px;}
-.fun-intro p{font-size:11px;color:var(--muted);}
-.fun-modes{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-.fun-mode{background:white;border:1px solid var(--border);border-radius:13px;padding:14px;text-align:center;}
-.fun-mode-icon{font-size:36px;margin-bottom:8px;display:block;animation:float 3s ease-in-out infinite;}
-.fun-mode:nth-child(2) .fun-mode-icon{animation-delay:.5s;}
-.fun-mode-name{font-size:13px;font-weight:500;margin-bottom:3px;}
-.fun-mode-desc{font-size:10px;color:var(--muted);line-height:1.4;margin-bottom:8px;}
-.fun-mode-pts{font-size:11px;font-weight:500;color:var(--accent3);background:#e8f5e9;padding:2px 10px;border-radius:10px;display:inline-block;}
-
-/* Profile */
-.profile-cover{height:120px;background:linear-gradient(135deg,#1a1209,#3d2010,#e85d26);position:relative;overflow:hidden;}
-.pc-pattern{position:absolute;inset:0;opacity:.05;background-image:radial-gradient(circle,#fff 1px,transparent 1px);background-size:16px 16px;}
-.pc-emoji{position:absolute;bottom:6px;right:12px;font-size:44px;opacity:.18;}
-.pc-avatar-wrap{position:absolute;bottom:-32px;left:16px;}
-.pc-avatar{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:26px;border:3px solid #f0e8d8;}
-.profile-info{background:white;padding:42px 16px 14px;border-bottom:1px solid var(--border);}
-.pi-name{font-family:'Noto Serif SC',serif;font-size:18px;font-weight:700;display:flex;align-items:center;gap:7px;margin-bottom:4px;}
-.pi-badge{font-size:10px;padding:2px 8px;border-radius:10px;background:linear-gradient(135deg,#fff3e0,#ffe0b2);color:var(--accent);}
-.pi-bio{font-size:12px;color:var(--muted);margin-bottom:10px;}
-.pi-stats{display:flex;gap:0;border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:10px;}
-.pi-stat{flex:1;text-align:center;padding:8px 0;border-right:1px solid var(--border);}
-.pi-stat:last-child{border-right:none;}
-.pi-sn{font-size:16px;font-weight:500;}
-.pi-sl{font-size:9px;color:var(--muted);}
-
-/* Points card */
-.pts-card{margin:12px;border-radius:16px;overflow:hidden;}
-.pts-top{background:linear-gradient(135deg,#1a1209,#2d1a05);padding:16px;position:relative;overflow:hidden;}
-.pts-deco{position:absolute;width:150px;height:150px;border-radius:50%;background:rgba(244,185,66,.07);top:-60px;right:-40px;}
-.pts-row{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;position:relative;z-index:1;}
-.pts-left{}
-.pts-label{font-size:9px;color:rgba(253,246,227,.4);letter-spacing:1px;margin-bottom:3px;}
-.pts-num{font-size:30px;font-weight:500;color:var(--accent2);line-height:1;}
-.pts-expire{font-size:9px;color:rgba(253,246,227,.3);margin-top:3px;}
-.pts-badge-icon{font-size:28px;filter:drop-shadow(0 3px 6px rgba(0,0,0,.2));animation:float 3s ease-in-out infinite;}
-.pts-badge-name{font-size:11px;color:var(--accent2);text-align:right;}
-.pts-prog-bg{height:5px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden;position:relative;z-index:1;}
-.pts-prog-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--accent2),var(--accent));width:65%;}
-.pts-bottom{background:linear-gradient(135deg,#2d1a05,#1a1209);padding:10px 16px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;border-top:1px solid rgba(255,255,255,.05);}
-.pts-stat{text-align:center;border-right:1px solid rgba(255,255,255,.05);}
-.pts-stat:last-child{border-right:none;}
-.pts-stat-n{font-size:14px;font-weight:500;color:var(--accent2);}
-.pts-stat-l{font-size:8px;color:rgba(253,246,227,.3);margin-top:1px;}
-
-/* Badges */
-.badges-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:0 12px 12px;}
-.badge-card{background:white;border-radius:11px;padding:11px;border:1px solid var(--border);}
+/* ── BADGES ── */
+.badges-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.badge-card{background:var(--card);border:1px solid var(--border);border-radius:13px;padding:13px;text-align:center;position:relative;}
 .badge-card.unlocked{border-color:var(--accent2);}
-.badge-icon{font-size:26px;margin-bottom:5px;display:block;}
-.badge-name{font-size:11px;font-weight:500;margin-bottom:2px;}
-.badge-desc{font-size:9px;color:var(--muted);margin-bottom:5px;}
-.badge-prog-bg{height:3px;background:var(--border);border-radius:2px;overflow:hidden;}
+.badge-icon-lg{font-size:34px;margin-bottom:6px;display:block;}
+.badge-name{font-size:12px;font-weight:500;margin-bottom:3px;}
+.badge-desc{font-size:10px;color:var(--muted);margin-bottom:7px;line-height:1.4;}
+.badge-prog-bg{height:4px;background:var(--border);border-radius:2px;overflow:hidden;}
 .badge-prog-fill{height:100%;border-radius:2px;}
+.badge-prog-label{display:flex;justify-content:space-between;font-size:9px;color:var(--muted);margin-top:3px;}
+.badge-check{position:absolute;top:8px;right:8px;width:18px;height:18px;background:var(--accent2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--ink);font-weight:700;}
 
-/* Login */
-.login-scene{min-height:360px;background:linear-gradient(160deg,#fff8f0,#fdf0dc);display:flex;align-items:center;justify-content:center;padding:16px;}
-.login-box{background:rgba(255,255,255,.95);border:1px solid var(--border);border-radius:18px;padding:22px;width:100%;max-width:300px;}
-.lb-icon{width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;margin:0 auto 8px;font-size:20px;}
-.lb-title{font-family:'Noto Serif SC',serif;font-size:18px;font-weight:700;text-align:center;display:flex;align-items:center;justify-content:center;gap:3px;margin-bottom:2px;}
-.lb-dot{width:6px;height:6px;background:var(--accent);border-radius:50%;margin-bottom:2px;}
-.lb-sub{font-size:10px;color:var(--muted);text-align:center;letter-spacing:1px;margin-bottom:14px;}
-.lb-tabs{display:flex;background:#f5ede0;border-radius:10px;padding:3px;margin-bottom:12px;}
-.lb-tab{flex:1;padding:7px;text-align:center;font-size:12px;cursor:pointer;border:none;background:transparent;border-radius:7px;color:var(--muted);font-family:'Noto Sans SC',sans-serif;}
-.lb-tab.active{background:white;color:var(--ink);box-shadow:0 1px 5px rgba(26,18,9,.06);}
-.lb-hint{background:linear-gradient(135deg,#fff8f0,#fff3e8);border:1px solid rgba(244,185,66,.3);border-radius:9px;padding:8px 11px;font-size:11px;margin-bottom:11px;line-height:1.5;color:#5a4a3a;}
-.lb-hint strong{color:var(--accent);}
-.lb-input{width:100%;padding:9px 11px;border:1.5px solid var(--border);border-radius:9px;font-size:12px;background:#fdf9f5;color:var(--ink);font-family:'Noto Sans SC',sans-serif;outline:none;margin-bottom:9px;}
-.lb-btn{width:100%;padding:11px;border-radius:10px;border:none;font-size:13px;cursor:pointer;font-family:'Noto Sans SC',sans-serif;margin-bottom:7px;font-weight:500;}
-.lb-btn.pr{background:linear-gradient(135deg,var(--accent),#f06030);color:white;}
-.lb-btn.dm{background:#f5ede0;color:var(--muted);border:1px solid var(--border);}
-.lb-feats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:10px;padding-top:10px;border-top:1px solid #f0e8d8;}
-.lb-feat{text-align:center;}
-.lb-fi{width:28px;height:28px;border-radius:8px;background:#f5ede0;display:flex;align-items:center;justify-content:center;margin:0 auto 3px;font-size:14px;}
-.lb-ft{font-size:9px;color:var(--muted);}
+/* ── FUN MODE ── */
+.fun-modes{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;}
+.fun-mode-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;text-align:center;transition:all .2s;}
+.fun-mode-card:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(26,18,9,.08);}
+.fun-mode-icon{font-size:48px;display:block;margin-bottom:12px;animation:float 3s ease-in-out infinite;}
+.fun-mode-card:nth-child(2) .fun-mode-icon{animation-delay:.5s;}
+.fun-mode-title{font-family:'Noto Serif SC',serif;font-size:17px;font-weight:700;margin-bottom:6px;}
+.fun-mode-desc{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:12px;}
+.fun-pts-badge{display:inline-flex;align-items:center;gap:5px;padding:5px 14px;border-radius:14px;background:linear-gradient(135deg,#e8f5e9,#c8e6c9);color:var(--accent3);font-size:12px;font-weight:500;}
 
-/* Footer */
-.footer{background:#1a1209;color:rgba(253,246,227,.5);text-align:center;padding:28px 20px;font-size:12px;line-height:1.8;}
+/* ── ROADMAP ── */
+.roadmap-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;}
+.roadmap-card{background:rgba(253,246,227,.06);border:1px solid rgba(253,246,227,.1);border-radius:16px;padding:18px;transition:all .2s;}
+.roadmap-card:hover{background:rgba(253,246,227,.1);}
+.roadmap-card.soon{border-color:rgba(244,185,66,.3);background:rgba(244,185,66,.06);}
+.roadmap-icon{font-size:30px;margin-bottom:10px;display:block;}
+.roadmap-title{font-size:15px;font-weight:500;color:#fdf6e3;margin-bottom:6px;display:flex;align-items:center;gap:8px;}
+.roadmap-tag{font-size:10px;padding:2px 8px;border-radius:8px;font-weight:500;}
+.roadmap-tag.soon-tag{background:rgba(244,185,66,.25);color:var(--accent2);}
+.roadmap-tag.future-tag{background:rgba(253,246,227,.1);color:rgba(253,246,227,.5);}
+.roadmap-desc{font-size:12px;color:rgba(253,246,227,.5);line-height:1.7;}
+
+/* ── TECH STACK ── */
+.tech-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;}
+.tech-card{background:var(--card);border:1px solid var(--border);border-radius:13px;padding:14px;display:flex;align-items:center;gap:12px;}
+.tech-icon{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.tech-name{font-size:13px;font-weight:500;margin-bottom:2px;}
+.tech-desc{font-size:11px;color:var(--muted);}
+
+/* ── PROFILE PREVIEW ── */
+.profile-cover{height:130px;background:linear-gradient(135deg,#1a1209,#3d2010,#e85d26);position:relative;overflow:hidden;border-radius:0;}
+.pc-pattern{position:absolute;inset:0;opacity:.05;background-image:radial-gradient(circle,#fff 1px,transparent 1px);background-size:16px 16px;}
+.pc-title{position:absolute;bottom:44px;left:18px;font-family:'Noto Serif SC',serif;font-size:20px;font-weight:900;color:rgba(253,246,227,.12);letter-spacing:-1px;}
+.pc-emoji{position:absolute;bottom:5px;right:14px;font-size:48px;opacity:.18;}
+.pc-avatar-wrap{position:absolute;bottom:-30px;left:16px;}
+.pc-avatar{width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:24px;border:3px solid var(--paper);}
+.profile-body{background:white;padding:38px 16px 14px;border-bottom:1px solid var(--border);}
+.pname{font-family:'Noto Serif SC',serif;font-size:17px;font-weight:700;display:flex;align-items:center;gap:7px;margin-bottom:4px;}
+.pname-badge{font-size:10px;padding:2px 8px;border-radius:10px;background:linear-gradient(135deg,#fff3e0,#ffe0b2);color:var(--accent);}
+.pbio{font-size:12px;color:var(--muted);margin-bottom:10px;}
+.pstats{display:flex;gap:0;border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:0;}
+.pstat{flex:1;text-align:center;padding:8px 0;border-right:1px solid var(--border);}
+.pstat:last-child{border-right:none;}
+.pstat-n{font-size:15px;font-weight:500;}
+.pstat-l{font-size:9px;color:var(--muted);}
+
+/* ── FOOTER ── */
+.footer{background:#1a1209;color:rgba(253,246,227,.5);text-align:center;padding:36px 20px;font-size:13px;line-height:2;}
 .footer a{color:var(--accent2);text-decoration:none;}
-.footer-links{display:flex;gap:18px;justify-content:center;margin-bottom:10px;flex-wrap:wrap;}
-.footer-links a{color:rgba(253,246,227,.45);font-size:11px;}
+.footer-links{display:flex;gap:20px;justify-content:center;margin-bottom:12px;flex-wrap:wrap;}
+.footer-links a{color:rgba(253,246,227,.45);font-size:12px;}
+.footer-links a:hover{color:var(--accent2);}
+
+/* ── DIVIDER ── */
+.divider{height:1px;background:var(--border);margin:32px 0;}
+
+@media(max-width:600px){
+  .banner-title{font-size:36px;}
+  .fun-modes{grid-template-columns:1fr;}
+  .earn-grid{grid-template-columns:repeat(2,1fr);}
+  .badges-grid{grid-template-columns:repeat(2,1fr);}
+}
 </style>
 </head>
 <body>
 
+<!-- ══ HERO ══ -->
 <div class="banner">
   <div class="banner-foods">
     <span class="banner-food">🍜</span><span class="banner-food">🍣</span>
     <span class="banner-food">☕</span><span class="banner-food">🫕</span><span class="banner-food">🥗</span>
   </div>
   <div class="banner-title">觅食<div class="banner-dot"></div></div>
-  <div class="banner-sub">大学城美食地图</div>
-  <div class="banner-desc">专为大学城学生打造的本地化美食发现平台。AI推荐、高德地图、校园圈、趣味转盘，解决「今天吃什么」。</div>
+  <div class="banner-sub">大学城美食地图 · CAMPUS FOOD MAP</div>
+  <div class="banner-desc">专为大学城学生打造的本地化美食发现平台。AI推荐、高德地图、积分体系、趣味转盘、校园圈，一站式解决「今天吃什么」的世纪难题。</div>
   <div class="banner-btns">
     <a href="https://github.com/zjzhangjob-cmd/campus-food-map" target="_blank" class="banner-btn secondary">⭐ GitHub 仓库</a>
-    <a href="https://github.com/zjzhangjob-cmd/campus-food-map#快速开始" target="_blank" class="banner-btn primary">🚀 快速开始</a>
+    <a href="https://github.com/zjzhangjob-cmd/campus-food-map#readme" target="_blank" class="banner-btn primary">🚀 快速部署</a>
+  </div>
+  <div class="banner-stats">
+    <div class="banner-stat"><div class="banner-stat-n">5</div><div class="banner-stat-l">合作高校</div></div>
+    <div class="banner-stat"><div class="banner-stat-n">10+</div><div class="banner-stat-l">收录餐厅</div></div>
+    <div class="banner-stat"><div class="banner-stat-n">6</div><div class="banner-stat-l">核心页面</div></div>
+    <div class="banner-stat"><div class="banner-stat-n">5</div><div class="banner-stat-l">积分等级</div></div>
   </div>
 </div>
 
@@ -257,23 +253,26 @@ body{font-family:'Noto Sans SC',sans-serif;background:#f0e8d8;color:var(--ink);}
   <div class="feat-chip"><span>🤖</span>AI智能推荐</div>
   <div class="feat-chip"><span>🗺️</span>高德地图</div>
   <div class="feat-chip"><span>🎯</span>趣味转盘+PK赛</div>
-  <div class="feat-chip"><span>🏆</span>积分体系</div>
-  <div class="feat-chip"><span>👥</span>校园圈</div>
+  <div class="feat-chip"><span>🏆</span>积分&等级体系</div>
+  <div class="feat-chip"><span>🏅</span>美食专家徽章</div>
+  <div class="feat-chip"><span>👥</span>校园圈社交</div>
   <div class="feat-chip"><span>❤️</span>收藏&评价</div>
   <div class="feat-chip"><span>🛠️</span>管理后台</div>
   <div class="feat-chip"><span>⚡</span>SQLite零配置</div>
+  <div class="feat-chip"><span>🐍</span>FastAPI后端</div>
 </div>
 
-<div class="main">
-
-  <!-- 1. 启动动画 -->
-  <div class="device-section">
-    <div class="section-label"><div class="num">1</div><h2>启动动画</h2></div>
-    <div class="browser-frame">
-      <div class="browser-bar"><div class="bdots"><div class="bdot r"></div><div class="bdot y"></div><div class="bdot g"></div></div><div class="browser-url">localhost:3000</div></div>
-      <div class="browser-content">
+<!-- ══ 1. 启动动画 ══ -->
+<div class="section light">
+  <div class="section-inner">
+    <div class="section-tag">01 · SPLASH</div>
+    <div class="section-title">首次进入动画</div>
+    <div class="section-desc">品牌启动页，轨道旋转食物、蒸汽动效、弹跳大碗面，营造沉浸感的第一印象。</div>
+    <div class="browser" style="max-width:500px;margin:0 auto;">
+      <div class="browser-bar"><div class="bdots"><div class="bdot r"></div><div class="bdot y"></div><div class="bdot g"></div></div><div class="burl">localhost:3000</div></div>
+      <div style="background:var(--paper);overflow:hidden;">
         <div class="splash">
-          <div class="sp-ring" style="width:240px;height:240px;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);opacity:.3;"></div>
+          <div class="sp-ring" style="width:220px;height:220px;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);opacity:.3;"></div>
           <div class="sp-orbit">
             <div class="sp-food"><div class="sp-fi">🍣</div></div>
             <div class="sp-food" style="bottom:-12px;left:calc(50% - 8px);top:auto;"><div class="sp-fi">🥗</div></div>
@@ -285,254 +284,296 @@ body{font-family:'Noto Sans SC',sans-serif;background:#f0e8d8;color:var(--ink);}
           <div class="sp-title">觅食<div class="sp-tdot"></div></div>
           <div class="sp-sub">大学城美食地图</div>
           <div class="sp-chips">
-            <div class="sp-chip"><span>🍜</span><span>面馆</span></div>
-            <div class="sp-chip"><span>🍣</span><span>日料</span></div>
-            <div class="sp-chip"><span>☕</span><span>咖啡</span></div>
-            <div class="sp-chip"><span>🫕</span><span>火锅</span></div>
+            <div class="sp-chip"><span>🍜</span><span class="sp-chip-t">面馆</span></div>
+            <div class="sp-chip"><span>🍣</span><span class="sp-chip-t">日料</span></div>
+            <div class="sp-chip"><span>☕</span><span class="sp-chip-t">咖啡</span></div>
+            <div class="sp-chip"><span>🫕</span><span class="sp-chip-t">火锅</span></div>
           </div>
           <button class="sp-cta">今天吃什么，交给觅食来定 ✨</button>
         </div>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- 2. 主页 -->
-  <div class="device-section">
-    <div class="section-label"><div class="num">2</div><h2>美食主页</h2></div>
-    <div class="browser-frame">
-      <div class="browser-bar"><div class="bdots"><div class="bdot r"></div><div class="bdot y"></div><div class="bdot g"></div></div><div class="browser-url">localhost:3000/index.html</div></div>
-      <div class="browser-content">
-        <div class="ph">
-          <div class="ph-logo"><div class="ph-logo-t">觅食</div><div class="ph-logo-d"></div></div>
-          <div class="ph-btns"><button class="phb">👥 校园圈</button><button class="phb">❤️ 收藏</button><button class="phb ac">🤖 AI</button><button class="phb">登录</button></div>
-        </div>
-        <div class="hero-s">
-          <div class="hero-pill">📍 大学城联盟 · 五校共享</div>
-          <div class="hero-h1">今天<em>吃什么</em>，<br>交给觅食来定</div>
-          <div class="hero-search">
-            <div class="hero-input">🔍 搜索餐厅、菜系、菜名…</div>
-            <button class="hero-sbtn">搜索</button>
-          </div>
-          <div class="hero-moods">
-            <div class="hmood sp">🤖 AI帮我选</div>
-            <div class="hmood">🌶️ 辣的</div><div class="hmood">⚡ 快</div><div class="hmood">💰 性价比</div><div class="hmood">🌙 宵夜</div>
-          </div>
-          <div class="hero-stats">
-            <div class="hstat"><div class="hsn">5<span>所</span></div><div class="hsl">合作高校</div></div>
-            <div class="hstat"><div class="hsn">10<span>+</span></div><div class="hsl">收录餐厅</div></div>
-            <div class="hstat"><div class="hsn">1.2<span>万</span></div><div class="hsl">评价</div></div>
-            <div class="hstat"><div class="hsn">98<span>%</span></div><div class="hsl">满意率</div></div>
-          </div>
-        </div>
-        <!-- 趣味模式横幅 -->
-        <a href="#" class="fun-banner-prev">
-          <div class="fb-foods"><span>🎯</span><span>🍜</span><span>⚔️</span></div>
-          <div class="fb-body">
-            <div class="fb-title">今天吃什么？<span class="fb-badge">✨ 趣味模式</span></div>
-            <div class="fb-desc">随机转盘 · 美食PK赛 · 让命运帮你决定，还能赚积分</div>
-          </div>
-          <div class="fb-arrow">→</div>
-        </a>
-        <div class="deals-p">
-          <div class="dp-title">🎟️ 学生专属优惠</div>
-          <div class="dp-scroll">
-            <div class="dp-card"><div class="dp-em">🍜</div><div class="dp-name">重庆秀山小面</div><div class="dp-desc">学生证9折</div><span class="dp-new">¥16</span><span class="dp-old">¥18</span></div>
-            <div class="dp-card"><div class="dp-em">🥞</div><div class="dp-name">柒号煎饼铺</div><div class="dp-desc">第二个半价</div><span class="dp-new">¥15</span><span class="dp-old">¥20</span></div>
-            <div class="dp-card"><div class="dp-em">☕</div><div class="dp-name">豆舍咖啡</div><div class="dp-desc">买二送一</div><span style="font-size:10px;font-weight:500;color:var(--accent)">买二送一</span></div>
-          </div>
-        </div>
-        <div class="cgrid">
-          <div class="ccard feat">
-            <div class="cthumb" style="min-height:110px;">
-              <div class="cthumb-bg" style="background:linear-gradient(135deg,#fff3e0,#ffcc80);min-height:110px;">
-                <div class="cdeco" style="width:90px;height:90px;background:#e85d26;top:-20px;right:-20px;"></div>
-                <span class="cemoji" style="font-size:60px;">🍜</span>
-              </div>
-              <div class="coverly"></div>
-              <div class="cbadge hot">🔥 热门</div>
-            </div>
-            <div class="cbody">
-              <div class="cheader"><span class="cname">重庆秀山小面</span><span class="crating">★ 4.9</span></div>
-              <div class="cmeta">中餐 · 5,621评价 · 🟢营业中</div>
-              <div class="ctags"><span class="ctag">小面</span><span class="ctag">麻辣</span><span class="ctag">学生优惠</span></div>
-              <div class="cfoot"><span class="cprice">¥12-22</span><span class="cdist">📍步行3分</span></div>
-            </div>
-          </div>
-          <div class="ccard">
-            <div class="cthumb" style="height:85px;">
-              <div class="cthumb-bg" style="background:linear-gradient(135deg,#fce4ec,#f48fb1);height:85px;">
-                <div class="cdeco" style="width:70px;height:70px;background:#e91e63;bottom:-10px;right:-10px;"></div>
-                <span class="cemoji" style="font-size:44px;">🍣</span>
-              </div>
-              <div class="coverly"></div><div class="cbadge new">✨精选</div>
-            </div>
-            <div class="cbody">
-              <div class="cheader"><span class="cname">大渔铁板烧</span><span class="crating">★ 4.7</span></div>
-              <div class="cmeta">日料 · 1,893评价</div>
-              <div class="ctags"><span class="ctag">刺身</span><span class="ctag">约会</span></div>
-              <div class="cfoot"><span class="cprice">¥88-160</span><span class="cdist">📍步行14分</span></div>
-            </div>
-          </div>
-          <div class="ccard">
-            <div class="cthumb" style="height:85px;">
-              <div class="cthumb-bg" style="background:linear-gradient(135deg,#efebe9,#bcaaa4);height:85px;">
-                <div class="cdeco" style="width:65px;height:65px;background:#795548;top:-15px;left:-15px;"></div>
-                <span class="cemoji" style="font-size:44px;">☕</span>
-              </div>
-              <div class="coverly"></div>
-            </div>
-            <div class="cbody">
-              <div class="cheader"><span class="cname">豆舍咖啡</span><span class="crating">★ 4.7</span></div>
-              <div class="cmeta">咖啡 · 2,134评价</div>
-              <div class="ctags"><span class="ctag">WiFi</span><span class="ctag">学习</span></div>
-              <div class="cfoot"><span class="cprice">¥22-45</span><span class="cdist">📍步行9分</span></div>
-            </div>
-          </div>
-        </div>
+<!-- ══ 2. 核心功能 ══ -->
+<div class="section warm">
+  <div class="section-inner">
+    <div class="section-tag gold">02 · FEATURES</div>
+    <div class="section-title">核心功能</div>
+    <div class="section-desc">从搜索到决策，从评价到社交，覆盖学生用餐的完整场景。</div>
+    <div class="feat-grid">
+      <div class="feat-card highlight">
+        <span class="feat-icon">🤖</span>
+        <div class="feat-title">AI 智能推荐</div>
+        <div class="feat-desc">描述心情或需求，AI 理解语意后推荐最合适的餐厅。「累了想犒劳自己」「考前要快还要便宜」都能精准响应。</div>
+        <span class="feat-badge">Claude API · 规则兜底</span>
+      </div>
+      <div class="feat-card">
+        <span class="feat-icon">🗺️</span>
+        <div class="feat-title">高德地图集成</div>
+        <div class="feat-desc">餐厅位置可视化展示，点击地图标记快速查看，支持一键导航前往。配置高德 JS API Key 即可启用。</div>
+        <span class="feat-badge">高德地图 JS API</span>
+      </div>
+      <div class="feat-card">
+        <span class="feat-icon">🔍</span>
+        <div class="feat-title">智能搜索 & 筛选</div>
+        <div class="feat-desc">按名称、菜系、标签实时搜索，支持菜系/人均/场景多维筛选，评分/距离/热度排序，找到真正想吃的。</div>
+        <span class="feat-badge">实时搜索 · 多维筛选</span>
+      </div>
+      <div class="feat-card">
+        <span class="feat-icon">🎟️</span>
+        <div class="feat-title">学生专属优惠</div>
+        <div class="feat-desc">聚合周边餐厅学生折扣、套餐优惠，首页直接展示，省去逐个查找的麻烦。</div>
+        <span class="feat-badge">管理后台可配置</span>
+      </div>
+      <div class="feat-card">
+        <span class="feat-icon">❤️</span>
+        <div class="feat-title">收藏 & 评价</div>
+        <div class="feat-desc">登录后可一键收藏喜欢的餐厅，发布带评分的文字评价，评价会影响餐厅综合评分排名。</div>
+        <span class="feat-badge">JWT 登录 · 实时更新</span>
+      </div>
+      <div class="feat-card">
+        <span class="feat-icon">👥</span>
+        <div class="feat-title">校园圈</div>
+        <div class="feat-desc">学生可发布美食评测、求推荐帖子，关注其他同学，点赞互动，形成大学城本地美食社区。</div>
+        <span class="feat-badge">发帖 · 点赞 · 关注</span>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- 3. 趣味模式 -->
-  <div class="device-section">
-    <div class="section-label"><div class="num">3</div><h2>趣味模式</h2></div>
-    <div class="browser-frame">
-      <div class="browser-bar"><div class="bdots"><div class="bdot r"></div><div class="bdot y"></div><div class="bdot g"></div></div><div class="browser-url">localhost:3000/fun.html</div></div>
-      <div class="browser-content" style="padding:16px;">
-        <div class="fun-intro">
-          <h3>今天吃什么？</h3>
-          <p>两种趣味方式帮你做决定，还能赚积分</p>
+<!-- ══ 3. 积分体系 ══ -->
+<div class="section light">
+  <div class="section-inner">
+    <div class="section-tag green">03 · POINTS SYSTEM</div>
+    <div class="section-title">完整积分体系</div>
+    <div class="section-desc">真实后端存储，完整的获取、消耗、等级、徽章闭环。积分有效期至当年12月31日。</div>
+
+    <div class="points-hero">
+      <div class="pts-deco" style="width:200px;height:200px;top:-80px;right:-60px;"></div>
+      <div class="pts-deco" style="width:120px;height:120px;bottom:-40px;left:-30px;"></div>
+      <div class="pts-row">
+        <div>
+          <div class="pts-label">当前积分</div>
+          <div class="pts-num">1,650</div>
+          <div class="pts-expire">有效期至 2026.12.31</div>
         </div>
-        <div class="fun-modes">
-          <div class="fun-mode">
-            <span class="fun-mode-icon">🎯</span>
-            <div class="fun-mode-name">随机转盘</div>
-            <div class="fun-mode-desc">转动命运之轮，让它替你决定今天吃什么</div>
-            <div class="fun-mode-pts">+3积分/次</div>
-          </div>
-          <div class="fun-mode">
-            <span class="fun-mode-icon">⚔️</span>
-            <div class="fun-mode-name">美食PK赛</div>
-            <div class="fun-mode-desc">两两对决，一路淘汰，选出今日食神冠军</div>
-            <div class="fun-mode-pts">+5积分/局</div>
-          </div>
+        <div style="text-align:right;">
+          <div class="pts-badge-icon">🥢</div>
+          <div class="pts-badge-name">面食达人</div>
+          <div style="font-size:10px;color:rgba(253,246,227,.35);margin-top:2px;">距「美食鉴赏家」还差 350分</div>
         </div>
       </div>
+      <div class="pts-prog-labels"><span>面食达人 (1000)</span><span>美食鉴赏家 (2000)</span></div>
+      <div class="pts-prog-bg"><div class="pts-prog-fill"></div></div>
+      <div class="pts-grid">
+        <div class="pts-stat"><div class="pts-stat-n">32</div><div class="pts-stat-l">发布评价</div></div>
+        <div class="pts-stat"><div class="pts-stat-n">18</div><div class="pts-stat-l">签到天数</div></div>
+        <div class="pts-stat"><div class="pts-stat-n">+320</div><div class="pts-stat-l">本月获得</div></div>
+      </div>
+    </div>
+
+    <div style="font-size:14px;font-weight:500;margin-bottom:12px;">📥 积分获取方式</div>
+    <div class="earn-grid">
+      <div class="earn-card"><span class="earn-icon">📝</span><div class="earn-name">发布评价</div><div class="earn-pts">+10</div><div class="earn-limit">日限 50分</div></div>
+      <div class="earn-card"><span class="earn-icon">📅</span><div class="earn-name">每日签到</div><div class="earn-pts">+5</div><div class="earn-limit">连签7天+20</div></div>
+      <div class="earn-card"><span class="earn-icon">👍</span><div class="earn-name">帖子被点赞</div><div class="earn-pts">+2</div><div class="earn-limit">日限 30分</div></div>
+      <div class="earn-card"><span class="earn-icon">🎯</span><div class="earn-name">使用转盘</div><div class="earn-pts">+3</div><div class="earn-limit">日限 15分</div></div>
+      <div class="earn-card"><span class="earn-icon">⚔️</span><div class="earn-name">完成PK赛</div><div class="earn-pts">+5</div><div class="earn-limit">日限 1次</div></div>
+      <div class="earn-card"><span class="earn-icon">🎯</span><div class="earn-name">邀请新用户</div><div class="earn-pts">+50</div><div class="earn-limit">无上限</div></div>
+    </div>
+
+    <div style="font-size:14px;font-weight:500;margin:20px 0 12px;">🎁 积分可以做什么</div>
+    <div class="use-grid">
+      <div class="use-card"><div class="use-icon-wrap" style="background:#fff3e0;">🎟️</div><div style="flex:1;"><div class="use-name">兑换餐厅优惠券</div><div class="use-desc">直接抵扣消费</div></div><div class="use-cost">200起</div></div>
+      <div class="use-card"><div class="use-icon-wrap" style="background:#e8f5e9;">🤖</div><div style="flex:1;"><div class="use-name">解锁AI推荐次数</div><div class="use-desc">额外5次</div></div><div class="use-cost">50分</div></div>
+      <div class="use-card"><div class="use-icon-wrap" style="background:#f3e5f5;">📌</div><div style="flex:1;"><div class="use-name">校园圈帖子置顶</div><div class="use-desc">置顶展示1天</div></div><div class="use-cost">300分</div></div>
+      <div class="use-card"><div class="use-icon-wrap" style="background:#fff8e1;">🏆</div><div style="flex:1;"><div class="use-name">荣耀排行榜</div><div class="use-desc">月度积分榜展示</div></div><div class="use-cost">自动</div></div>
+    </div>
+
+    <div style="font-size:14px;font-weight:500;margin:20px 0 12px;">⭐ 5级等级体系</div>
+    <div class="levels-row">
+      <div class="level-card"><span class="level-icon">🌱</span><div class="level-name">觅食新人</div><div class="level-range">0-199</div></div>
+      <div class="level-card"><span class="level-icon">🍽️</span><div class="level-name">美食探索者</div><div class="level-range">200-999</div></div>
+      <div class="level-card current"><span class="level-icon">🥢</span><div class="level-name">美食达人</div><div class="level-range">1000-1999</div><div class="level-tag">示例</div></div>
+      <div class="level-card"><span class="level-icon">🌟</span><div class="level-name">美食鉴赏家</div><div class="level-range">2000-4999</div></div>
+      <div class="level-card"><span class="level-icon">👑</span><div class="level-name">大学城食神</div><div class="level-range">5000+</div></div>
+    </div>
+
+    <div style="font-size:14px;font-weight:500;margin:0 0 12px;">🏅 美食专家徽章（按菜系解锁）</div>
+    <div class="badges-grid">
+      <div class="badge-card unlocked"><span class="badge-icon-lg">🥢</span><div class="badge-name">面食达人</div><div class="badge-desc">评价面食10+次</div><div class="badge-prog-bg"><div class="badge-prog-fill" style="width:100%;background:linear-gradient(90deg,#e85d26,#f4b942);"></div></div><div class="badge-prog-label"><span>已解锁</span><span>✅</span></div><div class="badge-check">✓</div></div>
+      <div class="badge-card unlocked"><span class="badge-icon-lg">☕</span><div class="badge-name">咖啡专家</div><div class="badge-desc">评价咖啡店8+次</div><div class="badge-prog-bg"><div class="badge-prog-fill" style="width:100%;background:linear-gradient(90deg,#795548,#bcaaa4);"></div></div><div class="badge-prog-label"><span>已解锁</span><span>✅</span></div><div class="badge-check">✓</div></div>
+      <div class="badge-card"><span class="badge-icon-lg">🍣</span><div class="badge-name">日料行家</div><div class="badge-desc">评价日料8+次</div><div class="badge-prog-bg"><div class="badge-prog-fill" style="width:37%;background:#e91e63;"></div></div><div class="badge-prog-label"><span>3/8</span><span>🔒</span></div></div>
+      <div class="badge-card"><span class="badge-icon-lg">🫕</span><div class="badge-name">火锅狂人</div><div class="badge-desc">评价火锅8+次</div><div class="badge-prog-bg"><div class="badge-prog-fill" style="width:25%;background:#ff5722;"></div></div><div class="badge-prog-label"><span>2/8</span><span>🔒</span></div></div>
+      <div class="badge-card"><span class="badge-icon-lg">🥩</span><div class="badge-name">烤肉达人</div><div class="badge-desc">评价烤肉8+次</div><div class="badge-prog-bg"><div class="badge-prog-fill" style="width:12%;background:#7b1fa2;"></div></div><div class="badge-prog-label"><span>1/8</span><span>🔒</span></div></div>
+      <div class="badge-card"><span class="badge-icon-lg">🥗</span><div class="badge-name">健康轻食家</div><div class="badge-desc">评价轻食8+次</div><div class="badge-prog-bg"><div class="badge-prog-fill" style="width:0%;background:#4caf50;"></div></div><div class="badge-prog-label"><span>0/8</span><span>🔒</span></div></div>
     </div>
   </div>
+</div>
 
-  <!-- 4. 个人主页 & 积分 -->
-  <div class="device-section">
-    <div class="section-label"><div class="num">4</div><h2>个人主页 & 积分中心</h2></div>
-    <div class="browser-frame">
-      <div class="browser-bar"><div class="bdots"><div class="bdot r"></div><div class="bdot y"></div><div class="bdot g"></div></div><div class="browser-url">localhost:3000/profile.html</div></div>
-      <div class="browser-content">
+<!-- ══ 4. 趣味模式 ══ -->
+<div class="section warm">
+  <div class="section-inner">
+    <div class="section-tag">04 · FUN MODE</div>
+    <div class="section-title">趣味模式</div>
+    <div class="section-desc">当你选择困难症发作，让游戏帮你做决定。两种玩法，完成后还能获得积分奖励。</div>
+    <div class="fun-modes">
+      <div class="fun-mode-card">
+        <span class="fun-mode-icon">🎯</span>
+        <div class="fun-mode-title">随机转盘</div>
+        <div class="fun-mode-desc">彩色分扇转盘，每家餐厅一个扇区。带物理缓动效果旋转，结果弹出餐厅卡片+彩纸特效。可自定义哪些餐厅参与。</div>
+        <div class="fun-pts-badge">🏆 +3积分/次 · 日限15分</div>
+      </div>
+      <div class="fun-mode-card">
+        <span class="fun-mode-icon">⚔️</span>
+        <div class="fun-mode-title">美食PK赛</div>
+        <div class="fun-mode-desc">两两对决淘汰赛，选你更想吃的那个，一路pk到底，最终产生「今日食神冠军」，揭晓时有彩纸动效。</div>
+        <div class="fun-pts-badge">🏆 +5积分/局 · 日限1次</div>
+      </div>
+    </div>
+    <div style="background:linear-gradient(135deg,#1a1209,#2d1a05);border-radius:16px;padding:18px 20px;display:flex;align-items:center;gap:14px;cursor:pointer;text-decoration:none;">
+      <div style="font-size:28px;display:flex;gap:6px;">🎯🍜⚔️</div>
+      <div style="flex:1;">
+        <div style="font-family:'Noto Serif SC',serif;font-size:16px;font-weight:700;color:#fdf6e3;margin-bottom:3px;display:flex;align-items:center;gap:8px;">今天吃什么？<span style="font-size:10px;padding:2px 8px;background:linear-gradient(135deg,#e85d26,#f4b942);border-radius:9px;color:white;">✨ 趣味模式</span></div>
+        <div style="font-size:12px;color:rgba(253,246,227,.5);">随机转盘 · 美食PK赛 · 让命运帮你决定，还能赚积分</div>
+      </div>
+      <div style="font-size:20px;color:#f4b942;">→</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 5. 个人主页 ══ -->
+<div class="section light">
+  <div class="section-inner">
+    <div class="section-tag green">05 · PROFILE</div>
+    <div class="section-title">个人主页</div>
+    <div class="section-desc">游戏化风格的用户中心，积分等级、美食专家徽章、收藏、关注、动态一页汇总。</div>
+    <div class="browser" style="max-width:420px;margin:0 auto;">
+      <div class="browser-bar"><div class="bdots"><div class="bdot r"></div><div class="bdot y"></div><div class="bdot g"></div></div><div class="burl">localhost:3000/profile.html</div></div>
+      <div style="background:var(--paper);overflow:hidden;">
         <div class="profile-cover">
           <div class="pc-pattern"></div>
+          <div class="pc-title">FOOD MASTER</div>
           <div class="pc-emoji">🍜</div>
           <div class="pc-avatar-wrap"><div class="pc-avatar">😊</div></div>
         </div>
-        <div class="profile-info">
-          <div class="pi-name">张同学 <span class="pi-badge">🥢 面食达人</span></div>
-          <div class="pi-bio">理工大 · 计算机系大三 | 大学城觅食老司机 🍜</div>
-          <div class="pi-stats">
-            <div class="pi-stat"><div class="pi-sn">32</div><div class="pi-sl">动态</div></div>
-            <div class="pi-stat"><div class="pi-sn">128</div><div class="pi-sl">关注</div></div>
-            <div class="pi-stat"><div class="pi-sn">256</div><div class="pi-sl">粉丝</div></div>
-            <div class="pi-stat"><div class="pi-sn">18</div><div class="pi-sl">收藏</div></div>
+        <div class="profile-body">
+          <div class="pname">张同学 <span class="pname-badge">🥢 面食达人</span></div>
+          <div class="pbio">理工大 · 计算机系大三 | 大学城觅食老司机 🍜</div>
+          <div class="pstats">
+            <div class="pstat"><div class="pstat-n">32</div><div class="pstat-l">动态</div></div>
+            <div class="pstat"><div class="pstat-n">128</div><div class="pstat-l">关注</div></div>
+            <div class="pstat"><div class="pstat-n">256</div><div class="pstat-l">粉丝</div></div>
+            <div class="pstat"><div class="pstat-n">18</div><div class="pstat-l">收藏</div></div>
           </div>
         </div>
-        <div class="pts-card">
-          <div class="pts-top">
-            <div class="pts-deco"></div>
-            <div class="pts-row">
-              <div class="pts-left">
-                <div class="pts-label">当前积分</div>
-                <div class="pts-num">1,650</div>
-                <div class="pts-expire">有效期至 2026.12.31</div>
-              </div>
-              <div>
-                <div class="pts-badge-icon">🥢</div>
-                <div class="pts-badge-name">面食达人</div>
-              </div>
-            </div>
-            <div class="pts-prog-bg"><div class="pts-prog-fill"></div></div>
+        <div style="background:linear-gradient(135deg,#1a1209,#2d1a05);margin:12px;border-radius:14px;padding:14px;position:relative;overflow:hidden;">
+          <div style="position:absolute;width:130px;height:130px;border-radius:50%;background:rgba(244,185,66,.07);top:-50px;right:-30px;"></div>
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;position:relative;z-index:1;">
+            <div><div style="font-size:9px;color:rgba(253,246,227,.4);letter-spacing:1px;margin-bottom:3px;">当前积分</div><div style="font-size:28px;font-weight:500;color:#f4b942;">1,650</div></div>
+            <div style="text-align:right;"><div style="font-size:24px;animation:float 3s ease-in-out infinite;">🥢</div><div style="font-size:11px;color:#f4b942;margin-top:2px;">面食达人</div></div>
           </div>
-          <div class="pts-bottom">
-            <div class="pts-stat"><div class="pts-stat-n">32</div><div class="pts-stat-l">评价次数</div></div>
-            <div class="pts-stat"><div class="pts-stat-n">18</div><div class="pts-stat-l">签到天数</div></div>
-            <div class="pts-stat"><div class="pts-stat-n">+320</div><div class="pts-stat-l">本月获得</div></div>
-          </div>
-        </div>
-        <div class="badges-grid">
-          <div class="badge-card unlocked">
-            <span class="badge-icon">🥢</span>
-            <div class="badge-name">面食达人</div>
-            <div class="badge-desc">评价面食餐厅10+次</div>
-            <div class="badge-prog-bg"><div class="badge-prog-fill" style="width:100%;background:linear-gradient(90deg,#e85d26,#f4b942);"></div></div>
-          </div>
-          <div class="badge-card unlocked">
-            <span class="badge-icon">☕</span>
-            <div class="badge-name">咖啡专家</div>
-            <div class="badge-desc">评价咖啡店8+次</div>
-            <div class="badge-prog-bg"><div class="badge-prog-fill" style="width:100%;background:linear-gradient(90deg,#795548,#bcaaa4);"></div></div>
-          </div>
-          <div class="badge-card">
-            <span class="badge-icon">🍣</span>
-            <div class="badge-name">日料行家</div>
-            <div class="badge-desc">评价日料餐厅8+次</div>
-            <div class="badge-prog-bg"><div class="badge-prog-fill" style="width:37%;background:#e91e63;"></div></div>
-          </div>
-          <div class="badge-card">
-            <span class="badge-icon">🫕</span>
-            <div class="badge-name">火锅狂人</div>
-            <div class="badge-desc">评价火锅店8+次</div>
-            <div class="badge-prog-bg"><div class="badge-prog-fill" style="width:25%;background:#e85d26;"></div></div>
+          <div style="height:5px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden;position:relative;z-index:1;"><div style="height:100%;width:65%;background:linear-gradient(90deg,#f4b942,#e85d26);border-radius:3px;"></div></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:10px;position:relative;z-index:1;">
+            <div style="background:rgba(255,255,255,.06);border-radius:8px;padding:8px;text-align:center;"><div style="font-size:14px;font-weight:500;color:#f4b942;">32</div><div style="font-size:8px;color:rgba(253,246,227,.3);margin-top:1px;">评价次数</div></div>
+            <div style="background:rgba(255,255,255,.06);border-radius:8px;padding:8px;text-align:center;"><div style="font-size:14px;font-weight:500;color:#f4b942;">18</div><div style="font-size:8px;color:rgba(253,246,227,.3);margin-top:1px;">签到天数</div></div>
+            <div style="background:rgba(255,255,255,.06);border-radius:8px;padding:8px;text-align:center;"><div style="font-size:14px;font-weight:500;color:#f4b942;">+320</div><div style="font-size:8px;color:rgba(253,246,227,.3);margin-top:1px;">本月获得</div></div>
           </div>
         </div>
       </div>
     </div>
   </div>
-
-  <!-- 5. 登录页 -->
-  <div class="device-section">
-    <div class="section-label"><div class="num">5</div><h2>登录 / 注册</h2></div>
-    <div class="browser-frame" style="max-width:380px;margin:0 auto;">
-      <div class="browser-bar"><div class="bdots"><div class="bdot r"></div><div class="bdot y"></div><div class="bdot g"></div></div><div class="browser-url">localhost:3000/login.html</div></div>
-      <div class="browser-content">
-        <div class="login-scene">
-          <div class="login-box">
-            <div class="lb-icon">🍜</div>
-            <div class="lb-title">觅食<div class="lb-dot"></div></div>
-            <div class="lb-sub">大学城美食地图</div>
-            <div class="lb-tabs"><button class="lb-tab active">登录</button><button class="lb-tab">注册</button></div>
-            <div class="lb-hint">❤️ 登录后可<strong>收藏餐厅</strong>、<strong>发布评价</strong>、使用<strong>校园圈</strong></div>
-            <input class="lb-input" placeholder="用户名">
-            <input class="lb-input" type="password" placeholder="密码">
-            <button class="lb-btn pr">登录账号</button>
-            <button class="lb-btn dm">🎓 使用测试账号登录</button>
-            <div class="lb-feats">
-              <div class="lb-feat"><div class="lb-fi">❤️</div><div class="lb-ft">收藏</div></div>
-              <div class="lb-feat"><div class="lb-fi">⭐</div><div class="lb-ft">评价</div></div>
-              <div class="lb-feat"><div class="lb-fi">👥</div><div class="lb-ft">校园圈</div></div>
-              <div class="lb-feat"><div class="lb-fi">🏆</div><div class="lb-ft">积分</div></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
 </div>
 
+<!-- ══ 6. 技术栈 ══ -->
+<div class="section warm">
+  <div class="section-inner">
+    <div class="section-tag gold">06 · TECH STACK</div>
+    <div class="section-title">技术栈</div>
+    <div class="section-desc">零外部数据库依赖，clone 即可运行，适合学习和二次开发。</div>
+    <div class="tech-grid">
+      <div class="tech-card"><div class="tech-icon" style="background:#e3f2fd;">🐍</div><div><div class="tech-name">Python 3.11 + FastAPI</div><div class="tech-desc">高性能异步后端，自动生成 API 文档</div></div></div>
+      <div class="tech-card"><div class="tech-icon" style="background:#e8f5e9;">🗄️</div><div><div class="tech-name">SQLite + SQLAlchemy</div><div class="tech-desc">内置数据库，零配置，文件即数据库</div></div></div>
+      <div class="tech-card"><div class="tech-icon" style="background:#fff3e0;">🌐</div><div><div class="tech-name">HTML5 + Vanilla JS</div><div class="tech-desc">无框架依赖，轻量纯净，易于理解</div></div></div>
+      <div class="tech-card"><div class="tech-icon" style="background:#fce4ec;">🗺️</div><div><div class="tech-name">高德地图 JS API</div><div class="tech-desc">餐厅位置可视化，点击定位导航</div></div></div>
+      <div class="tech-card"><div class="tech-icon" style="background:#f3e5f5;">🤖</div><div><div class="tech-name">Claude API</div><div class="tech-desc">AI 推荐引擎，选填，规则可兜底</div></div></div>
+      <div class="tech-card"><div class="tech-icon" style="background:#e8eaf6;">🔐</div><div><div class="tech-name">JWT 认证</div><div class="tech-desc">7天有效期 Token，支持管理员角色</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 7. 未来规划 ══ -->
+<div class="section dark">
+  <div class="section-inner">
+    <div class="section-tag dark-tag">07 · ROADMAP</div>
+    <div class="section-title" style="color:#fdf6e3;">未来规划</div>
+    <div class="section-desc">当前版本已完成核心功能，以下是计划中的功能迭代方向。</div>
+    <div class="roadmap-grid">
+
+      <div class="roadmap-card soon">
+        <span class="roadmap-icon">🛵</span>
+        <div class="roadmap-title">外卖平台比价 <span class="roadmap-tag soon-tag">计划中</span></div>
+        <div class="roadmap-desc">同一家餐厅，自动比对美团外卖、饿了么、淘宝闪购三平台价格，显示最优选择，省去用户来回切换 App 的麻烦。</div>
+      </div>
+
+      <div class="roadmap-card soon">
+        <span class="roadmap-icon">👥</span>
+        <div class="roadmap-title">拼单小社群 <span class="roadmap-tag soon-tag">计划中</span></div>
+        <div class="roadmap-desc">发起「组团点外卖」，同宿舍/同班同学一起拼单满减，系统自动汇总订单和分摊金额，社交+省钱双赢。</div>
+      </div>
+
+      <div class="roadmap-card soon">
+        <span class="roadmap-icon">📅</span>
+        <div class="roadmap-title">周餐计划 <span class="roadmap-tag soon-tag">计划中</span></div>
+        <div class="roadmap-desc">根据营养均衡原则自动生成一周餐食计划，结合个人口味偏好和预算，支持一键导出和日历提醒。</div>
+      </div>
+
+      <div class="roadmap-card">
+        <span class="roadmap-icon">📊</span>
+        <div class="roadmap-title">食谱热力图 <span class="roadmap-tag future-tag">构想中</span></div>
+        <div class="roadmap-desc">可视化分析用户的饮食习惯，包括常去餐厅热力图、菜系偏好雷达图、消费趋势折线图，帮助了解自己的饮食模式。</div>
+      </div>
+
+      <div class="roadmap-card">
+        <span class="roadmap-icon">🎓</span>
+        <div class="roadmap-title">校园食堂版 <span class="roadmap-tag future-tag">构想中</span></div>
+        <div class="roadmap-desc">接入学校食堂菜单数据，支持食堂窗口评价，实时查看今日菜单，预测排队时长，彻底解决「吃食堂还是出去吃」的纠结。</div>
+      </div>
+
+      <div class="roadmap-card">
+        <span class="roadmap-icon">🤝</span>
+        <div class="roadmap-title">商家入驻系统 <span class="roadmap-tag future-tag">构想中</span></div>
+        <div class="roadmap-desc">开放商家自主入驻和管理，支持商家上传菜品图片、发布限时优惠、回复用户评价，形成完整的双边平台生态。</div>
+      </div>
+
+      <div class="roadmap-card">
+        <span class="roadmap-icon">📱</span>
+        <div class="roadmap-title">微信小程序 <span class="roadmap-tag future-tag">构想中</span></div>
+        <div class="roadmap-desc">基于现有后端 API，开发微信小程序版本，支持微信登录，利用微信生态实现更便捷的社交分享和位置服务。</div>
+      </div>
+
+      <div class="roadmap-card">
+        <span class="roadmap-icon">🏪</span>
+        <div class="roadmap-title">多城市扩展 <span class="roadmap-tag future-tag">构想中</span></div>
+        <div class="roadmap-desc">将模板化能力开放给其他城市的大学城，支持多城市多校区独立部署，打造全国大学城美食地图联盟。</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══ FOOTER ══ -->
 <div class="footer">
   <div class="footer-links">
     <a href="https://github.com/zjzhangjob-cmd/campus-food-map" target="_blank">GitHub 仓库</a>
-    <a href="https://github.com/zjzhangjob-cmd/campus-food-map#readme" target="_blank">使用文档</a>
+    <a href="https://github.com/zjzhangjob-cmd/campus-food-map#readme" target="_blank">部署文档</a>
     <a href="https://github.com/zjzhangjob-cmd/campus-food-map/issues" target="_blank">问题反馈</a>
+    <a href="https://github.com/zjzhangjob-cmd/campus-food-map/fork" target="_blank">Fork 项目</a>
   </div>
-  <div>MIT License · 觅食·大学城美食地图</div>
-  <div style="margin-top:5px;font-size:10px;color:rgba(253,246,227,.25);">本页面为静态预览，无需部署即可查看效果</div>
+  <div>MIT License · 觅食·大学城美食地图 · 欢迎 Star ⭐ 和 Fork 🍴</div>
+  <div style="margin-top:6px;font-size:11px;color:rgba(253,246,227,.25);">本页面为静态展示，无需部署即可预览效果</div>
 </div>
 
 </body>
