@@ -5,8 +5,25 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>觅食 · 大学城美食地图</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=DM+Mono:wght@400;500&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
-<!-- 高德地图 JS API · Key 通过 start.sh 启动时自动注入，请勿手动填写 -->
-<script src="https://webapi.amap.com/maps?v=2.0&key=AMAP_JS_KEY_PLACEHOLDER"></script>
+<!-- 高德地图 JS API · 由前端在运行时从 /api/config 动态加载，无需手动配置 Key -->
+<script>
+  window.__AMAP_JS_KEY__ = "";
+  (function () {
+    try {
+      fetch("http://localhost:8000/api/config")
+        .then(function (r) { return r.json(); })
+        .then(function (cfg) {
+          window.__AMAP_JS_KEY__ = (cfg && cfg.amap_js_key) || "";
+          if (!window.__AMAP_JS_KEY__) return;
+          var s = document.createElement("script");
+          s.src = "https://webapi.amap.com/maps?v=2.0&key=" + encodeURIComponent(window.__AMAP_JS_KEY__);
+          s.onload = function () { window.AMapReady = true; };
+          document.head.appendChild(s);
+        })
+        .catch(function () { /* 后端不可用，退化为占位图 */ });
+    } catch (e) { /* 忽略 */ }
+  })();
+</script>
 <style>
   :root {
     --ink:#1a1209;--paper:#fdf6e3;--warm:#f5ede0;--accent:#e85d26;
@@ -149,10 +166,19 @@
 
   /* Map */
   .map-box{background:var(--card-bg);border:1.5px solid var(--border);border-radius:18px;overflow:hidden;}
-  #amap{height:220px;width:100%;}
+  #amap{height:420px;width:100%;position:relative;}
   .map-cta{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-top:1px solid var(--border);}
   .map-cta-text{font-size:13px;color:var(--muted);}
   .map-cta-btn{font-size:12px;color:var(--accent);font-weight:600;cursor:pointer;background:none;border:none;}
+
+  /* AI 虚拟形象 · 地图内 */
+  .map-ai-float{position:absolute;right:16px;bottom:16px;width:62px;height:62px;border-radius:50%;background:linear-gradient(135deg,#e85d26,#f4b942);display:flex;align-items:center;justify-content:center;font-size:34px;cursor:pointer;box-shadow:0 8px 24px rgba(232,93,38,.35);z-index:10;transition:transform .2s;animation:aiFloat 2.4s ease-in-out infinite;}
+  .map-ai-float:hover{transform:scale(1.08)}
+  .map-ai-float::after{content:'';position:absolute;inset:-4px;border-radius:50%;border:2px solid rgba(232,93,38,.35);animation:ripple 1.6s ease-out infinite;}
+  @keyframes aiFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+  @keyframes ripple{0%{opacity:1;transform:scale(.9)}100%{opacity:0;transform:scale(1.35)}}
+  .map-ai-bubble{position:absolute;right:82px;bottom:28px;padding:8px 14px;background:var(--ink);color:var(--paper);font-size:12px;border-radius:14px 14px 4px 14px;max-width:230px;box-shadow:0 4px 12px rgba(0,0,0,.2);z-index:10;animation:fadeUp .5s ease;}
+  .map-ai-bubble::after{content:'';position:absolute;right:-6px;bottom:10px;border:6px solid transparent;border-left-color:var(--ink);}
 
   /* Rankings */
   .rank-box{background:var(--card-bg);border:1.5px solid var(--border);border-radius:18px;padding:18px;}
@@ -203,22 +229,52 @@
   .review-input:focus{border-color:var(--accent);}
 
   /* AI Panel */
-  .ai-panel{position:fixed;right:0;top:64px;bottom:0;width:360px;background:var(--paper);border-left:1.5px solid var(--border);z-index:150;transform:translateX(100%);transition:transform .35s cubic-bezier(.16,1,.3,1);display:flex;flex-direction:column;box-shadow:-8px 0 40px var(--shadow);}
+  .ai-panel{position:fixed;right:0;top:64px;bottom:0;width:380px;background:var(--paper);border-left:1.5px solid var(--border);z-index:150;transform:translateX(100%);transition:transform .35s cubic-bezier(.16,1,.3,1);display:flex;flex-direction:column;box-shadow:-8px 0 40px var(--shadow);}
   .ai-panel.open{transform:translateX(0);}
   .ai-panel-header{padding:20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
-  .ai-panel-title{font-family:'Noto Serif SC',serif;font-size:17px;font-weight:700;}
+  .ai-panel-title{font-family:'Noto Serif SC',serif;font-size:17px;font-weight:700;display:flex;align-items:center;gap:10px;}
+  .ai-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#e85d26,#f4b942);display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 4px 10px rgba(232,93,38,.25);}
   .ai-chat{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;}
-  .chat-bubble{max-width:85%;padding:12px 14px;border-radius:16px;font-size:13px;line-height:1.5;animation:fadeUp .3s ease;}
+  .chat-bubble{max-width:88%;padding:12px 14px;border-radius:16px;font-size:13px;line-height:1.55;animation:fadeUp .3s ease;word-break:break-word;}
   .chat-bubble.bot{background:var(--tag-bg);color:var(--ink);border-radius:4px 16px 16px 16px;align-self:flex-start;}
   .chat-bubble.user{background:var(--ink);color:var(--paper);border-radius:16px 4px 16px 16px;align-self:flex-end;}
   .chat-bubble.loading-bubble{opacity:.7;}
   .ai-quick-replies{display:flex;flex-wrap:wrap;gap:6px;padding:0 16px 12px;}
   .quick-reply{padding:5px 12px;border-radius:16px;border:1px solid var(--border);background:var(--card-bg);font-size:11px;cursor:pointer;color:var(--ink);transition:all .15s;font-family:'Noto Sans SC',sans-serif;}
   .quick-reply:hover{background:var(--accent);color:white;border-color:var(--accent);}
-  .ai-input-area{padding:16px;border-top:1px solid var(--border);display:flex;gap:8px;}
-  .ai-input{flex:1;border:1.5px solid var(--border);border-radius:10px;padding:10px 14px;font-size:13px;font-family:'Noto Sans SC',sans-serif;background:var(--card-bg);color:var(--ink);outline:none;}
+  .ai-input-area{padding:14px 16px;border-top:1px solid var(--border);display:flex;gap:8px;align-items:flex-end;}
+  .ai-input{flex:1;border:1.5px solid var(--border);border-radius:12px;padding:10px 14px;font-size:13px;font-family:'Noto Sans SC',sans-serif;background:var(--card-bg);color:var(--ink);outline:none;resize:none;min-height:42px;max-height:100px;line-height:1.4;}
   .ai-input:focus{border-color:var(--accent);}
-  .ai-send{width:42px;height:42px;border-radius:10px;background:var(--accent);border:none;color:white;font-size:16px;cursor:pointer;flex-shrink:0;}
+  .ai-send{width:42px;height:42px;border-radius:12px;background:var(--accent);border:none;color:white;font-size:18px;cursor:pointer;flex-shrink:0;box-shadow:0 4px 12px rgba(232,93,38,.3);transition:all .15s;}
+  .ai-send:hover{transform:translateY(-2px);}
+
+  /* 推荐餐厅卡片（嵌入气泡下方） */
+  .rest-card{max-width:88%;align-self:flex-start;background:white;border:1.5px solid var(--border);border-radius:14px;padding:10px 12px;display:flex;gap:10px;cursor:pointer;transition:all .15s;box-shadow:0 2px 8px rgba(0,0,0,.04);animation:fadeUp .3s ease;}
+  .rest-card:hover{border-color:var(--accent);transform:translateY(-1px);box-shadow:0 4px 14px rgba(232,93,38,.12);}
+  .rest-card-thumb{width:56px;height:56px;border-radius:10px;background:linear-gradient(135deg,#fff3e5,#ffe3c2);display:flex;align-items:center;justify-content:center;font-size:34px;flex-shrink:0;}
+  .rest-card-body{flex:1;min-width:0;}
+  .rest-card-name{font-size:14px;font-weight:700;font-family:'Noto Serif SC',serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .rest-card-meta{font-size:11px;color:var(--muted);margin-top:4px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-family:'DM Mono',monospace;}
+  .rest-card-meta .mscore{color:var(--accent);font-weight:600;}
+  .rest-card-meta .mprice{color:var(--accent3);font-weight:600;}
+  .rest-card-meta .mdist{color:var(--accent);font-weight:600;}
+  .rest-card-tags{margin-top:6px;display:flex;gap:4px;flex-wrap:wrap;}
+  .rest-card-tag{font-size:10px;padding:2px 8px;background:var(--tag-bg);color:var(--muted);border-radius:10px;font-family:'DM Mono',monospace;}
+
+  /* 地图 AI 助手对话弹窗 */
+  .map-ai-modal{position:fixed;inset:0;background:rgba(26,18,9,.6);z-index:300;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;}
+  .map-ai-modal.open{opacity:1;pointer-events:all;}
+  .map-ai-modal-inner{background:var(--paper);border-radius:24px 24px 0 0;width:100%;max-width:540px;height:74vh;transform:translateY(100%);transition:transform .35s cubic-bezier(.16,1,.3,1);display:flex;flex-direction:column;overflow:hidden;}
+  .map-ai-modal.open .map-ai-modal-inner{transform:translateY(0);}
+  .map-ai-modal-head{padding:18px 20px;border-bottom:1.5px solid var(--border);display:flex;align-items:center;gap:12px;}
+  .map-ai-modal-head .ai-avatar{width:46px;height:46px;font-size:26px;}
+  .map-ai-modal-head .title{font-family:'Noto Serif SC',serif;font-size:17px;font-weight:700;}
+  .map-ai-modal-head .subtitle{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:2px;}
+  .map-ai-modal-head .close{margin-left:auto;width:36px;height:36px;border-radius:50%;border:1.5px solid var(--border);background:var(--card-bg);cursor:pointer;font-size:16px;}
+  .map-ai-chat{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;}
+  .map-ai-location{display:flex;align-items:center;gap:6px;padding:8px 14px;background:var(--tag-bg);border-radius:10px;font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;margin:0 16px 6px;}
+  .map-ai-input{padding:14px 16px;border-top:1.5px solid var(--border);display:flex;flex-direction:column;gap:10px;}
+  .map-ai-input-row{display:flex;gap:8px;}
 
   /* Pagination */
   .pagination{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:32px;}
@@ -450,12 +506,15 @@
         </div>
       </div>
 
-      <!-- 高德地图 -->
+      <!-- 高德地图 · 大屏模式 + AI 助手 -->
       <div class="map-box">
-        <div id="amap"></div>
+        <div id="amap">
+          <div class="map-ai-bubble" id="mapAIBubble">嗨！我是小觅，点我聊聊 🤖</div>
+          <div class="map-ai-float" id="mapAIFloat" onclick="openMapAI()">🤖</div>
+        </div>
         <div class="map-cta">
-          <span class="map-cta-text">点击地图标记查看餐厅</span>
-          <button class="map-cta-btn" onclick="showToast('地图已全屏显示')">展开 →</button>
+          <span class="map-cta-text">点击地图标记查看餐厅 · 点击右下角 AI 助手获取推荐</span>
+          <button class="map-cta-btn" onclick="openMapAI()">和小觅聊聊 →</button>
         </div>
       </div>
 
@@ -519,25 +578,50 @@
 <!-- AI 侧栏 -->
 <div class="ai-panel" id="aiPanel">
   <div class="ai-panel-header">
-    <div>
-      <div class="ai-panel-title">🤖 觅食 AI 助手</div>
-      <div style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace">描述你的需求，让我推荐</div>
-    </div>
+    <div class="ai-panel-title"><div class="ai-avatar">🤖</div><div><div>觅食 AI 助手</div><div style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;font-weight:400">小觅 · 多轮对话推荐</div></div></div>
     <button onclick="toggleAI()" style="border:1.5px solid var(--border);background:var(--card-bg);border-radius:50%;width:34px;height:34px;cursor:pointer;font-size:14px">✕</button>
   </div>
-  <div class="ai-chat" id="aiChat">
-    <div class="chat-bubble bot">嗨！我是觅食AI助手 🍽️<br><br>告诉我你的情况，比如：预算多少、想吃什么口味、几个人一起吃？我来帮你找最合适的！</div>
-  </div>
+  <div class="ai-chat" id="aiChat"></div>
   <div class="ai-quick-replies">
     <div class="quick-reply" onclick="sendQuick('预算20以内，要吃饱')">预算20内</div>
     <div class="quick-reply" onclick="sendQuick('想吃辣的，越辣越好')">越辣越好</div>
     <div class="quick-reply" onclick="sendQuick('6人聚餐推荐')">6人聚餐</div>
     <div class="quick-reply" onclick="sendQuick('减脂低卡餐')">减脂餐</div>
     <div class="quick-reply" onclick="sendQuick('考完试想好好吃一顿')">犒劳自己</div>
+    <div class="quick-reply" onclick="resetAI()">🔄 重新开始</div>
   </div>
   <div class="ai-input-area">
-    <input class="ai-input" id="aiInput" placeholder="输入你的需求…" onkeydown="if(event.key==='Enter')sendAIMsg()">
+    <input class="ai-input" id="aiInput" placeholder="告诉我：心情、预算、几个人吃？比如「一个人，预算15，要辣」" onkeydown="if(event.key==='Enter')sendAIMsg()">
     <button class="ai-send" onclick="sendAIMsg()">↑</button>
+  </div>
+</div>
+
+<!-- 地图 AI 助手对话弹窗 -->
+<div class="map-ai-modal" id="mapAIModal" onclick="if(event.target.id==='mapAIModal')closeMapAI()">
+  <div class="map-ai-modal-inner">
+    <div class="map-ai-modal-head">
+      <div class="ai-avatar">🤖</div>
+      <div>
+        <div class="title">小觅 · 地图 AI 助手</div>
+        <div class="subtitle">基于当前地图位置，实时推荐周边</div>
+      </div>
+      <button class="close" onclick="closeMapAI()">✕</button>
+    </div>
+    <div class="map-ai-location" id="mapAILocation">📍 当前中心：未定位</div>
+    <div class="map-ai-chat" id="mapAIChat"></div>
+    <div class="map-ai-input">
+      <div style="display:flex;flex-wrap:wrap;gap:6px;">
+        <div class="quick-reply" onclick="sendMapAIQuick('给我推荐周边评分最高的3家')">🔥 评分最高</div>
+        <div class="quick-reply" onclick="sendMapAIQuick('步行10分钟内的餐厅')">🚶 10分钟内</div>
+        <div class="quick-reply" onclick="sendMapAIQuick('性价比高的午餐')">💰 高性价比</div>
+        <div class="quick-reply" onclick="sendMapAIQuick('适合一个人吃的')">👤 一人食</div>
+        <div class="quick-reply" onclick="sendMapAIQuick('6个人聚餐')">👥 聚餐</div>
+      </div>
+      <div class="map-ai-input-row">
+        <input class="ai-input" id="mapAIInput" placeholder="告诉小觅你的需求，比如「预算20，想吃辣」" onkeydown="if(event.key==='Enter')sendMapAIMsg()">
+        <button class="ai-send" onclick="sendMapAIMsg()">↑</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -770,23 +854,55 @@ async function loadRanking() {
   } catch(e) {}
 }
 
-// ── 高德地图 ──
+// ── 高德地图 · 异步加载（key 从 /api/config 动态获取）──
 let amapInstance = null, amapMarkers = [];
 function initAmap() {
-  // 如果没有配置高德 Key，显示占位
-  if (typeof AMap === "undefined") {
-    document.getElementById("amap").innerHTML = `
-      <div style="height:220px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,#e8f4e8,#f0f8f0);gap:8px">
-        <div style="font-size:32px">🗺️</div>
-        <div style="font-size:12px;color:var(--muted);font-family:'DM Mono',monospace">配置高德 Key 后启用地图</div>
-      </div>`;
-    return;
+  var tries = 0;
+  function tryInit() {
+    if (typeof AMap === "undefined") {
+      if (tries++ < 30) { setTimeout(tryInit, 100); return; }
+      // 未加载成功（key 没配），但 AI 助手对话仍可用（走规则兜底）
+      return;
+    }
+    if (amapInstance) return;
+    amapInstance = new AMap.Map("amap", {
+      zoom: 15, center: [113.3508, 23.0437],
+      mapStyle: "amap://styles/light",
+    });
+    // 记录当前中心，供 AI 助手计算距离
+    const updateCenter = function() {
+      const c = amapInstance.getCenter();
+      if (c) mapLocation = [c.lat, c.lng];
+    };
+    updateCenter();
+    amapInstance.on("moveend", updateCenter);
+    amapInstance.on("zoomend", updateCenter);
+
+    // 点击地图：切换中心点并搜索附近餐厅
+    amapInstance.on("click", function (e) {
+      var lng = e.lnglat.lng, lat = e.lnglat.lat;
+      mapLocation = [lat, lng];
+      updateMapAILocation();
+      showToast("📍 已选择位置：" + lat.toFixed(4) + ", " + lng.toFixed(4));
+      if (window._clickMarker) amapInstance.remove(window._clickMarker);
+      window._clickMarker = new AMap.Marker({
+        position: [lng, lat],
+        label: { content: '<div style="background:var(--accent);color:white;padding:3px 8px;border-radius:8px;font-size:12px">📍 我在这里</div>', offset: new AMap.Pixel(-40, -46) },
+      });
+      amapInstance.add(window._clickMarker);
+      var nearby = (state.allRestaurants || []).filter(function (r) {
+        if (!r.latitude || !r.longitude) return false;
+        var d = Math.sqrt(Math.pow(r.latitude - lat, 2) + Math.pow(r.longitude - lng, 2));
+        return d < 0.02;
+      });
+      if (nearby.length) showToast("📍 附近有 " + nearby.length + " 家餐厅");
+    });
+    // 如果数据已到，立即渲染标记
+    if (state.allRestaurants && state.allRestaurants.length) {
+      updateMapPins(state.allRestaurants);
+    }
   }
-  amapInstance = new AMap.Map("amap", {
-    zoom: 15,
-    center: [113.3508, 23.0437],
-    mapStyle: "amap://styles/light",
-  });
+  tryInit();
 }
 
 function updateMapPins(restaurants) {
@@ -955,38 +1071,86 @@ function openNav() {
   }
 }
 
-// ── AI 助手 ──
+// ── AI 助手 · 多轮对话（chat 模式） ──────────────
 let aiOpen = false;
-function toggleAI() { aiOpen = !aiOpen; document.getElementById("aiPanel").classList.toggle("open", aiOpen); }
-function openAI()   { aiOpen = true;  document.getElementById("aiPanel").classList.add("open"); }
+let mapLocation = null; // [lat, lng] · 地图当前中心，用于给 Agent 计算距离
 
+function toggleAI() { aiOpen = !aiOpen; document.getElementById("aiPanel").classList.toggle("open", aiOpen); }
+function openAI()   { aiOpen = true;  document.getElementById("aiPanel").classList.add("open"); ensureAIGreeting(); }
+
+async function ensureAIGreeting() {
+  const chat = document.getElementById("aiChat");
+  if (!chat || chat.childElementCount > 0) return;
+  // 初始欢迎语（规则版），用户首次打开时看到
+  addBubble("嗨～我是小觅 🤖 当你不知道吃什么的时候，告诉我：<br><br>✨ 现在的心情 / 状态<br>💰 预算范围<br>👥 几个人吃<br>🌶️ 口味偏好<br>我来给你量身推荐！", "bot");
+}
+
+// 主入口：发送消息
 async function sendAIMsg() {
   const input = document.getElementById("aiInput");
   const msg = input.value.trim();
   if (!msg) return;
   input.value = "";
   addBubble(msg, "user");
-  addBubble("思考中…", "bot", "loadingBubble");
+  const loadingId = "loading_" + Date.now();
+  addBubble("小觅思考中… 🤔", "bot", loadingId);
   try {
-    const res = await AIAPI.recommend(msg, state.campus);
-    removeLoading();
+    const res = await AIAPI.chat(msg, { campus: state.campus });
+    document.getElementById(loadingId)?.remove();
     addBubble(res.reply, "bot");
+    if (res.recommendations && res.recommendations.length) {
+      for (const r of res.recommendations) renderRestaurantCard("aiChat", r);
+    }
   } catch(e) {
-    removeLoading();
+    document.getElementById(loadingId)?.remove();
     addBubble("抱歉，AI暂时无法响应，请稍后再试 😅", "bot");
   }
 }
 
-function sendQuick(msg) {
-  openAI();
-  setTimeout(() => {
-    document.getElementById("aiInput").value = msg;
-    sendAIMsg();
-  }, 200);
+function sendQuick(msg) { openAI(); setTimeout(() => { document.getElementById("aiInput").value = msg; sendAIMsg(); }, 200); }
+
+function resetAI() {
+  const chat = document.getElementById("aiChat");
+  if (chat) chat.innerHTML = "";
+  AIAPI.reset().then(() => ensureAIGreeting()).catch(() => ensureAIGreeting());
+}
+
+// 推荐餐厅卡片渲染（用于 AI 侧栏 & 地图 AI 助手）
+function renderRestaurantCard(chatContainerId, r) {
+  const chat = document.getElementById(chatContainerId);
+  if (!chat) return;
+  const card = document.createElement("div");
+  card.className = "rest-card";
+  card.onclick = () => openDetail(r.id);
+  const emoji = r.emoji || "🍽️";
+  const rating = (r.avg_rating || 0).toFixed(1);
+  const price = r.price_min && r.price_max
+    ? `¥${r.price_min}-${r.price_max}`
+    : (r.price_min ? `¥${r.price_min}起` : "价格待更新");
+  const distText = r.real_distance_m != null
+    ? `${(r.real_distance_m/1000).toFixed(2)}km · 步行${r.walk_minutes}分`
+    : (r.distance_min != null ? `步行约 ${r.distance_min} 分钟` : "");
+  const tags = (r.tags && r.tags.length) ? r.tags.slice(0,3).map(t => `<span class="rest-card-tag">${t}</span>`).join("") : "";
+  card.innerHTML = `
+    <div class="rest-card-thumb">${emoji}</div>
+    <div class="rest-card-body">
+      <div class="rest-card-name">${r.name}</div>
+      <div class="rest-card-meta">
+        <span class="mscore">★${rating}</span>
+        <span>·</span>
+        <span class="mprice">${price}</span>
+        ${distText ? `<span>·</span><span class="mdist">${distText}</span>` : ""}
+      </div>
+      ${tags ? `<div class="rest-card-tags">${tags}</div>` : ""}
+    </div>
+  `;
+  chat.appendChild(card);
+  chat.scrollTop = chat.scrollHeight;
 }
 
 function addBubble(text, type, id = "") {
   const chat = document.getElementById("aiChat");
+  if (!chat) return;
   const div = document.createElement("div");
   div.className = `chat-bubble ${type}`;
   if (id) div.id = id;
@@ -999,6 +1163,81 @@ function removeLoading() {
   const el = document.getElementById("loadingBubble");
   if (el) el.remove();
 }
+
+// ── 地图 AI 助手对话弹窗 ───────────────────────────
+let mapAIOpen = false;
+let mapAIChatOpened = false;
+
+function openMapAI() {
+  mapAIOpen = true;
+  document.getElementById("mapAIModal").classList.add("open");
+  // 隐藏地图上的气泡提示，避免干扰
+  const bubble = document.getElementById("mapAIBubble");
+  if (bubble) bubble.style.display = "none";
+  if (!mapAIChatOpened) {
+    mapAIChatOpened = true;
+    const chat = document.getElementById("mapAIChat");
+    if (chat) {
+      const greet = document.createElement("div");
+      greet.className = "chat-bubble bot";
+      greet.innerHTML = "嗨！我是小觅 🤖 这里是基于当前地图位置的实时推荐模式：<br><br>📍 会用你当前地图中心计算距离<br>⭐️ 只推荐附近餐厅<br>你可以直接在下面提问，比如「给我推荐周边评分最高的3家」。";
+      chat.appendChild(greet);
+    }
+    updateMapAILocation();
+    // 自动发一条：「基于当前地图位置，推荐3家附近评分最高的」
+    sendMapAIMsg("基于当前地图位置，给我推荐周边评分最高的3家餐厅");
+  }
+}
+
+function closeMapAI() {
+  mapAIOpen = false;
+  document.getElementById("mapAIModal").classList.remove("open");
+}
+
+function updateMapAILocation() {
+  const el = document.getElementById("mapAILocation");
+  if (!el) return;
+  if (mapLocation) {
+    el.innerHTML = `📍 当前地图中心：${mapLocation[0].toFixed(4)}, ${mapLocation[1].toFixed(4)}`;
+  } else {
+    el.innerHTML = "📍 地图尚未加载位置数据 · 用系统默认推荐";
+  }
+}
+
+function addMapAIBubble(text, type, id = "") {
+  const chat = document.getElementById("mapAIChat");
+  if (!chat) return;
+  const div = document.createElement("div");
+  div.className = `chat-bubble ${type}`;
+  if (id) div.id = id;
+  div.innerHTML = text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>").replace(/\n/g, "<br>");
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+async function sendMapAIMsg(overwriteMsg) {
+  const input = document.getElementById("mapAIInput");
+  const msg = overwriteMsg || (input && input.value.trim());
+  if (!msg) return;
+  if (!overwriteMsg && input) input.value = "";
+  addMapAIBubble(msg, "user");
+  const loadingId = "map_loading_" + Date.now();
+  addMapAIBubble("小觅正在扫描周边地图… 🗺️", "bot", loadingId);
+  try {
+    updateMapAILocation();
+    const res = await AIAPI.chat(msg, { campus: state.campus, location: mapLocation });
+    document.getElementById(loadingId)?.remove();
+    addMapAIBubble(res.reply, "bot");
+    if (res.recommendations && res.recommendations.length) {
+      for (const r of res.recommendations) renderRestaurantCard("mapAIChat", r);
+    }
+  } catch(e) {
+    document.getElementById(loadingId)?.remove();
+    addMapAIBubble("抱歉，AI暂时无法响应，请稍后再试 😅", "bot");
+  }
+}
+
+function sendMapAIQuick(msg) { sendMapAIMsg(msg); }
 
 // ── 首次进入动画 ──────────────────────────────────
 window.addEventListener("DOMContentLoaded", () => {
@@ -1042,40 +1281,6 @@ async function showFavModal() {
 }
 function closeFavModal() { document.getElementById("favModal").classList.remove("open"); }
 
-// ── 增强地图点击：点击地图可选择定位 ─────────────────
-function initAmap() {
-  if (typeof AMap === "undefined") {
-    document.getElementById("amap").innerHTML = `
-      <div style="height:220px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,#e8f4e8,#f0f8f0);gap:8px;cursor:pointer" onclick="showToast('请先配置高德地图 Key')">
-        <div style="font-size:32px">🗺️</div>
-        <div style="font-size:12px;color:var(--muted);font-family:'DM Mono',monospace">点击配置高德地图</div>
-      </div>`;
-    return;
-  }
-  amapInstance = new AMap.Map("amap", {
-    zoom: 15, center: [113.4008, 23.0445],
-    mapStyle: "amap://styles/light",
-  });
-  // 点击地图切换中心点
-  amapInstance.on("click", (e) => {
-    const {lng, lat} = e.lnglat;
-    showToast(`📍 已选择位置：${lat.toFixed(4)}, ${lng.toFixed(4)}`);
-    // 在点击位置放置临时标记
-    if (window._clickMarker) amapInstance.remove(window._clickMarker);
-    window._clickMarker = new AMap.Marker({
-      position: [lng, lat],
-      label: { content: '<div style="background:var(--accent);color:white;padding:3px 8px;border-radius:8px;font-size:12px">📍 我在这里</div>', offset: new AMap.Pixel(-40, -46) },
-    });
-    amapInstance.add(window._clickMarker);
-    // 搜索附近餐厅
-    const nearby = state.allRestaurants?.filter(r => {
-      if (!r.latitude || !r.longitude) return false;
-      const d = Math.sqrt(Math.pow(r.latitude - lat, 2) + Math.pow(r.longitude - lng, 2));
-      return d < 0.02;
-    });
-    if (nearby?.length) showToast(`📍 附近有 ${nearby.length} 家餐厅`);
-  });
-}
 </script>
 </body>
 </html>

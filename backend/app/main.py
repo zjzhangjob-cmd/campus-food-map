@@ -40,3 +40,12 @@ def root():
 @app.get("/health", tags=["健康检查"])
 def health():
     return {"status": "healthy"}
+
+
+@app.get("/api/config", tags=["公共配置"])
+def public_config():
+    """前端启动时获取的公共配置（目前仅用于自动注入高德 JS_KEY）。"""
+    return {
+        "app_name": settings.APP_NAME,
+        "amap_js_key": settings.AMAP_JS_KEY or "",
+    }

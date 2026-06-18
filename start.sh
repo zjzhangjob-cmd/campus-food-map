@@ -2,6 +2,8 @@
 # =============================================================
 #  觅食 — 启动脚本（Mac / Linux）
 #  用法：bash start.sh
+#  · 后端：FastAPI + Uvicorn（自动读取 .env 里的高德 Key）
+#  · 前端：Python http.server（向 /api/config 索取 AMAP_JS_KEY）
 # =============================================================
 
 RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'
@@ -18,18 +20,15 @@ echo ""
 echo -e "${CYAN}${BOLD}🍜  启动觅食·大学城美食地图${NC}"
 echo ""
 
-# ── 读取高德 JS Key 并注入前端 ──────────────────────────────
+# ── 检测高德 Key（仅用于启动时提示）───────────────────
 AMAP_JS_KEY=$(grep "^AMAP_JS_KEY=" .env | cut -d'=' -f2- | tr -d '"' | tr -d "'")
-
 if [ -n "$AMAP_JS_KEY" ] && [ "$AMAP_JS_KEY" != "你的高德JS_API_Key" ]; then
-  sed -i.bak "s|key=AMAP_JS_KEY_PLACEHOLDER|key=${AMAP_JS_KEY}|g" frontend/index.html
-  rm -f frontend/index.html.bak
-  echo -e "${GREEN}✓ 高德地图 Key 已注入${NC}"
+  echo -e "${GREEN}✓ 已检测到 AMAP_JS_KEY，地图将通过 /api/config 自动加载${NC}"
 else
-  echo -e "${YELLOW}⚠ 未配置高德 JS Key，地图将显示占位图（可在 .env 中设置 AMAP_JS_KEY）${NC}"
+  echo -e "${YELLOW}⚠ 未配置 AMAP_JS_KEY（.env），地图将展示占位图${NC}"
 fi
 
-# ── 启动后端 ──────────────────────────────────────────────────
+# ── 启动后端 ───────────────────────────────────────────────
 echo -e "${CYAN}▶ 启动后端...${NC}"
 cd backend
 source venv/bin/activate
@@ -49,7 +48,7 @@ for i in {1..20}; do
   echo -n "."
 done
 
-# ── 启动前端 ──────────────────────────────────────────────────
+# ── 启动前端 ───────────────────────────────────────────────
 echo -e "${CYAN}▶ 启动前端...${NC}"
 nohup python3 -m http.server 3000 --directory frontend \
   > logs/frontend.log 2>&1 &
@@ -61,14 +60,11 @@ echo -e "${GREEN}${BOLD}======================================${NC}"
 echo -e "${GREEN}${BOLD}  ✅ 服务已启动！                     ${NC}"
 echo -e "${GREEN}${BOLD}======================================${NC}"
 echo ""
-echo -e "  🌐 美食地图   ${CYAN}http://localhost:3000${NC}"
-echo -e "  🎯 趣味模式   ${CYAN}http://localhost:3000/fun.html${NC}"
-echo -e "  👤 个人主页   ${CYAN}http://localhost:3000/profile.html${NC}"
-echo -e "  🛠️  管理后台   ${CYAN}http://localhost:3000/admin.html${NC}"
-echo -e "  📖 API 文档   ${CYAN}http://localhost:8000/docs${NC}"
+echo -e "  🌐 主页         ${CYAN}http://localhost:3000${NC}"
+echo -e "  ⚙  API 文档     ${CYAN}http://localhost:8000/docs${NC}"
+echo -e "  🔧 公共配置     ${CYAN}http://localhost:8000/api/config${NC}"
 echo ""
-echo -e "  ${BOLD}账号：${NC}admin/admin123  student/student123"
-echo -e "  停止服务：${YELLOW}bash stop.sh${NC}"
+echo -e "  ${BOLD}停止服务：${YELLOW}bash stop.sh${NC}"
 echo ""
 
 if command -v open &>/dev/null; then

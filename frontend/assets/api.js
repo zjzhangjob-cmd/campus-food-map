@@ -78,10 +78,45 @@ const ReviewAPI = {
   delete: (id)   => del(`/api/reviews/${id}`),
 };
 
-// ── AI 推荐 API ─────────────────────────────────────
+// ── AI 推荐 / 多轮对话 Agent ───────────────────────
+//
+//   * 多轮对话会将 session，会（多轮对话 AI 助手
+//   * 地图内直接用：
+//       AIAPI.chat(message, { location?: [lat, lng] })
+//       AIAPI.reset()
+//       AIAPI.recommend(...)  保留原接口
+const _AI_STATE = { session_id: null };
+
 const AIAPI = {
   recommend: (message, campus = "", budget = null) =>
     post("/api/ai/recommend", { message, campus, budget }),
+
+  async chat(message, opts = {}) {
+    // opts: { campus, location:[lat, lng] }
+    const body = {
+      session_id: _AI_STATE.session_id,
+      message,
+      campus: opts.campus || "",
+      location: opts.location || null,
+    };
+    const res = await post("/api/ai/messages", body);
+    // 更新本地缓存的会话 ID，下次请求将带回更准确返回，否则下次下次将带给给
+    _AI_STATE.session_id = res.session_id;
+    return res;
+  },
+
+  async reset() {
+    if (_AI_STATE.session_id) {
+      try { await del(`/api/ai/sessions/${_AI_STATE.session_id}`); } catch(e) { /* ignore */ }
+    }
+    _AI_STATE.session_id = null;
+    // 创建全新会话
+    const res = await post("/api/ai/sessions", {});
+    _AI_STATE.session_id = res.session_id;
+    return res;
+  },
+
+  getSessionId: () => _AI_STATE.session_id,
 };
 
 // ── 管理后台 API ─────────────────────────────────────
