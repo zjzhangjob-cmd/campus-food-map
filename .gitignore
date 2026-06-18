@@ -1,0 +1,51 @@
+# ── 环境变量（绝对不能上传！）──
+.env
+.env.local
+.env.production
+
+# ── Python ──
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+venv/
+env/
+.venv/
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.mypy_cache/
+
+# ── 数据库 ──
+*.db
+*.sqlite3
+
+# ── macOS ──
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.Spotlight-V100
+.Trashes
+
+# ── IDE ──
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ── 日志 ──
+*.log
+logs/
+
+# ── Node（如以后加前端构建）──
+node_modules/
+npm-debug.log*
+
+# ── 运行时生成 ──
+logs/*.log
+logs/*.pid
