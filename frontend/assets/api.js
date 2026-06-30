@@ -141,6 +141,13 @@ const PointsAPI = {
   redeem:  (points, note)      => post("/api/points/redeem", {points, note}),
 };
 
+// ── 兼容别名（旧代码/新代码都能直接用） ──────────────────────────
+const restaurants = RestaurantAPI;   // restaurants.list, restaurants.get
+const reviews     = ReviewAPI;       // reviews.list, reviews.create
+// 确保全局可以访问
+window.Auth = Auth; window.AIAPI = AIAPI; window.restaurants = restaurants;
+window.reviews = reviews; window.AdminAPI = AdminAPI; window.PointsAPI = PointsAPI;
+
 // 积分浮动动画
 function showPointsFloat(pts, msg="") {
   if (!Auth.isLoggedIn()) return;

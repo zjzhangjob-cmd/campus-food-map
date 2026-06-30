@@ -3,9 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>觅食 · 大学城美食地图</title>
+<title>觅食帮选 · 大学城美食地图</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=DM+Mono:wght@400;500&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
-<!-- 高德地图 JS API · 由前端在运行时从 /api/config 动态加载，无需手动配置 Key -->
 <script>
   window.__AMAP_JS_KEY__ = "";
   (function () {
@@ -20,272 +19,218 @@
           s.onload = function () { window.AMapReady = true; };
           document.head.appendChild(s);
         })
-        .catch(function () { /* 后端不可用，退化为占位图 */ });
-    } catch (e) { /* 忽略 */ }
+        .catch(function () {});
+    } catch (e) {}
   })();
 </script>
 <style>
   :root {
     --ink:#1a1209;--paper:#fdf6e3;--warm:#f5ede0;--accent:#e85d26;
     --accent2:#f4b942;--accent3:#2d7a4f;--muted:#8a7a6a;
-    --tag-bg:#f0e8d8;--card-bg:#fffdf7;--border:#e8dcc8;--shadow:rgba(26,18,9,.08);
+    --border:#e8dcc8;--shadow:rgba(26,18,9,.15);
   }
-  *{margin:0;padding:0;box-sizing:border-box;}
-  body{background:var(--paper);color:var(--ink);font-family:'Noto Sans SC',sans-serif;min-height:100vh;overflow-x:hidden;}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;width:100%;overflow:hidden;background:#fdf6e3;color:var(--ink);font-family:'Noto Sans SC',sans-serif;}
 
-  /* ── HEADER ── */
-  header{position:sticky;top:0;z-index:100;background:rgba(253,246,227,.95);border-bottom:1.5px solid var(--border);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:64px;backdrop-filter:blur(12px);}
-  .logo{display:flex;align-items:baseline;gap:8px;}
-  .logo-main{font-family:'Noto Serif SC',serif;font-size:22px;font-weight:900;}
-  .logo-dot{width:8px;height:8px;background:var(--accent);border-radius:50%;display:inline-block;margin-bottom:2px;animation:pulse 2s infinite;}
-  @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.3)}}
-  .logo-sub{font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;}
-  .campus-selector{display:flex;gap:6px;}
-  .campus-btn{padding:5px 12px;border-radius:20px;border:1.5px solid var(--border);background:transparent;font-size:12px;font-family:'Noto Sans SC',sans-serif;cursor:pointer;color:var(--muted);transition:all .2s;}
-  .campus-btn.active,.campus-btn:hover{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  /* ── 全屏地图容器 ───────────────────────── */
+  #map-stage{position:fixed;inset:0;z-index:0;}
+  #amap{position:absolute;inset:0;width:100%;height:100%;}
+  .map-placeholder{position:absolute;inset:0;background:radial-gradient(circle at 30% 30%, #fff3e5 0%, #ffe3c2 35%, #ffd6a8 70%, #e85d26 140%);
+    display:flex;align-items:center;justify-content:center;flex-direction:column;gap:18px;color:#8a5a3b;z-index:1;}
+  .map-placeholder-emoji{font-size:120px;opacity:.55;filter:drop-shadow(0 6px 18px rgba(232,93,38,.3));animation:floatY 4s ease-in-out infinite;}
+  @keyframes floatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+  .map-placeholder-text{font-size:15px;color:#8a5a3b;font-family:'DM Mono',monospace;letter-spacing:2px;}
+  .map-placeholder.done{display:none;}
+
+  /* ── 顶部 Header（浮在地图上） ─────────────── */
+  .top-bar{position:fixed;top:0;left:0;right:0;z-index:20;display:flex;align-items:center;justify-content:space-between;
+    padding:14px 28px;background:rgba(253,246,227,.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    border-bottom:1.5px solid rgba(232,220,200,.6);}
+  .logo{display:flex;align-items:baseline;gap:10px;cursor:pointer;}
+  .logo-main{font-family:'Noto Serif SC',serif;font-size:22px;font-weight:900;letter-spacing:2px;}
+  .logo-dot{width:8px;height:8px;background:var(--accent);border-radius:50%;display:inline-block;margin-bottom:3px;}
+  .logo-sub{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;}
+  .nav-tabs{display:flex;gap:4px;background:rgba(255,255,255,.7);border-radius:999px;padding:4px;box-shadow:0 2px 10px var(--shadow);}
+  .nav-tab{padding:8px 18px;border-radius:999px;font-size:13px;cursor:pointer;color:var(--muted);transition:all .2s;font-weight:500;}
+  .nav-tab:hover{color:var(--ink);}
+  .nav-tab.active{background:var(--ink);color:var(--paper);box-shadow:0 3px 10px rgba(26,18,9,.25);}
   .header-right{display:flex;align-items:center;gap:10px;}
-  .hbtn{padding:7px 14px;border-radius:20px;border:1.5px solid var(--border);background:var(--card-bg);font-size:12px;font-family:'Noto Sans SC',sans-serif;cursor:pointer;color:var(--ink);transition:all .2s;}
+  .hbtn{padding:8px 18px;border-radius:999px;border:1.5px solid rgba(232,220,200,.8);background:rgba(255,255,255,.7);font-size:13px;cursor:pointer;color:var(--ink);transition:all .2s;font-weight:500;}
   .hbtn:hover{background:var(--ink);color:var(--paper);border-color:var(--ink);}
-  .hbtn.accent{background:var(--accent);color:white;border-color:var(--accent);}
-  #userArea{font-size:12px;color:var(--muted);}
 
-  /* ── HERO ── */
-  .hero{padding:48px 24px 32px;max-width:1200px;margin:0 auto;}
-  .hero-tag{display:inline-flex;align-items:center;gap:6px;background:var(--accent);color:white;padding:4px 12px;border-radius:20px;font-size:11px;font-family:'DM Mono',monospace;letter-spacing:1px;margin-bottom:16px;animation:fadeUp .6s ease both;}
-  .hero h1{font-family:'Noto Serif SC',serif;font-size:clamp(32px,5vw,56px);font-weight:900;line-height:1.15;letter-spacing:-1px;animation:fadeUp .6s .1s ease both;}
-  .hero h1 em{font-style:normal;color:var(--accent);position:relative;}
-  .hero h1 em::after{content:'';position:absolute;left:0;right:0;bottom:2px;height:4px;background:var(--accent2);opacity:.5;border-radius:2px;}
-  @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
-  .search-wrap{margin-top:28px;display:flex;gap:10px;animation:fadeUp .6s .3s ease both;max-width:680px;}
-  .search-bar{flex:1;display:flex;align-items:center;gap:10px;background:white;border:1.5px solid var(--border);border-radius:14px;padding:0 18px;height:52px;box-shadow:0 2px 12px var(--shadow);transition:border-color .2s,box-shadow .2s;}
-  .search-bar:focus-within{border-color:var(--accent);box-shadow:0 0 0 4px rgba(232,93,38,.08);}
-  .search-bar input{flex:1;border:none;outline:none;font-size:15px;background:transparent;font-family:'Noto Sans SC',sans-serif;color:var(--ink);}
-  .search-bar input::placeholder{color:var(--muted);}
-  .btn-primary{padding:0 24px;height:52px;background:var(--accent);color:white;border:none;border-radius:14px;font-size:15px;font-family:'Noto Sans SC',sans-serif;cursor:pointer;transition:all .2s;box-shadow:0 4px 16px rgba(232,93,38,.3);}
-  .btn-primary:hover{background:#d14e1a;transform:translateY(-1px);}
-  .mood-bar{margin-top:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;animation:fadeUp .6s .4s ease both;}
-  .mood-label{font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;}
-  .mood-tag{padding:5px 14px;border-radius:20px;border:1.5px solid var(--border);background:var(--card-bg);font-size:12px;cursor:pointer;color:var(--ink);transition:all .18s;font-family:'Noto Sans SC',sans-serif;}
-  .mood-tag:hover,.mood-tag.active{background:var(--ink);color:var(--paper);border-color:var(--ink);transform:translateY(-2px);}
-  .mood-tag.special{background:linear-gradient(135deg,#e85d26,#f4b942);color:white;border:none;}
-  .stats-row{margin-top:32px;display:flex;gap:32px;padding-top:24px;border-top:1px solid var(--border);animation:fadeUp .6s .5s ease both;}
-  .stat{display:flex;flex-direction:column;gap:2px;}
-  .stat-num{font-family:'Noto Serif SC',serif;font-size:26px;font-weight:900;}
-  .stat-num span{color:var(--accent);}
-  .stat-label{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;}
+  /* ── 左上：欢迎卡片（小觅形象 + 推荐问题） ──── */
+  .welcome-card{position:fixed;left:28px;top:92px;z-index:15;width:340px;
+    background:rgba(253,246,227,.94);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+    border:1.5px solid rgba(232,220,200,.7);border-radius:24px;
+    padding:18px 20px;box-shadow:0 12px 40px var(--shadow);animation:fadeUp .7s .1s ease both;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+  .welcome-head{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
+  .welcome-avatar{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));
+    display:flex;align-items:center;justify-content:center;font-size:30px;box-shadow:0 6px 16px rgba(232,93,38,.35);
+    animation:floatY 3.2s ease-in-out infinite;flex-shrink:0;}
+  .welcome-title{font-family:'Noto Serif SC',serif;font-size:18px;font-weight:900;line-height:1.3;}
+  .welcome-title em{color:var(--accent);font-style:normal;}
+  .welcome-sub{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:3px;letter-spacing:1px;}
+  .welcome-hint{font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.5;}
+  .quick-bubbles{display:flex;flex-direction:column;gap:8px;}
+  .quick-bubble{display:flex;align-items:center;gap:8px;padding:10px 14px;background:rgba(255,255,255,.75);
+    border-radius:14px;cursor:pointer;border:1.5px solid rgba(232,220,200,.8);
+    font-size:13px;color:var(--ink);transition:all .2s;font-weight:500;}
+  .quick-bubble:hover{background:var(--accent);color:white;border-color:var(--accent);transform:translateX(4px);box-shadow:0 4px 12px rgba(232,93,38,.25);}
+  .quick-bubble .qb-emoji{font-size:18px;flex-shrink:0;}
+  .quick-bubble .qb-text{flex:1;}
+  .quick-bubble .qb-arrow{font-size:11px;opacity:.6;}
 
-  /* ── MAIN ── */
-  .main{max-width:1200px;margin:0 auto;padding:0 24px 80px;}
+  /* ── 右上：数据卡片组 ─────────────────────── */
+  .data-stack{position:fixed;right:28px;top:92px;z-index:15;display:flex;flex-direction:column;gap:10px;width:220px;}
+  .data-card{background:rgba(253,246,227,.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+    border:1.5px solid rgba(232,220,200,.7);border-radius:16px;padding:12px 14px;
+    box-shadow:0 8px 24px var(--shadow);animation:fadeUp .7s ease both;}
+  .data-card:nth-child(1){animation-delay:.2s;}
+  .data-card:nth-child(2){animation-delay:.3s;}
+  .data-card:nth-child(3){animation-delay:.4s;}
+  .data-card:nth-child(4){animation-delay:.5s;}
+  .data-label{font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1.5px;text-transform:uppercase;}
+  .data-value{font-family:'Noto Serif SC',serif;font-size:22px;font-weight:900;margin-top:2px;display:flex;align-items:baseline;gap:4px;}
+  .data-value span{font-size:12px;color:var(--muted);font-weight:500;font-family:'DM Mono',monospace;}
+  .data-value .num-accent{color:var(--accent);}
 
-  /* Deals */
-  .deals-section{margin:0 0 28px;padding:24px;background:linear-gradient(135deg,#fff8ee,#fff3e0);border:1.5px solid var(--accent2);border-radius:18px;}
-  .deals-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+  /* ── 地图内：推荐信息气泡 ─────────────────── */
+  .map-bubble{position:absolute;z-index:8;padding:8px 14px;background:rgba(253,246,227,.95);backdrop-filter:blur(6px);
+    border:1.5px solid rgba(232,220,200,.8);border-radius:20px;box-shadow:0 6px 20px var(--shadow);
+    font-size:12px;font-weight:600;color:var(--ink);cursor:pointer;display:flex;align-items:center;gap:8px;
+    transition:all .25s;animation:bubbleIn .8s ease both;white-space:nowrap;}
+  @keyframes bubbleIn{from{opacity:0;transform:translateY(10px) scale(.85)}to{opacity:1;transform:translateY(0) scale(1)}}
+  .map-bubble:hover{transform:translateY(-3px) scale(1.05);box-shadow:0 10px 28px rgba(232,93,38,.35);border-color:var(--accent);}
+  .map-bubble.hot{background:linear-gradient(135deg,#fff3e5,#ffe3c2);border-color:#f4b942;}
+  .map-bubble.rec{background:linear-gradient(135deg,#fff,#ffe8d6);border-color:var(--accent);}
+  .map-bubble.new{background:linear-gradient(135deg,#e8f5e9,#c8e6c9);border-color:#2d7a4f;}
+  .map-bubble .mb-emoji{font-size:16px;}
+  .map-bubble .mb-label{font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:1px;margin-right:4px;}
 
-  /* 趣味模式横幅 */
-  .fun-banner{display:flex;align-items:center;gap:16px;padding:16px 20px;background:linear-gradient(135deg,#1a1209,#3d2010);border-radius:16px;margin-bottom:24px;cursor:pointer;text-decoration:none;transition:transform .2s,box-shadow .2s;overflow:hidden;position:relative;}
-  .fun-banner::before{content:'';position:absolute;width:200px;height:200px;border-radius:50%;background:rgba(244,185,66,.08);top:-80px;right:-60px;pointer-events:none;}
-  .fun-banner:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(26,18,9,.2);}
-  .fun-banner-foods{font-size:32px;display:flex;gap:6px;flex-shrink:0;animation:funFloat 3s ease-in-out infinite;}
-  @keyframes funFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
-  .fun-banner-body{flex:1;}
-  .fun-banner-title{font-family:'Noto Serif SC',serif;font-size:17px;font-weight:700;color:#fdf6e3;margin-bottom:3px;display:flex;align-items:center;gap:8px;}
-  .fun-banner-badge{font-size:10px;padding:2px 8px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:10px;color:white;font-family:'DM Mono',monospace;letter-spacing:.5px;}
-  .fun-banner-desc{font-size:12px;color:rgba(253,246,227,.55);line-height:1.5;}
-  .fun-banner-arrow{font-size:22px;color:var(--accent2);flex-shrink:0;transition:transform .2s;}
-  .fun-banner:hover .fun-banner-arrow{transform:translateX(4px);}
-  .box-title{font-family:'Noto Serif SC',serif;font-size:15px;font-weight:700;display:flex;align-items:center;gap:6px;}
-  .deals-scroll{display:flex;gap:12px;overflow-x:auto;padding-bottom:8px;}
-  .deals-scroll::-webkit-scrollbar{height:4px;}
-  .deals-scroll::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
-  .deal-card{flex-shrink:0;width:180px;background:white;border-radius:12px;padding:14px;border:1.5px solid rgba(244,185,66,.3);cursor:pointer;transition:all .2s;}
-  .deal-card:hover{transform:translateY(-3px);box-shadow:0 8px 20px rgba(244,185,66,.2);}
-  .deal-emoji{font-size:28px;margin-bottom:8px;}
-  .deal-name{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:4px;}
-  .deal-desc{font-size:11px;color:var(--muted);margin-bottom:8px;line-height:1.4;}
-  .deal-price{display:flex;align-items:center;gap:6px;}
-  .deal-new{font-size:15px;font-weight:700;color:var(--accent);font-family:'DM Mono',monospace;}
-  .deal-old{font-size:12px;color:var(--muted);text-decoration:line-through;font-family:'DM Mono',monospace;}
+  /* ── 右下：大圆形浮动 AI 助手按钮 ────────────── */
+  .ai-fab{position:fixed;right:36px;bottom:36px;z-index:30;display:flex;flex-direction:column;align-items:flex-end;gap:12px;}
+  .ai-fab-tip{background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:18px 18px 4px 18px;
+    font-size:13px;box-shadow:0 8px 24px var(--shadow);max-width:220px;line-height:1.4;font-weight:500;
+    animation:tipPulse 3s ease-in-out infinite;position:relative;}
+  @keyframes tipPulse{0%,100%{transform:translateY(0);opacity:.95}50%{transform:translateY(-4px);opacity:1}}
+  .ai-fab-tip::after{content:'';position:absolute;right:-6px;bottom:10px;border:6px solid transparent;border-left-color:var(--ink);}
+  .ai-fab-btn{width:86px;height:86px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));
+    display:flex;align-items:center;justify-content:center;font-size:44px;cursor:pointer;
+    box-shadow:0 12px 36px rgba(232,93,38,.5);transition:all .25s;border:none;color:white;
+    animation:floatY 2.8s ease-in-out infinite;position:relative;}
+  .ai-fab-btn:hover{transform:scale(1.1) translateY(-4px);box-shadow:0 16px 44px rgba(232,93,38,.65);}
+  .ai-fab-btn::after{content:'';position:absolute;inset:-8px;border-radius:50%;border:3px solid rgba(232,93,38,.35);animation:ripple 2s ease-out infinite;}
+  @keyframes ripple{0%{opacity:1;transform:scale(.92)}100%{opacity:0;transform:scale(1.3)}}
+  .ai-fab-label{background:rgba(26,18,9,.88);color:var(--paper);padding:5px 12px;border-radius:999px;font-size:11px;font-family:'DM Mono',monospace;letter-spacing:1px;}
 
-  /* Filters */
-  .filter-section{margin-bottom:24px;}
-  .filter-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;}
-  .filter-label{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;white-space:nowrap;min-width:50px;}
-  .filter-chip{padding:6px 14px;border-radius:20px;border:1.5px solid var(--border);background:var(--card-bg);font-size:13px;cursor:pointer;color:var(--ink);transition:all .15s;font-family:'Noto Sans SC',sans-serif;display:flex;align-items:center;gap:5px;}
-  .filter-chip:hover{border-color:var(--accent);color:var(--accent);}
-  .filter-chip.active{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  /* ── 左下：附近热门餐厅横排卡片 ─────────────── */
+  .hot-strip{position:fixed;left:28px;bottom:32px;z-index:15;display:flex;align-items:center;gap:12px;max-width:calc(100vw - 220px);}
+  .hot-strip-title{flex-shrink:0;background:rgba(253,246,227,.94);padding:12px 14px;border-radius:16px;border:1.5px solid rgba(232,220,200,.7);box-shadow:0 8px 24px var(--shadow);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);font-size:11px;font-family:'DM Mono',monospace;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);text-align:center;}
+  .hot-strip-title b{display:block;font-family:'Noto Serif SC',serif;font-size:18px;font-weight:900;color:var(--ink);margin-top:3px;letter-spacing:0;}
+  .hot-strip-title b span{color:var(--accent);}
+  .hot-scroll{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin;}
+  .hot-scroll::-webkit-scrollbar{height:4px;}
+  .hot-scroll::-webkit-scrollbar-thumb{background:rgba(232,93,38,.3);border-radius:2px;}
+  .hot-card{flex-shrink:0;width:160px;background:rgba(253,246,227,.95);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+    border:1.5px solid rgba(232,220,200,.7);border-radius:18px;padding:12px 14px;cursor:pointer;
+    transition:all .25s;box-shadow:0 8px 24px var(--shadow);animation:fadeUp .6s ease both;}
+  .hot-card:hover{transform:translateY(-5px);border-color:var(--accent);box-shadow:0 14px 36px rgba(232,93,38,.3);}
+  .hot-card-emoji{font-size:32px;margin-bottom:6px;}
+  .hot-card-name{font-size:14px;font-weight:700;font-family:'Noto Serif SC',serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .hot-card-meta{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--muted);margin-top:4px;font-family:'DM Mono',monospace;}
+  .hot-card-meta .score{color:var(--accent);font-weight:700;}
+  .hot-card-meta .price{color:var(--accent3);font-weight:700;}
 
-  .toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border);}
-  .result-count{font-size:13px;color:var(--muted);font-family:'DM Mono',monospace;}
-  .result-count strong{color:var(--ink);}
-  .sort-select{border:1.5px solid var(--border);border-radius:8px;padding:6px 12px;font-size:13px;background:var(--card-bg);color:var(--ink);font-family:'Noto Sans SC',sans-serif;cursor:pointer;outline:none;}
-
-  /* Content */
-  .content-area{display:grid;grid-template-columns:1fr 380px;gap:32px;align-items:start;}
-  .restaurant-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
-
-  /* Card */
-  .card{background:var(--card-bg);border:1.5px solid var(--border);border-radius:18px;overflow:hidden;cursor:pointer;transition:all .25s;animation:fadeUp .4s ease both;}
-  .card:hover{transform:translateY(-4px);box-shadow:0 12px 32px var(--shadow);border-color:var(--accent);}
-  .card-thumb{height:140px;position:relative;overflow:hidden;}
-  .card-thumb-bg{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:68px;transition:transform .4s;position:relative;}
-  .card:hover .card-thumb-bg{transform:scale(1.06);}
-  .card-thumb-bg .deco{position:absolute;border-radius:50%;opacity:.2;}
-  .card-thumb-bg .deco1{width:100px;height:100px;top:-25px;right:-25px;}
-  .card-thumb-bg .deco2{width:70px;height:70px;bottom:-15px;left:-10px;}
-  .card-thumb-emoji{position:relative;z-index:1;filter:drop-shadow(0 4px 8px rgba(0,0,0,.15));}
-  .card.featured .card-thumb-emoji{font-size:84px;}
-  .card-thumb-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 40%,rgba(26,18,9,.3));}
-  .card-badge{position:absolute;top:10px;left:10px;padding:3px 9px;border-radius:12px;font-size:10px;font-family:'DM Mono',monospace;letter-spacing:.5px;}
-  .badge-hot{background:var(--accent);color:white;}
-  .badge-new{background:var(--accent3);color:white;}
-  .card-fav{position:absolute;top:10px;right:10px;width:30px;height:30px;background:rgba(255,255,255,.9);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;transition:transform .2s;border:none;}
-  .card-fav:hover{transform:scale(1.2);}
-  .card-fav.liked{background:#fee;}
-  .card-body{padding:14px 16px 16px;}
-  .card-header{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:6px;}
-  .card-name{font-family:'Noto Serif SC',serif;font-size:16px;font-weight:700;line-height:1.3;}
-  .card-rating{display:flex;align-items:center;gap:3px;font-size:13px;color:var(--accent);white-space:nowrap;font-weight:600;}
-  .card-meta{display:flex;align-items:center;gap:10px;font-size:11px;color:var(--muted);margin-bottom:10px;font-family:'DM Mono',monospace;}
-  .card-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px;}
-  .card-tag{padding:2px 9px;border-radius:12px;background:var(--tag-bg);font-size:11px;color:var(--muted);}
-  .card-footer{display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border);padding-top:10px;}
-  .price-range{font-size:13px;color:var(--accent3);font-weight:600;font-family:'DM Mono',monospace;}
-  .card-distance{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;}
-  .card.featured{grid-column:span 2;display:grid;grid-template-columns:220px 1fr;}
-  .card.featured .card-thumb{height:auto;min-height:180px;}
-  .card.featured .card-name{font-size:20px;}
-
-  /* Sidebar */
-  .sidebar{display:flex;flex-direction:column;gap:20px;}
-  .ai-box{background:linear-gradient(135deg,#1a1209,#2d1a05);border-radius:18px;padding:20px;color:var(--paper);position:relative;overflow:hidden;}
-  .ai-box::before{content:'';position:absolute;top:-40px;right:-40px;width:160px;height:160px;border-radius:50%;background:rgba(244,185,66,.15);}
-  .ai-icon{width:32px;height:32px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;}
-  .ai-options{display:flex;flex-direction:column;gap:6px;margin-top:12px;}
-  .ai-option{padding:10px 14px;border-radius:10px;border:1px solid rgba(253,246,227,.15);background:rgba(253,246,227,.06);font-size:13px;cursor:pointer;transition:all .2s;color:var(--paper);text-align:left;}
-  .ai-option:hover{background:rgba(253,246,227,.12);border-color:var(--accent2);transform:translateX(4px);}
-
-  /* Map */
-  .map-box{background:var(--card-bg);border:1.5px solid var(--border);border-radius:18px;overflow:hidden;}
-  #amap{height:420px;width:100%;position:relative;}
-  .map-cta{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-top:1px solid var(--border);}
-  .map-cta-text{font-size:13px;color:var(--muted);}
-  .map-cta-btn{font-size:12px;color:var(--accent);font-weight:600;cursor:pointer;background:none;border:none;}
-
-  /* AI 虚拟形象 · 地图内 */
-  .map-ai-float{position:absolute;right:16px;bottom:16px;width:62px;height:62px;border-radius:50%;background:linear-gradient(135deg,#e85d26,#f4b942);display:flex;align-items:center;justify-content:center;font-size:34px;cursor:pointer;box-shadow:0 8px 24px rgba(232,93,38,.35);z-index:10;transition:transform .2s;animation:aiFloat 2.4s ease-in-out infinite;}
-  .map-ai-float:hover{transform:scale(1.08)}
-  .map-ai-float::after{content:'';position:absolute;inset:-4px;border-radius:50%;border:2px solid rgba(232,93,38,.35);animation:ripple 1.6s ease-out infinite;}
-  @keyframes aiFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
-  @keyframes ripple{0%{opacity:1;transform:scale(.9)}100%{opacity:0;transform:scale(1.35)}}
-  .map-ai-bubble{position:absolute;right:82px;bottom:28px;padding:8px 14px;background:var(--ink);color:var(--paper);font-size:12px;border-radius:14px 14px 4px 14px;max-width:230px;box-shadow:0 4px 12px rgba(0,0,0,.2);z-index:10;animation:fadeUp .5s ease;}
-  .map-ai-bubble::after{content:'';position:absolute;right:-6px;bottom:10px;border:6px solid transparent;border-left-color:var(--ink);}
-
-  /* Rankings */
-  .rank-box{background:var(--card-bg);border:1.5px solid var(--border);border-radius:18px;padding:18px;}
-  .rank-item{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border);cursor:pointer;transition:all .15s;}
-  .rank-item:last-child{border-bottom:none;}
-  .rank-item:hover{transform:translateX(4px);}
-  .rank-num{font-family:'Noto Serif SC',serif;font-size:18px;font-weight:900;width:24px;text-align:center;flex-shrink:0;}
-  .gold{color:#f4b942;}.silver{color:#9ca3af;}.bronze{color:#b45309;}.rest-rank{color:var(--border);}
-  .rank-thumb{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;background:var(--tag-bg);}
-  .rank-info{flex:1;min-width:0;}
-  .rank-name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .rank-sub{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;}
-  .rank-score{font-family:'DM Mono',monospace;font-size:13px;font-weight:500;color:var(--accent);}
-
-  /* Loading */
-  .loading{display:flex;align-items:center;justify-content:center;padding:48px;color:var(--muted);font-family:'DM Mono',monospace;font-size:14px;}
-  .skeleton{animation:shimmer 1.5s infinite;background:linear-gradient(90deg,var(--tag-bg) 25%,#f5ede0 50%,var(--tag-bg) 75%);background-size:200% 100%;border-radius:8px;}
-  @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
-
-  /* Modal */
-  .modal-overlay{position:fixed;inset:0;background:rgba(26,18,9,.6);backdrop-filter:blur(8px);z-index:200;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;}
-  .modal-overlay.open{opacity:1;pointer-events:all;}
-  .modal{background:var(--paper);border-radius:24px 24px 0 0;width:100%;max-width:680px;max-height:88vh;overflow-y:auto;transform:translateY(100%);transition:transform .4s cubic-bezier(.16,1,.3,1);}
-  .modal-overlay.open .modal{transform:translateY(0);}
-  .modal-hero{height:220px;display:flex;align-items:center;justify-content:center;font-size:80px;position:relative;}
-  .modal-close{position:absolute;top:16px;right:16px;width:36px;height:36px;background:rgba(255,255,255,.9);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;border:none;}
-  .modal-body{padding:24px;}
-  .modal-name{font-family:'Noto Serif SC',serif;font-size:26px;font-weight:900;margin-bottom:8px;}
-  .modal-meta{display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap;}
-  .modal-rating{font-size:15px;color:var(--accent);font-weight:700;}
-  .modal-section{margin-bottom:20px;}
-  .modal-section-title{font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;margin-bottom:8px;text-transform:uppercase;}
-  .modal-desc{font-size:14px;line-height:1.7;}
-  .menu-item{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--tag-bg);border-radius:10px;margin-bottom:8px;}
-  .menu-item-left{display:flex;align-items:center;gap:10px;}
-  .menu-item-price{font-family:'DM Mono',monospace;font-size:14px;color:var(--accent);font-weight:600;}
-  .modal-actions{display:flex;gap:10px;margin-top:24px;}
-  .modal-btn{flex:1;padding:14px;border-radius:12px;border:1.5px solid var(--border);background:var(--card-bg);font-size:14px;cursor:pointer;font-family:'Noto Sans SC',sans-serif;transition:all .2s;}
-  .modal-btn.primary{background:var(--accent);color:white;border-color:var(--accent);box-shadow:0 4px 16px rgba(232,93,38,.3);}
-  .modal-btn:hover{transform:translateY(-1px);}
-
-  /* Review Form */
-  .star-rate{display:flex;gap:8px;margin-bottom:12px;}
-  .star{font-size:28px;cursor:pointer;transition:transform .1s;color:#ddd;}
-  .star.on{color:var(--accent2);}
-  .star:hover{transform:scale(1.2);}
-  .review-input{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:10px 12px;font-size:13px;font-family:'Noto Sans SC',sans-serif;background:var(--paper);resize:vertical;height:80px;outline:none;}
-  .review-input:focus{border-color:var(--accent);}
-
-  /* AI Panel */
-  .ai-panel{position:fixed;right:0;top:64px;bottom:0;width:380px;background:var(--paper);border-left:1.5px solid var(--border);z-index:150;transform:translateX(100%);transition:transform .35s cubic-bezier(.16,1,.3,1);display:flex;flex-direction:column;box-shadow:-8px 0 40px var(--shadow);}
-  .ai-panel.open{transform:translateX(0);}
-  .ai-panel-header{padding:20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
-  .ai-panel-title{font-family:'Noto Serif SC',serif;font-size:17px;font-weight:700;display:flex;align-items:center;gap:10px;}
-  .ai-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#e85d26,#f4b942);display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 4px 10px rgba(232,93,38,.25);}
-  .ai-chat{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;}
-  .chat-bubble{max-width:88%;padding:12px 14px;border-radius:16px;font-size:13px;line-height:1.55;animation:fadeUp .3s ease;word-break:break-word;}
-  .chat-bubble.bot{background:var(--tag-bg);color:var(--ink);border-radius:4px 16px 16px 16px;align-self:flex-start;}
-  .chat-bubble.user{background:var(--ink);color:var(--paper);border-radius:16px 4px 16px 16px;align-self:flex-end;}
-  .chat-bubble.loading-bubble{opacity:.7;}
-  .ai-quick-replies{display:flex;flex-wrap:wrap;gap:6px;padding:0 16px 12px;}
-  .quick-reply{padding:5px 12px;border-radius:16px;border:1px solid var(--border);background:var(--card-bg);font-size:11px;cursor:pointer;color:var(--ink);transition:all .15s;font-family:'Noto Sans SC',sans-serif;}
-  .quick-reply:hover{background:var(--accent);color:white;border-color:var(--accent);}
-  .ai-input-area{padding:14px 16px;border-top:1px solid var(--border);display:flex;gap:8px;align-items:flex-end;}
-  .ai-input{flex:1;border:1.5px solid var(--border);border-radius:12px;padding:10px 14px;font-size:13px;font-family:'Noto Sans SC',sans-serif;background:var(--card-bg);color:var(--ink);outline:none;resize:none;min-height:42px;max-height:100px;line-height:1.4;}
-  .ai-input:focus{border-color:var(--accent);}
-  .ai-send{width:42px;height:42px;border-radius:12px;background:var(--accent);border:none;color:white;font-size:18px;cursor:pointer;flex-shrink:0;box-shadow:0 4px 12px rgba(232,93,38,.3);transition:all .15s;}
-  .ai-send:hover{transform:translateY(-2px);}
-
-  /* 推荐餐厅卡片（嵌入气泡下方） */
-  .rest-card{max-width:88%;align-self:flex-start;background:white;border:1.5px solid var(--border);border-radius:14px;padding:10px 12px;display:flex;gap:10px;cursor:pointer;transition:all .15s;box-shadow:0 2px 8px rgba(0,0,0,.04);animation:fadeUp .3s ease;}
-  .rest-card:hover{border-color:var(--accent);transform:translateY(-1px);box-shadow:0 4px 14px rgba(232,93,38,.12);}
-  .rest-card-thumb{width:56px;height:56px;border-radius:10px;background:linear-gradient(135deg,#fff3e5,#ffe3c2);display:flex;align-items:center;justify-content:center;font-size:34px;flex-shrink:0;}
+  /* ── AI 对话弹窗 ───────────────────────── */
+  .ai-modal{position:fixed;inset:0;background:rgba(26,18,9,.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+    z-index:200;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;}
+  .ai-modal.open{opacity:1;pointer-events:all;}
+  .ai-modal-inner{background:var(--paper);border-radius:28px 28px 0 0;width:100%;max-width:560px;height:78vh;
+    transform:translateY(100%);transition:transform .45s cubic-bezier(.16,1,.3,1);display:flex;flex-direction:column;overflow:hidden;}
+  .ai-modal.open .ai-modal-inner{transform:translateY(0);}
+  .ai-modal-head{padding:20px 24px;border-bottom:1.5px solid var(--border);display:flex;align-items:center;gap:14px;}
+  .ai-modal-avatar{width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));
+    display:flex;align-items:center;justify-content:center;font-size:30px;flex-shrink:0;box-shadow:0 6px 16px rgba(232,93,38,.35);}
+  .ai-modal-title{font-family:'Noto Serif SC',serif;font-size:20px;font-weight:900;}
+  .ai-modal-sub{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:2px;letter-spacing:1px;}
+  .ai-modal-close{margin-left:auto;width:40px;height:40px;border-radius:50%;border:1.5px solid var(--border);background:var(--warm);
+    cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+  .ai-modal-close:hover{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .ai-chat{flex:1;overflow-y:auto;padding:20px 24px;display:flex;flex-direction:column;gap:12px;}
+  .chat-msg{max-width:88%;padding:12px 16px;border-radius:18px;font-size:13.5px;line-height:1.55;animation:fadeUp .3s ease;word-break:break-word;}
+  .chat-msg.bot{background:var(--warm);color:var(--ink);border-radius:4px 18px 18px 18px;align-self:flex-start;}
+  .chat-msg.user{background:var(--ink);color:var(--paper);border-radius:18px 4px 18px 18px;align-self:flex-end;}
+  .rest-card{max-width:90%;align-self:flex-start;background:white;border:1.5px solid var(--border);border-radius:18px;padding:12px 14px;display:flex;gap:12px;cursor:pointer;transition:all .25s;box-shadow:0 3px 14px var(--shadow);animation:fadeUp .4s ease;}
+  .rest-card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 8px 22px rgba(232,93,38,.22);}
+  .rest-card-thumb{width:58px;height:58px;border-radius:14px;background:linear-gradient(135deg,#fff3e5,#ffe3c2);display:flex;align-items:center;justify-content:center;font-size:32px;flex-shrink:0;}
   .rest-card-body{flex:1;min-width:0;}
-  .rest-card-name{font-size:14px;font-weight:700;font-family:'Noto Serif SC',serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .rest-card-meta{font-size:11px;color:var(--muted);margin-top:4px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-family:'DM Mono',monospace;}
-  .rest-card-meta .mscore{color:var(--accent);font-weight:600;}
-  .rest-card-meta .mprice{color:var(--accent3);font-weight:600;}
-  .rest-card-meta .mdist{color:var(--accent);font-weight:600;}
-  .rest-card-tags{margin-top:6px;display:flex;gap:4px;flex-wrap:wrap;}
-  .rest-card-tag{font-size:10px;padding:2px 8px;background:var(--tag-bg);color:var(--muted);border-radius:10px;font-family:'DM Mono',monospace;}
+  .rest-card-name{font-size:15px;font-weight:700;font-family:'Noto Serif SC',serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .rest-card-meta{font-size:11.5px;color:var(--muted);margin-top:4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-family:'DM Mono',monospace;}
+  .rest-card-meta .rscore{color:var(--accent);font-weight:700;}
+  .rest-card-meta .rprice{color:var(--accent3);font-weight:700;}
+  .rest-card-tags{margin-top:6px;display:flex;gap:5px;flex-wrap:wrap;}
+  .rest-card-tag{font-size:10px;padding:2px 8px;background:var(--warm);color:var(--muted);border-radius:10px;font-family:'DM Mono',monospace;}
+  .ai-quicks{display:flex;flex-wrap:wrap;gap:6px;padding:12px 24px 0;}
+  .quick-btn{padding:6px 12px;border-radius:14px;border:1.5px solid var(--border);background:white;font-size:12px;cursor:pointer;color:var(--ink);transition:all .2s;font-family:'Noto Sans SC',sans-serif;}
+  .quick-btn:hover{background:var(--accent);color:white;border-color:var(--accent);}
+  .ai-input-row{padding:14px 24px 22px;border-top:1.5px solid var(--border);display:flex;gap:10px;align-items:flex-end;}
+  .ai-input{flex:1;border:1.5px solid var(--border);border-radius:18px;padding:12px 16px;font-size:14px;font-family:'Noto Sans SC',sans-serif;background:white;color:var(--ink);outline:none;resize:none;line-height:1.4;transition:all .2s;}
+  .ai-input:focus{border-color:var(--accent);box-shadow:0 0 0 4px rgba(232,93,38,.08);}
+  .ai-send-btn{width:46px;height:46px;border-radius:50%;background:var(--accent);border:none;color:white;font-size:20px;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;box-shadow:0 6px 16px rgba(232,93,38,.35);transition:all .2s;flex-shrink:0;}
+  .ai-send-btn:hover{transform:translateY(-2px) scale(1.05);box-shadow:0 8px 22px rgba(232,93,38,.5);}
 
-  /* 地图 AI 助手对话弹窗 */
-  .map-ai-modal{position:fixed;inset:0;background:rgba(26,18,9,.6);z-index:300;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;}
-  .map-ai-modal.open{opacity:1;pointer-events:all;}
-  .map-ai-modal-inner{background:var(--paper);border-radius:24px 24px 0 0;width:100%;max-width:540px;height:74vh;transform:translateY(100%);transition:transform .35s cubic-bezier(.16,1,.3,1);display:flex;flex-direction:column;overflow:hidden;}
-  .map-ai-modal.open .map-ai-modal-inner{transform:translateY(0);}
-  .map-ai-modal-head{padding:18px 20px;border-bottom:1.5px solid var(--border);display:flex;align-items:center;gap:12px;}
-  .map-ai-modal-head .ai-avatar{width:46px;height:46px;font-size:26px;}
-  .map-ai-modal-head .title{font-family:'Noto Serif SC',serif;font-size:17px;font-weight:700;}
-  .map-ai-modal-head .subtitle{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:2px;}
-  .map-ai-modal-head .close{margin-left:auto;width:36px;height:36px;border-radius:50%;border:1.5px solid var(--border);background:var(--card-bg);cursor:pointer;font-size:16px;}
-  .map-ai-chat{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;}
-  .map-ai-location{display:flex;align-items:center;gap:6px;padding:8px 14px;background:var(--tag-bg);border-radius:10px;font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;margin:0 16px 6px;}
-  .map-ai-input{padding:14px 16px;border-top:1.5px solid var(--border);display:flex;flex-direction:column;gap:10px;}
-  .map-ai-input-row{display:flex;gap:8px;}
+  /* ── 餐厅详情 Modal ──────────────────────── */
+  .detail-overlay{position:fixed;inset:0;background:rgba(26,18,9,.55);backdrop-filter:blur(8px);z-index:250;
+    display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;}
+  .detail-overlay.open{opacity:1;pointer-events:all;}
+  .detail-modal{background:var(--paper);border-radius:28px 28px 0 0;width:100%;max-width:620px;max-height:82vh;
+    overflow-y:auto;transform:translateY(100%);transition:transform .45s cubic-bezier(.16,1,.3,1);}
+  .detail-overlay.open .detail-modal{transform:translateY(0);}
+  .detail-hero{height:160px;display:flex;align-items:center;justify-content:center;font-size:84px;position:relative;border-radius:28px 28px 0 0;}
+  .detail-close{position:absolute;top:16px;right:16px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.9);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;border:none;box-shadow:0 4px 12px var(--shadow);}
+  .detail-body{padding:24px 28px 36px;}
+  .detail-name{font-family:'Noto Serif SC',serif;font-size:26px;font-weight:900;margin-bottom:6px;}
+  .detail-meta{display:flex;align-items:center;gap:12px;margin-bottom:18px;flex-wrap:wrap;font-size:13px;color:var(--muted);font-family:'DM Mono',monospace;}
+  .detail-meta b{color:var(--accent);font-weight:700;font-size:15px;}
+  .detail-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px;}
+  .detail-tag{padding:4px 12px;border-radius:14px;background:var(--warm);font-size:12px;color:var(--ink);}
+  .detail-section-title{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;}
+  .detail-desc{font-size:14px;line-height:1.75;color:var(--ink);margin-bottom:22px;}
+  .menu-item{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--warm);border-radius:14px;margin-bottom:8px;}
+  .menu-item-left{display:flex;align-items:center;gap:10px;}
+  .menu-item-emoji{font-size:22px;}
+  .menu-item-price{font-family:'DM Mono',monospace;font-size:14px;color:var(--accent);font-weight:700;}
+  .detail-actions{display:flex;gap:10px;margin-top:22px;}
+  .detail-btn{flex:1;padding:14px;border-radius:16px;border:1.5px solid var(--border);background:white;font-size:14px;cursor:pointer;font-family:'Noto Sans SC',sans-serif;transition:all .2s;font-weight:500;}
+  .detail-btn.primary{background:var(--accent);color:white;border-color:var(--accent);box-shadow:0 6px 16px rgba(232,93,38,.3);}
+  .detail-btn:hover{transform:translateY(-2px);}
 
-  /* Pagination */
-  .pagination{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:32px;}
-  .page-btn{width:36px;height:36px;border-radius:8px;border:1.5px solid var(--border);background:var(--card-bg);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;font-family:'DM Mono',monospace;color:var(--ink);transition:all .15s;}
-  .page-btn.active{background:var(--ink);color:var(--paper);border-color:var(--ink);}
-  .page-btn:hover:not(.active){border-color:var(--accent);color:var(--accent);}
-</style>
-<style>
-  /* ── ONBOARDING SPLASH ── */
-  .splash{position:fixed;inset:0;background:linear-gradient(160deg,#fff8f0 0%,#fdf0dc 50%,#fff3e5 100%);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;transition:opacity .5s .9s,pointer-events 0s .9s;overflow:hidden;}
-  .splash.done{opacity:0;pointer-events:none;}
+  /* 响应式：小屏幕 */
+  @media (max-width: 900px) {
+    .top-bar{padding:12px 16px;}
+    .logo-sub{display:none;}
+    .nav-tabs{padding:3px;}
+    .nav-tab{padding:7px 12px;font-size:12px;}
+    .welcome-card{left:16px;top:82px;width:calc(100vw - 32px);max-width:320px;padding:14px 16px;}
+    .data-stack{right:16px;top:82px;width:160px;gap:8px;}
+    .data-card{padding:8px 12px;}
+    .data-value{font-size:18px;}
+    .hot-strip{left:16px;bottom:130px;width:calc(100vw - 32px);max-width:none;overflow-x:auto;}
+    .hot-strip-title{display:none;}
+    .hot-scroll{width:100%;}
+    .hot-card{width:140px;padding:10px 12px;}
+    .ai-fab{right:16px;bottom:24px;}
+    .ai-fab-btn{width:72px;height:72px;font-size:36px;}
+    .ai-fab-tip{display:none;}
+    .ai-fab-label{display:none;}
+    .map-bubble{font-size:11px;padding:6px 10px;}
+  }
+
+  /* ── 觅食启动页 Splash（原经典动效） ── */
+  .splash{position:fixed;inset:0;background:linear-gradient(160deg,#fff8f0 0%,#fdf0dc 50%,#fff3e5 100%);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;transition:opacity .6s .9s ease,transform .6s .9s ease,pointer-events 0s .9s;overflow:hidden;}
+  .splash.done{opacity:0;pointer-events:none;transform:scale(1.05);}
   .splash-ring{position:absolute;border-radius:50%;border:1.5px solid rgba(232,93,38,.12);top:50%;left:50%;}
   .splash-orbit{position:absolute;width:260px;height:260px;top:50%;left:50%;animation:splashOrbit 12s linear infinite;}
   .splash-fi{position:absolute;font-size:20px;}
@@ -304,31 +249,23 @@
   .splash-st:nth-child(4){height:24px;animation-delay:.75s;}
   @keyframes splashSteam{0%{opacity:.7;transform:scaleX(1) translateY(0)}100%{opacity:0;transform:scaleX(2) translateY(-18px)}}
   .splash-bowl{font-size:88px;line-height:1;filter:drop-shadow(0 12px 24px rgba(232,93,38,.2));animation:bowlFloat 2.5s ease-in-out infinite;position:relative;z-index:2;}
+  @keyframes bowlFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
   .splash-logo{font-family:'Noto Serif SC',serif;font-size:52px;font-weight:900;color:var(--ink);letter-spacing:-2px;animation:splashIn .6s .2s ease both;display:flex;align-items:center;gap:6px;margin-top:8px;}
   .splash-logo-dot{width:10px;height:10px;background:var(--accent);border-radius:50%;animation:pulse 2s infinite;margin-bottom:6px;}
+  @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.25)}}
   .splash-sub{font-size:12px;color:var(--muted);letter-spacing:3px;font-family:'DM Mono',monospace;animation:splashIn .6s .4s ease both;}
   .splash-chips{display:flex;gap:8px;margin-top:18px;animation:splashIn .5s .6s ease both;flex-wrap:wrap;justify-content:center;padding:0 20px;}
   .splash-chip{background:white;border-radius:22px;padding:8px 14px;font-size:13px;display:flex;align-items:center;gap:7px;border:1px solid rgba(232,93,38,.15);box-shadow:0 4px 12px rgba(232,93,38,.08);}
   .splash-chip-text{font-size:12px;color:var(--muted);font-weight:500;}
-  .splash-cta{margin-top:18px;padding:11px 26px;background:linear-gradient(135deg,#e85d26,#f06030);border-radius:28px;font-size:13px;color:white;font-weight:500;border:none;animation:splashIn .5s .8s ease both;box-shadow:0 6px 18px rgba(232,93,38,.26);}
+  .splash-cta{margin-top:18px;padding:11px 26px;background:linear-gradient(135deg,#e85d26,#f06030);border-radius:28px;font-size:13px;color:white;font-weight:500;border:none;animation:splashIn .5s .8s ease both;box-shadow:0 6px 18px rgba(232,93,38,.26);cursor:pointer;transition:transform .2s;}
+  .splash-cta:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(232,93,38,.35);}
   @keyframes splashIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
   @keyframes rPulse{0%,100%{opacity:.3;transform:translate(-50%,-50%) scale(1)}50%{opacity:.7;transform:translate(-50%,-50%) scale(1.04)}}
-
-  /* ── FAV MODAL ── */
-  .fav-modal{position:fixed;inset:0;background:rgba(26,18,9,.6);backdrop-filter:blur(8px);z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;}
-  .fav-modal.open{opacity:1;pointer-events:all;}
-  .fav-inner{background:var(--paper);border-radius:20px;padding:28px;width:580px;max-width:95vw;max-height:80vh;overflow-y:auto;transform:scale(.96);transition:transform .3s;}
-  .fav-modal.open .fav-inner{transform:scale(1);}
-  .fav-title{font-family:'Noto Serif SC',serif;font-size:20px;font-weight:700;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;}
-  .fav-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-  .fav-card{background:var(--card-bg);border:1.5px solid var(--border);border-radius:14px;padding:14px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:12px;}
-  .fav-card:hover{border-color:var(--accent);transform:translateY(-2px);}
-  .fav-empty{text-align:center;padding:48px;color:var(--muted);font-size:14px;line-height:2;}
 </style>
 </head>
 <body>
 
-<!-- 首次进入动画 -->
+<!-- 觅食启动页（原经典动效） -->
 <div class="splash" id="splash">
   <div class="splash-ring" style="width:320px;height:320px;animation:rPulse 4s ease-in-out infinite;"></div>
   <div class="splash-ring" style="width:220px;height:220px;animation:rPulse 4s .5s ease-in-out infinite;"></div>
@@ -351,275 +288,146 @@
     <div class="splash-chip"><span>☕</span><span class="splash-chip-text">咖啡</span></div>
     <div class="splash-chip"><span>🫕</span><span class="splash-chip-text">火锅</span></div>
   </div>
-  <button class="splash-cta">今天吃什么，交给觅食来定 ✨</button>
+  <button class="splash-cta" onclick="dismissSplash()">今天吃什么，交给觅食来定 ✨</button>
 </div>
 
-<!-- 收藏夹弹窗 -->
-<div class="fav-modal" id="favModal" onclick="if(event.target===this)closeFavModal()">
-  <div class="fav-inner">
-    <div class="fav-title">❤️ 我的收藏 <button onclick="closeFavModal()" style="border:1.5px solid var(--border);border-radius:50%;width:32px;height:32px;background:var(--card-bg);cursor:pointer;font-size:14px">✕</button></div>
-    <div id="favList"><div class="fav-empty">加载中…</div></div>
+<!-- 全屏地图容器 -->
+<div id="map-stage">
+  <div id="amap"></div>
+  <div class="map-placeholder" id="mapPlaceholder">
+    <div class="map-placeholder-emoji">🦊</div>
+    <div class="map-placeholder-text">MAP · 加载中…</div>
   </div>
 </div>
 
-<header>
-  <div class="logo">
-    <span class="logo-main">觅食</span>
-    <span class="logo-dot"></span>
-    <span class="logo-sub">大学城美食地图</span>
-  </div>
-  <div class="campus-selector" id="campusBtns">
-    <button class="campus-btn active" data-campus="">全部校区</button>
-    <button class="campus-btn" data-campus="理工大">理工大</button>
-    <button class="campus-btn" data-campus="师范大">师范大</button>
-    <button class="campus-btn" data-campus="医科大">医科大</button>
-    <button class="campus-btn" data-campus="财经大">财经大</button>
+<!-- 顶部 Header（浮在地图上） -->
+<div class="top-bar">
+  <a href="index.html" style="text-decoration:none;color:inherit;">
+    <div class="logo">
+      <span class="logo-main">觅食</span>
+      <span class="logo-dot"></span>
+      <span class="logo-sub">· 大学城美食地图</span>
+    </div>
+  </a>
+  <div class="nav-tabs">
+    <div class="nav-tab active">🔥 觅食帮选</div>
+    <div class="nav-tab" onclick="location.href='restaurants.html'">我来选择</div>
+    <div class="nav-tab" onclick="location.href='circle.html'">周围人在吃什么</div>
   </div>
   <div class="header-right">
-    <div id="userArea"></div>
-    <a href="circle.html" class="hbtn" style="text-decoration:none">👥 校园圈</a>
-    <button class="hbtn" onclick="toggleAI()">🤖 AI助手</button>
-    <button class="hbtn" id="favPageBtn" onclick="showFavModal()" style="display:none">❤️ 收藏</button>
+    <div id="userArea" style="font-size:12px;color:var(--muted);"></div>
     <button class="hbtn" onclick="window.location.href='login.html'" id="loginBtn">登录</button>
-    <button class="hbtn" onclick="Auth.logout()" id="logoutBtn" style="display:none">退出</button>
-    <button class="hbtn accent" onclick="window.location.href='admin.html'" id="adminBtn" style="display:none">后台</button>
-  </div>
-</header>
-
-<!-- HERO -->
-<div class="hero">
-  <div class="hero-tag">📍 大学城联盟 · 五校共享</div>
-  <h1>今天<em>吃什么</em>，<br>交给觅食来定</h1>
-  <p style="margin-top:12px;color:var(--muted);font-size:15px;line-height:1.6;max-width:480px;animation:fadeUp .6s .2s ease both">聚合周边餐厅，专为学生打造的本地化美食决策平台。省钱、省时、不踩雷。</p>
-  <div class="search-wrap">
-    <div class="search-bar">
-      <span>🔍</span>
-      <input type="text" id="searchInput" placeholder="搜索餐厅、菜系、菜名…">
-    </div>
-    <button class="btn-primary" onclick="doSearch()">搜索</button>
-  </div>
-  <div class="mood-bar">
-    <span class="mood-label">我想吃：</span>
-    <span class="mood-tag special" onclick="openAI()">🤖 AI帮我选</span>
-    <span class="mood-tag" onclick="moodFilter('辣')">🌶️ 辣的</span>
-    <span class="mood-tag" onclick="moodFilter('快')">⚡ 快一点</span>
-    <span class="mood-tag" onclick="moodFilter('性价比')">💰 性价比</span>
-    <span class="mood-tag" onclick="moodFilter('宵夜')">🌙 宵夜</span>
-    <span class="mood-tag" onclick="moodFilter('健康')">🥗 健康轻食</span>
-    <span class="mood-tag" onclick="moodFilter('约饭')">👫 适合约饭</span>
-  </div>
-  <div class="stats-row">
-    <div class="stat"><span class="stat-num">5<span>所</span></span><span class="stat-label">合作高校</span></div>
-    <div class="stat"><span class="stat-num" id="totalStat">—<span>家</span></span><span class="stat-label">收录餐厅</span></div>
-    <div class="stat"><span class="stat-num">1.2<span>万</span></span><span class="stat-label">学生评价</span></div>
-    <div class="stat"><span class="stat-num">98<span>%</span></span><span class="stat-label">满意率</span></div>
+    <button class="hbtn" onclick="Auth.logout()" id="logoutBtn" style="display:none;">退出</button>
   </div>
 </div>
 
-<!-- MAIN -->
-<div class="main">
-  <!-- 优惠 -->
-  <div class="deals-section" id="dealsSection" style="display:none">
-    <div class="deals-header">
-      <span class="box-title">🎟️ 学生专属优惠</span>
-    </div>
-    <div class="deals-scroll" id="dealsScroll"></div>
-  </div>
-
-  <!-- 趣味模式横幅 -->
-  <a href="fun.html" class="fun-banner">
-    <div class="fun-banner-foods">🎯🍜⚔️</div>
-    <div class="fun-banner-body">
-      <div class="fun-banner-title">今天吃什么？<span class="fun-banner-badge">✨ 趣味模式</span></div>
-      <div class="fun-banner-desc">随机转盘 · 美食PK赛 · 让命运帮你决定，还能赚积分</div>
-    </div>
-    <div class="fun-banner-arrow">→</div>
-  </a>
-
-  <!-- Filters -->
-  <div class="filter-section">
-    <div class="filter-row">
-      <span class="filter-label">菜系</span>
-      <div class="filter-chip active" onclick="setFilter(this,'cuisine','')" data-val="">🍽️ 全部</div>
-      <div class="filter-chip" onclick="setFilter(this,'cuisine','中餐')" data-val="中餐">🥢 中餐</div>
-      <div class="filter-chip" onclick="setFilter(this,'cuisine','日料')" data-val="日料">🍣 日料</div>
-      <div class="filter-chip" onclick="setFilter(this,'cuisine','韩餐')" data-val="韩餐">🥘 韩餐</div>
-      <div class="filter-chip" onclick="setFilter(this,'cuisine','西餐')" data-val="西餐">🥩 西餐</div>
-      <div class="filter-chip" onclick="setFilter(this,'cuisine','快餐')" data-val="快餐">🍟 快餐</div>
-      <div class="filter-chip" onclick="setFilter(this,'cuisine','小吃')" data-val="小吃">🧆 小吃</div>
-    </div>
-    <div class="filter-row">
-      <span class="filter-label">人均</span>
-      <div class="filter-chip active" onclick="setFilter(this,'price_max','')" data-val="">不限</div>
-      <div class="filter-chip" onclick="setFilter(this,'price_max','10')" data-val="10">¥10以下</div>
-      <div class="filter-chip" onclick="setFilter(this,'price_max','20')" data-val="20">¥10-20</div>
-      <div class="filter-chip" onclick="setFilter(this,'price_max','40')" data-val="40">¥20-40</div>
-      <div class="filter-chip" onclick="setFilter(this,'price_max','100')" data-val="100">¥40+</div>
-    </div>
-    <div class="filter-row">
-      <span class="filter-label">场景</span>
-      <div class="filter-chip" onclick="toggleTag(this,'宵夜')">🌙 宵夜</div>
-      <div class="filter-chip" onclick="toggleTag(this,'学生优惠')">🎓 学生优惠</div>
-      <div class="filter-chip" onclick="toggleTag(this,'约饭')">👫 约饭</div>
-      <div class="filter-chip" onclick="toggleTag(this,'健康')">🥗 健康</div>
-    </div>
-  </div>
-
-  <div class="content-area">
+<!-- 左上：欢迎卡片 -->
+<div class="welcome-card" id="welcomeCard">
+  <div class="welcome-head">
+    <div class="welcome-avatar">🦊</div>
     <div>
-      <div class="toolbar">
-        <span class="result-count">共找到 <strong id="resultCount">—</strong> 家餐厅</span>
-        <div style="display:flex;align-items:center;gap:10px;">
-          <span style="font-size:12px;color:var(--muted)">排序</span>
-          <select class="sort-select" id="sortSelect" onchange="loadRestaurants()">
-            <option value="recommend">综合推荐</option>
-            <option value="rating">评分最高</option>
-            <option value="distance">距离最近</option>
-            <option value="price">价格最低</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="restaurant-grid" id="grid">
-        <div class="loading">加载中…</div>
-      </div>
-
-      <div class="pagination" id="pagination"></div>
+      <div class="welcome-title">嗨～今天<em>想吃什么</em>？</div>
+      <div class="welcome-sub">我是小觅 · AI 美食助手</div>
     </div>
+  </div>
+  <div class="welcome-hint">点一下下面的问题，或者直接跟我说你的心情～</div>
+  <div class="quick-bubbles" id="quickBubbles">
+    <div class="quick-bubble" onclick="askAI('我今天很累，想犒劳一下自己')"><span class="qb-emoji">😴</span><span class="qb-text">累了，想犒劳自己</span><span class="qb-arrow">›</span></div>
+    <div class="quick-bubble" onclick="askAI('预算15以内，要快的')"><span class="qb-emoji">⚡</span><span class="qb-text">考试前 · 快又便宜</span><span class="qb-arrow">›</span></div>
+    <div class="quick-bubble" onclick="askAI('朋友聚餐，找有氛围的餐厅')"><span class="qb-emoji">👥</span><span class="qb-text">朋友聚餐 · 有氛围</span><span class="qb-arrow">›</span></div>
+    <div class="quick-bubble" onclick="askAI('减脂期，找健康轻食')"><span class="qb-emoji">🥗</span><span class="qb-text">减脂期 · 健康轻食</span><span class="qb-arrow">›</span></div>
+    <div class="quick-bubble" onclick="askAI('想吃辣的，越辣越好')"><span class="qb-emoji">🌶️</span><span class="qb-text">想吃辣的</span><span class="qb-arrow">›</span></div>
+  </div>
+</div>
 
-    <!-- SIDEBAR -->
-    <div class="sidebar">
-      <div class="ai-box">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
-          <div class="ai-icon">🤖</div>
-          <div>
-            <div style="font-family:'Noto Serif SC',serif;font-size:15px;font-weight:700">觅食 AI 助手</div>
-            <div style="font-size:10px;color:rgba(253,246,227,.5);font-family:'DM Mono',monospace">今天想吃什么？</div>
-          </div>
-        </div>
-        <p style="font-size:13px;color:rgba(253,246,227,.7);margin-bottom:12px;line-height:1.5">告诉我你的心情或需求，我来帮你找最适合的餐厅 🍽️</p>
-        <div class="ai-options">
-          <div class="ai-option" onclick="openAI();sendQuick('我今天很累，想吃点好的犒劳一下自己')">😴 累了，想犒劳自己</div>
-          <div class="ai-option" onclick="openAI();sendQuick('考试前要快速解决午饭，预算15以内')">⚡ 考试前，要快还要便宜</div>
-          <div class="ai-option" onclick="openAI();sendQuick('今晚同学聚餐，6人，找有氛围的餐厅')">👥 同学聚餐，找有氛围的</div>
-          <div class="ai-option" onclick="openAI();sendQuick('最近在减脂，找低卡健康的午餐')">🥗 减脂期，要健康轻食</div>
-        </div>
-      </div>
+<!-- 右上：数据卡片组 -->
+<div class="data-stack" id="dataStack">
+  <div class="data-card">
+    <div class="data-label">附近餐厅</div>
+    <div class="data-value"><span class="num-accent" id="dcTotal">—</span><span>家</span></div>
+  </div>
+  <div class="data-card">
+    <div class="data-label">平均评分</div>
+    <div class="data-value"><span class="num-accent" id="dcRating">—</span><span>/ 5</span></div>
+  </div>
+  <div class="data-card">
+    <div class="data-label">人均消费</div>
+    <div class="data-value"><span class="num-accent" id="dcPrice">¥</span><span>左右</span></div>
+  </div>
+  <div class="data-card">
+    <div class="data-label">最近距离</div>
+    <div class="data-value"><span class="num-accent" id="dcDist">—</span><span>km</span></div>
+  </div>
+</div>
 
-      <!-- 高德地图 · 大屏模式 + AI 助手 -->
-      <div class="map-box">
-        <div id="amap">
-          <div class="map-ai-bubble" id="mapAIBubble">嗨！我是小觅，点我聊聊 🤖</div>
-          <div class="map-ai-float" id="mapAIFloat" onclick="openMapAI()">🤖</div>
-        </div>
-        <div class="map-cta">
-          <span class="map-cta-text">点击地图标记查看餐厅 · 点击右下角 AI 助手获取推荐</span>
-          <button class="map-cta-btn" onclick="openMapAI()">和小觅聊聊 →</button>
-        </div>
-      </div>
+<!-- 左下：附近热门餐厅横排卡片 -->
+<div class="hot-strip" id="hotStrip">
+  <div class="hot-strip-title">
+    附近热门
+    <b><span>🔥</span> 推荐</b>
+  </div>
+  <div class="hot-scroll" id="hotScroll"></div>
+</div>
 
-      <!-- 口碑榜 -->
-      <div class="rank-box">
-        <div class="box-title" style="margin-bottom:14px">🏆 本周口碑榜</div>
-        <div id="rankingList"><div class="loading" style="padding:16px">加载中…</div></div>
+<!-- 右下：大圆形浮动 AI 助手按钮 -->
+<div class="ai-fab">
+  <div class="ai-fab-tip">点我让小觅帮你选 👇</div>
+  <button class="ai-fab-btn" onclick="openAI()" aria-label="AI 助手">🦊</button>
+  <div class="ai-fab-label">AI · 智能推荐</div>
+</div>
+
+<!-- AI 对话弹窗 -->
+<div class="ai-modal" id="aiModal">
+  <div class="ai-modal-inner">
+    <div class="ai-modal-head">
+      <div class="ai-modal-avatar">🦊</div>
+      <div>
+        <div class="ai-modal-title">小觅 · AI 美食助手</div>
+        <div class="ai-modal-sub">知道你附近的每家餐厅 · 懂你的心情</div>
       </div>
+      <button class="ai-modal-close" onclick="closeAI()">✕</button>
+    </div>
+    <div class="ai-chat" id="aiChat">
+      <div class="chat-msg bot">嗨～我是小觅 🦊<br><br>可以告诉我：<br>• 你今天的心情是？<br>• 预算多少？<br>• 和谁一起吃？<br>• 偏好什么口味？</div>
+    </div>
+    <div class="ai-quicks" id="aiQuicks">
+      <button class="quick-btn" onclick="askAI('我今天很累，想犒劳一下自己')">😴 犒劳自己</button>
+      <button class="quick-btn" onclick="askAI('朋友聚餐，找有氛围的')">👥 朋友聚餐</button>
+      <button class="quick-btn" onclick="askAI('预算20以内，性价比高的')">💰 预算 ¥20</button>
+      <button class="quick-btn" onclick="askAI('减脂期，健康轻食')">🥗 减脂期</button>
+      <button class="quick-btn" onclick="askAI('想吃辣的')">🌶️ 想吃辣的</button>
+      <button class="quick-btn" onclick="askAI('评分最高的餐厅')">⭐ 高分首选</button>
+    </div>
+    <div class="ai-input-row">
+      <textarea class="ai-input" id="aiInput" placeholder="告诉小觅你今天想吃什么…（按 Enter 发送）" rows="1" onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault();sendAI();}"></textarea>
+      <button class="ai-send-btn" onclick="sendAI()" aria-label="发送">➤</button>
     </div>
   </div>
 </div>
 
 <!-- 餐厅详情 Modal -->
-<div class="modal-overlay" id="detailModal" onclick="closeModalCheck(event)">
-  <div class="modal" id="detailModalInner">
-    <div class="modal-hero" id="modalHero">
-      <span id="modalEmoji" style="font-size:80px">🍽️</span>
-      <button class="modal-close" onclick="closeModal()">✕</button>
+<div class="detail-overlay" id="detailModal" onclick="closeDetailCheck(event)">
+  <div class="detail-modal">
+    <div class="detail-hero" id="detailHero">
+      <span id="detailEmoji" style="font-size:84px;">🍽️</span>
+      <button class="detail-close" onclick="closeDetail()">✕</button>
     </div>
-    <div class="modal-body">
-      <div class="modal-name" id="modalName"></div>
-      <div class="modal-meta" id="modalMeta"></div>
-      <div class="modal-section">
-        <div class="modal-section-title">📍 位置 & 营业时间</div>
-        <div class="modal-desc" id="modalLocation"></div>
+    <div class="detail-body">
+      <div class="detail-name" id="detailName"></div>
+      <div class="detail-meta">
+        <b id="detailRating"></b>
+        <span id="detailPrice"></span>
+        <span id="detailAddress"></span>
       </div>
-      <div class="modal-section">
-        <div class="modal-section-title">🍽️ 店铺介绍</div>
-        <div class="modal-desc" id="modalDesc"></div>
-      </div>
-      <div class="modal-section" id="modalMenuSection">
-        <div class="modal-section-title">⭐ 热门菜品</div>
-        <div id="modalMenu"></div>
-      </div>
-      <div class="modal-section" id="modalReviewSection">
-        <div class="modal-section-title">💬 评价 & 发表意见</div>
-        <div id="modalReviews"></div>
-        <!-- 发评价 -->
-        <div id="reviewForm" style="margin-top:14px;padding:16px;background:var(--tag-bg);border-radius:12px;display:none">
-          <div style="font-size:13px;font-weight:600;margin-bottom:8px">发表评价</div>
-          <div class="star-rate" id="starRate">
-            <span class="star" data-v="1">★</span><span class="star" data-v="2">★</span>
-            <span class="star" data-v="3">★</span><span class="star" data-v="4">★</span><span class="star" data-v="5">★</span>
-          </div>
-          <textarea class="review-input" id="reviewContent" placeholder="分享你的用餐体验…"></textarea>
-          <button onclick="submitReview()" style="margin-top:8px;padding:8px 20px;background:var(--accent);color:white;border:none;border-radius:8px;cursor:pointer;font-family:'Noto Sans SC',sans-serif">提交评价</button>
-        </div>
-        <div id="loginHint" style="font-size:12px;color:var(--muted);margin-top:10px;display:none">
-          <a href="login.html" style="color:var(--accent)">登录后</a>可发表评价
-        </div>
-      </div>
-      <div class="modal-actions">
-        <button class="modal-btn" id="favBtn" onclick="toggleFav()">🤍 收藏</button>
-        <button class="modal-btn" onclick="openNav()">📍 导航</button>
-        <button class="modal-btn primary" onclick="showToast('正在跳转外卖平台…')">🛵 点外卖</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- AI 侧栏 -->
-<div class="ai-panel" id="aiPanel">
-  <div class="ai-panel-header">
-    <div class="ai-panel-title"><div class="ai-avatar">🤖</div><div><div>觅食 AI 助手</div><div style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;font-weight:400">小觅 · 多轮对话推荐</div></div></div>
-    <button onclick="toggleAI()" style="border:1.5px solid var(--border);background:var(--card-bg);border-radius:50%;width:34px;height:34px;cursor:pointer;font-size:14px">✕</button>
-  </div>
-  <div class="ai-chat" id="aiChat"></div>
-  <div class="ai-quick-replies">
-    <div class="quick-reply" onclick="sendQuick('预算20以内，要吃饱')">预算20内</div>
-    <div class="quick-reply" onclick="sendQuick('想吃辣的，越辣越好')">越辣越好</div>
-    <div class="quick-reply" onclick="sendQuick('6人聚餐推荐')">6人聚餐</div>
-    <div class="quick-reply" onclick="sendQuick('减脂低卡餐')">减脂餐</div>
-    <div class="quick-reply" onclick="sendQuick('考完试想好好吃一顿')">犒劳自己</div>
-    <div class="quick-reply" onclick="resetAI()">🔄 重新开始</div>
-  </div>
-  <div class="ai-input-area">
-    <input class="ai-input" id="aiInput" placeholder="告诉我：心情、预算、几个人吃？比如「一个人，预算15，要辣」" onkeydown="if(event.key==='Enter')sendAIMsg()">
-    <button class="ai-send" onclick="sendAIMsg()">↑</button>
-  </div>
-</div>
-
-<!-- 地图 AI 助手对话弹窗 -->
-<div class="map-ai-modal" id="mapAIModal" onclick="if(event.target.id==='mapAIModal')closeMapAI()">
-  <div class="map-ai-modal-inner">
-    <div class="map-ai-modal-head">
-      <div class="ai-avatar">🤖</div>
-      <div>
-        <div class="title">小觅 · 地图 AI 助手</div>
-        <div class="subtitle">基于当前地图位置，实时推荐周边</div>
-      </div>
-      <button class="close" onclick="closeMapAI()">✕</button>
-    </div>
-    <div class="map-ai-location" id="mapAILocation">📍 当前中心：未定位</div>
-    <div class="map-ai-chat" id="mapAIChat"></div>
-    <div class="map-ai-input">
-      <div style="display:flex;flex-wrap:wrap;gap:6px;">
-        <div class="quick-reply" onclick="sendMapAIQuick('给我推荐周边评分最高的3家')">🔥 评分最高</div>
-        <div class="quick-reply" onclick="sendMapAIQuick('步行10分钟内的餐厅')">🚶 10分钟内</div>
-        <div class="quick-reply" onclick="sendMapAIQuick('性价比高的午餐')">💰 高性价比</div>
-        <div class="quick-reply" onclick="sendMapAIQuick('适合一个人吃的')">👤 一人食</div>
-        <div class="quick-reply" onclick="sendMapAIQuick('6个人聚餐')">👥 聚餐</div>
-      </div>
-      <div class="map-ai-input-row">
-        <input class="ai-input" id="mapAIInput" placeholder="告诉小觅你的需求，比如「预算20，想吃辣」" onkeydown="if(event.key==='Enter')sendMapAIMsg()">
-        <button class="ai-send" onclick="sendMapAIMsg()">↑</button>
+      <div class="detail-tags" id="detailTags"></div>
+      <div class="detail-section-title">餐厅介绍</div>
+      <div class="detail-desc" id="detailDesc"></div>
+      <div class="detail-section-title">推荐菜品</div>
+      <div id="detailMenu"></div>
+      <div class="detail-actions">
+        <button class="detail-btn" id="detailFavBtn" onclick="toggleDetailFav()">❤️ 收藏</button>
+        <button class="detail-btn" onclick="navMap()">🗺️ 导航</button>
+        <button class="detail-btn primary" onclick="askDetail()">🦊 小觅聊聊这家</button>
       </div>
     </div>
   </div>
@@ -627,660 +435,354 @@
 
 <script src="assets/api.js"></script>
 <script>
-// ── 状态 ────────────────────────────────────────
-const state = {
-  campus: "", cuisine: "", price_max: "", tags: "",
-  q: "", sort: "recommend", page: 1, totalPages: 1,
-  currentRestaurant: null, selectedRating: 0,
-};
+/* ================================================================
+ *  全屏地图 + 浮动 UI · 觅食帮选首页
+ * ================================================================ */
 
-// ── 初始化 ────────────────────────────────────────
-window.addEventListener("DOMContentLoaded", async () => {
-  initHeader();
-  initCampusBtns();
-  initStarRate();
-  initAmap();
-  loadRestaurants();
-  loadDeals();
-  loadRanking();
-});
+var FAVS = JSON.parse(localStorage.getItem("favs") || "[]");
+var CURRENT_RESTAURANT = null;
+var AI_SESSION = null;
+var AMAP_INSTANCE = null;
+var MAP_MARKERS = [];
+var MAP_CENTER = [23.0437, 113.3508];  // [lat, lng] 广州大学城
+var ALL_RESTAURANTS = [];
 
-// ── 用户状态 ──
-function initHeader() {
-  const user = Auth.getUser();
+function _tags(arr) {
+  if (Array.isArray(arr)) return arr;
+  if (typeof arr === "string" && arr.length > 0) return arr.split(",").map(function (s) { return s.trim(); }).filter(Boolean);
+  return [];
+}
+
+/* ── 觅食启动页控制 ─────────────────── */
+function dismissSplash() {
+  var splash = document.getElementById("splash");
+  if (splash) splash.classList.add("done");
+}
+
+/* ── 初始化 ───────────────────────────── */
+document.addEventListener("DOMContentLoaded", function () {
+  var user = Auth.getUser();
   if (Auth.isLoggedIn() && user) {
+    document.getElementById("userArea").textContent = "👋 " + user.username;
     document.getElementById("loginBtn").style.display = "none";
     document.getElementById("logoutBtn").style.display = "";
-    document.getElementById("favPageBtn").style.display = "";
-    document.getElementById("userArea").innerHTML = `<a href="profile.html" style="color:var(--muted);text-decoration:none;display:flex;align-items:center;gap:4px;font-size:12px;">👤 ${user.nickname || user.username}</a>`;
-    if (user.is_admin) document.getElementById("adminBtn").style.display = "";
   }
-}
 
-// ── 校区切换 ──
-function initCampusBtns() {
-  document.querySelectorAll("#campusBtns .campus-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      document.querySelectorAll("#campusBtns .campus-btn").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      state.campus = btn.dataset.campus;
-      state.page = 1;
-      loadRestaurants();
-    });
-  });
-}
+  // 1. 加载餐厅数据 → 填充热门卡片 + 数据统计
+  loadHotRestaurants();
 
-// ── 筛选 ──
-function setFilter(el, key, val) {
-  el.closest(".filter-row").querySelectorAll(".filter-chip").forEach(c => c.classList.remove("active"));
-  el.classList.add("active");
-  state[key] = val;
-  state.page = 1;
-  loadRestaurants();
-}
+  // 2. 异步加载高德地图（key 从 /api/config 获取）
+  initAmap();
 
-function toggleTag(el, tag) {
-  const isActive = el.classList.toggle("active");
-  state.tags = isActive ? tag : "";
-  state.page = 1;
-  loadRestaurants();
-}
-
-function moodFilter(mood) {
-  document.getElementById("searchInput").value = mood;
-  state.q = mood;
-  state.page = 1;
-  loadRestaurants();
-}
-
-function doSearch() {
-  state.q = document.getElementById("searchInput").value.trim();
-  state.page = 1;
-  loadRestaurants();
-}
-
-document.getElementById("searchInput").addEventListener("keydown", e => {
-  if (e.key === "Enter") doSearch();
+  // 3. 启动页自动淡出（展示 1.8 秒后自动进入，用户也可点按钮立即进入）
+  setTimeout(dismissSplash, 1800);
 });
 
-// ── 加载餐厅 ──
-async function loadRestaurants() {
-  const grid = document.getElementById("grid");
-  grid.innerHTML = `<div class="loading" style="grid-column:span 2">加载中…</div>`;
-
-  const params = {
-    q:         state.q,
-    cuisine:   state.cuisine,
-    campus:    state.campus,
-    price_max: state.price_max,
-    tags:      state.tags,
-    sort:      document.getElementById("sortSelect").value,
-    page:      state.page,
-    page_size: 8,
-  };
-
+/* ── 加载附近餐厅 ─────────────────────── */
+async function loadHotRestaurants() {
   try {
-    const data = await RestaurantAPI.list(params);
-    document.getElementById("resultCount").textContent = data.total;
-    document.getElementById("totalStat").innerHTML = `${data.total}<span>家</span>`;
-    state.totalPages = Math.ceil(data.total / 8);
+    var data = await restaurants.list({ per: 20, sort: "rating" });
+    var list = data.items || [];
+    ALL_RESTAURANTS = list;
 
-    if (data.items.length === 0) {
-      grid.innerHTML = `<div class="loading" style="grid-column:span 2">😅 没有找到符合条件的餐厅</div>`;
+    if (!list.length) {
+      document.getElementById("hotScroll").innerHTML =
+        '<div style="padding:16px 20px;color:#8a7a6a;font-size:12px;font-family:\'DM Mono\',monospace;">暂无数据～</div>';
       return;
     }
 
-    grid.innerHTML = data.items.map((r, i) => renderCard(r, i)).join("");
-    renderPagination();
-    updateMapPins(data.items);
-  } catch(e) {
-    grid.innerHTML = `<div class="loading" style="grid-column:span 2;color:var(--accent)">❌ 加载失败：${e.message}</div>`;
+    // 统计
+    var total = data.total || list.length;
+    var avgR = 0, priceSum = 0, minDist = Infinity, rCount = 0, pCount = 0;
+    list.forEach(function (r) {
+      if (r.avg_rating) { avgR += r.avg_rating; rCount++; }
+      if (r.price_min) { priceSum += (r.price_min + (r.price_max || r.price_min)) / 2; pCount++; }
+      if (typeof r.distance_km === "number") minDist = Math.min(minDist, r.distance_km);
+    });
+    document.getElementById("dcTotal").textContent = total;
+    document.getElementById("dcRating").textContent = rCount ? (avgR / rCount).toFixed(1) : "4.6";
+    document.getElementById("dcPrice").textContent = "¥" + (pCount ? Math.round(priceSum / pCount) : 25);
+    document.getElementById("dcDist").textContent = minDist === Infinity ? "0.8" : minDist.toFixed(1);
+
+    // 热门卡片（前 10 张）
+    var html = "";
+    list.slice(0, 10).forEach(function (r) {
+      var emoji = r.emoji || "🍽️";
+      var rating = r.avg_rating ? "★ " + r.avg_rating.toFixed(1) : "★ 4.5";
+      var price = "¥" + (r.price_min || 15) + "-" + (r.price_max || 25);
+      var dist = (typeof r.distance_km === "number") ? r.distance_km.toFixed(1) + "km" : "";
+      html += '<div class="hot-card" onclick="openDetail(' + r.id + ')">' +
+        '<div class="hot-card-emoji">' + emoji + '</div>' +
+        '<div class="hot-card-name">' + r.name + '</div>' +
+        '<div class="hot-card-meta">' +
+          '<span class="score">' + rating + '</span>' +
+          '<span>·</span><span class="price">' + price + '</span>' +
+          (dist ? '<span>·</span><span>' + dist + '</span>' : '') +
+        '</div></div>';
+    });
+    document.getElementById("hotScroll").innerHTML = html;
+
+    // 地图推荐信息气泡（异步）
+    setTimeout(addMapBubbles, 50);
+  } catch (e) {
+    console.error("加载餐厅失败：", e);
+    document.getElementById("hotScroll").innerHTML =
+      '<div style="padding:16px 20px;color:#8a7a6a;font-size:12px;font-family:\'DM Mono\',monospace;">加载失败，请刷新</div>';
   }
 }
 
-// ── 渲染卡片 ──
-const thumbColors = [
-  "linear-gradient(135deg,#fff3e0,#ffcc80)",
-  "linear-gradient(135deg,#e8f5e9,#a5d6a7)",
-  "linear-gradient(135deg,#fce4ec,#f48fb1)",
-  "linear-gradient(135deg,#fffde7,#fff176)",
-  "linear-gradient(135deg,#e3f2fd,#90caf9)",
-  "linear-gradient(135deg,#f3e5f5,#ce93d8)",
-  "linear-gradient(135deg,#e0f2f1,#80cbc4)",
-  "linear-gradient(135deg,#efebe9,#bcaaa4)",
-  "linear-gradient(135deg,#e8eaf6,#9fa8da)",
-  "linear-gradient(135deg,#f1f8e9,#aed581)",
-];
-const decoColors = [
-  "#e85d26","#f4b942","#2d7a4f","#e91e63",
-  "#1976d2","#7b1fa2","#00796b","#795548",
-];
-
-function renderCard(r, i) {
-  const tags = r.tags ? r.tags.split(",").slice(0,4).map(t => `<span class="card-tag">${t.trim()}</span>`).join("") : "";
-  const featured = r.is_featured && i === 0;
-  return `
-    <div class="card ${featured ? 'featured' : ''}" onclick="openDetail(${r.id})">
-      <div class="card-thumb">
-        <div class="card-thumb-bg" style="background:${thumbColors[i % thumbColors.length]}">
-          <div class="deco deco1" style="background:${decoColors[i % decoColors.length]}"></div>
-          <div class="deco deco2" style="background:${decoColors[(i+2) % decoColors.length]}"></div>
-          <span class="card-thumb-emoji">${r.emoji}</span>
-        </div>
-        <div class="card-thumb-overlay"></div>
-        ${r.is_featured ? '<span class="card-badge badge-hot">🔥 热门</span>' : ''}
-        <button class="card-fav" id="fav-${r.id}" onclick="event.stopPropagation();quickFav(${r.id}, this)">🤍</button>
-      </div>
-      <div class="card-body">
-        <div class="card-header">
-          <span class="card-name">${r.name}</span>
-          <span class="card-rating">★ ${r.avg_rating || "新"}</span>
-        </div>
-        <div class="card-meta">
-          <span>${r.cuisine}</span><span style="opacity:.4">·</span>
-          <span>${r.review_count ? r.review_count.toLocaleString()+" 评价" : "暂无评价"}</span><span style="opacity:.4">·</span>
-          <span>${r.is_open ? "🟢 营业中" : "⭕ 休息中"}</span>
-        </div>
-        <div class="card-tags">${tags}</div>
-        ${featured ? `<p style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:12px">${r.description.slice(0,80)}…</p>` : ""}
-        <div class="card-footer">
-          <div><span class="price-range">${priceRange(r)}</span></div>
-          <span class="card-distance">📍 步行${r.distance_min}分钟</span>
-        </div>
-      </div>
-    </div>`;
-}
-
-// ── 分页 ──
-function renderPagination() {
-  const pg = document.getElementById("pagination");
-  if (state.totalPages <= 1) { pg.innerHTML = ""; return; }
-  let html = `<div class="page-btn" onclick="goPage(${state.page - 1})">←</div>`;
-  for (let i = 1; i <= state.totalPages; i++) {
-    if (state.totalPages > 7 && i > 2 && i < state.totalPages - 1 && Math.abs(i - state.page) > 1) {
-      if (i === 3 || i === state.totalPages - 2) html += `<div class="page-btn">…</div>`;
-      continue;
-    }
-    html += `<div class="page-btn ${i === state.page ? 'active' : ''}" onclick="goPage(${i})">${i}</div>`;
-  }
-  html += `<div class="page-btn" onclick="goPage(${state.page + 1})">→</div>`;
-  pg.innerHTML = html;
-}
-
-function goPage(p) {
-  if (p < 1 || p > state.totalPages) return;
-  state.page = p;
-  loadRestaurants();
-  window.scrollTo({ top: 0, behavior: "smooth" });
-}
-
-// ── 加载优惠 ──
-async function loadDeals() {
-  try {
-    const data = await RestaurantAPI.list({ page_size: 20 });
-    const deals = data.items.flatMap(r => r.deals.map(d => ({ ...d, restaurant: r })));
-    if (deals.length === 0) return;
-    document.getElementById("dealsSection").style.display = "";
-    document.getElementById("dealsScroll").innerHTML = deals.map(d => `
-      <div class="deal-card" onclick="openDetail(${d.restaurant.id})">
-        <div class="deal-emoji">${d.restaurant.emoji}</div>
-        <div class="deal-name">${d.restaurant.name}</div>
-        <div class="deal-desc">${d.title}·${d.description}</div>
-        <div class="deal-price">
-          ${d.deal_price ? `<span class="deal-new">¥${d.deal_price}</span>` : ""}
-          ${d.original_price ? `<span class="deal-old">¥${d.original_price}</span>` : ""}
-          ${!d.deal_price ? `<span style="font-size:12px;font-weight:600;color:var(--accent)">${d.discount_text}</span>` : ""}
-        </div>
-      </div>`).join("");
-  } catch(e) {}
-}
-
-// ── 加载口碑榜 ──
-async function loadRanking() {
-  try {
-    const data = await RestaurantAPI.ranking();
-    const numClass = ["gold","silver","bronze","rest-rank","rest-rank"];
-    const numLabel = ["1","2","3","4","5"];
-    document.getElementById("rankingList").innerHTML = data.slice(0,5).map((r,i) => `
-      <div class="rank-item" onclick="openDetail(${r.id})">
-        <span class="rank-num ${numClass[i]}">${numLabel[i]}</span>
-        <div class="rank-thumb">${r.emoji}</div>
-        <div class="rank-info">
-          <div class="rank-name">${r.name}</div>
-          <div class="rank-sub">${r.review_count.toLocaleString()} 评价 · 步行${r.distance_min}min</div>
-        </div>
-        <span class="rank-score">★${r.avg_rating}</span>
-      </div>`).join("");
-  } catch(e) {}
-}
-
-// ── 高德地图 · 异步加载（key 从 /api/config 动态获取）──
-let amapInstance = null, amapMarkers = [];
+/* ── 高德地图初始化 ──────────────────── */
 function initAmap() {
   var tries = 0;
   function tryInit() {
-    if (typeof AMap === "undefined") {
-      if (tries++ < 30) { setTimeout(tryInit, 100); return; }
-      // 未加载成功（key 没配），但 AI 助手对话仍可用（走规则兜底）
+    if (window.AMap && typeof window.AMap.Map === "function") {
+      try {
+        AMAP_INSTANCE = new window.AMap.Map("amap", {
+          center: [MAP_CENTER[1], MAP_CENTER[0]],
+          zoom: 15,
+          viewMode: "2D",
+          mapStyle: "amap://styles/light",
+          features: ["bg", "road", "building", "point"],
+        });
+        document.getElementById("mapPlaceholder").classList.add("done");
+
+        AMAP_INSTANCE.on("moveend", function () {
+          var c = AMAP_INSTANCE.getCenter();
+          MAP_CENTER = [c.lat, c.lng];
+        });
+
+        drawRestaurantMarkers();
+      } catch (err) {
+        console.error("地图初始化失败：", err);
+        var txtEl = document.getElementById("mapPlaceholder").querySelector(".map-placeholder-text");
+        if (txtEl) txtEl.textContent = "地图加载失败";
+      }
       return;
     }
-    if (amapInstance) return;
-    amapInstance = new AMap.Map("amap", {
-      zoom: 15, center: [113.3508, 23.0437],
-      mapStyle: "amap://styles/light",
-    });
-    // 记录当前中心，供 AI 助手计算距离
-    const updateCenter = function() {
-      const c = amapInstance.getCenter();
-      if (c) mapLocation = [c.lat, c.lng];
-    };
-    updateCenter();
-    amapInstance.on("moveend", updateCenter);
-    amapInstance.on("zoomend", updateCenter);
-
-    // 点击地图：切换中心点并搜索附近餐厅
-    amapInstance.on("click", function (e) {
-      var lng = e.lnglat.lng, lat = e.lnglat.lat;
-      mapLocation = [lat, lng];
-      updateMapAILocation();
-      showToast("📍 已选择位置：" + lat.toFixed(4) + ", " + lng.toFixed(4));
-      if (window._clickMarker) amapInstance.remove(window._clickMarker);
-      window._clickMarker = new AMap.Marker({
-        position: [lng, lat],
-        label: { content: '<div style="background:var(--accent);color:white;padding:3px 8px;border-radius:8px;font-size:12px">📍 我在这里</div>', offset: new AMap.Pixel(-40, -46) },
-      });
-      amapInstance.add(window._clickMarker);
-      var nearby = (state.allRestaurants || []).filter(function (r) {
-        if (!r.latitude || !r.longitude) return false;
-        var d = Math.sqrt(Math.pow(r.latitude - lat, 2) + Math.pow(r.longitude - lng, 2));
-        return d < 0.02;
-      });
-      if (nearby.length) showToast("📍 附近有 " + nearby.length + " 家餐厅");
-    });
-    // 如果数据已到，立即渲染标记
-    if (state.allRestaurants && state.allRestaurants.length) {
-      updateMapPins(state.allRestaurants);
-    }
+    if (tries++ > 80) return;
+    setTimeout(tryInit, 50);
   }
   tryInit();
 }
 
-function updateMapPins(restaurants) {
-  if (!amapInstance) return;
-  amapMarkers.forEach(m => amapInstance.remove(m));
-  amapMarkers = [];
-  restaurants.filter(r => r.latitude && r.longitude).forEach(r => {
-    const marker = new AMap.Marker({
-      position: [r.longitude, r.latitude],
-      title: r.name,
-      label: { content: `<div style="background:white;padding:3px 7px;border-radius:8px;font-size:11px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.1)">${r.emoji} ${r.name}</div>`, offset: new AMap.Pixel(-30, -40) },
-    });
-    marker.on("click", () => openDetail(r.id));
-    amapInstance.add(marker);
-    amapMarkers.push(marker);
-  });
-}
-
-// ── 餐厅详情 ──
-async function openDetail(id) {
-  try {
-    const r = await RestaurantAPI.detail(id);
-    state.currentRestaurant = r;
-    state.selectedRating = 0;
-
-    document.getElementById("modalEmoji").textContent = r.emoji;
-    document.getElementById("modalHero").style.background = thumbColors[id % thumbColors.length];
-    document.getElementById("modalName").textContent = r.name;
-    document.getElementById("modalMeta").innerHTML = `
-      <span class="modal-rating">★ ${r.avg_rating || "暂无"}</span>
-      <span style="font-size:12px;color:var(--muted)">${r.review_count} 条评价</span>
-      <span style="font-size:14px;color:var(--accent3);font-weight:600">${priceRange(r)} / 人</span>
-      <span style="font-size:12px;background:${r.is_open ? '#e8f5e9':'#fce4ec'};color:${r.is_open ? '#2d7a4f':'#c62828'};padding:2px 8px;border-radius:10px">${r.is_open ? "🟢 营业中" : "⭕ 休息中"}</span>`;
-    document.getElementById("modalLocation").innerHTML = `${r.address || "地址待更新"}<br><span style="color:var(--muted);font-size:12px">⏰ ${r.open_hours || "营业时间待更新"} · 步行${r.distance_min}分钟</span>`;
-    document.getElementById("modalDesc").textContent = r.description || "暂无介绍";
-
-    // 菜单
-    if (r.menu_items?.length) {
-      document.getElementById("modalMenu").innerHTML = r.menu_items.slice(0,4).map(m => `
-        <div class="menu-item">
-          <div class="menu-item-left">
-            <span style="font-size:20px">${m.emoji}</span>
-            <div><div style="font-size:13px;font-weight:500">${m.name}</div><div style="font-size:11px;color:var(--muted)">${m.description}</div></div>
-          </div>
-          <span class="menu-item-price">¥${m.price}</span>
-        </div>`).join("");
-      document.getElementById("modalMenuSection").style.display = "";
-    } else {
-      document.getElementById("modalMenuSection").style.display = "none";
-    }
-
-    // 评价
-    await loadModalReviews(id);
-
-    // 收藏状态
-    if (Auth.isLoggedIn()) {
-      const fav = await RestaurantAPI.isFavorited(id);
-      const btn = document.getElementById("favBtn");
-      btn.textContent = fav.favorited ? "❤️ 已收藏" : "🤍 收藏";
-    }
-
-    // 评价表单
-    document.getElementById("reviewForm").style.display = Auth.isLoggedIn() ? "" : "none";
-    document.getElementById("loginHint").style.display = Auth.isLoggedIn() ? "none" : "";
-    resetStars();
-
-    document.getElementById("detailModal").classList.add("open");
-  } catch(e) { showToast(e.message, "error"); }
-}
-
-async function loadModalReviews(id) {
-  try {
-    const reviews = await ReviewAPI.list(id, 1);
-    if (!reviews.length) {
-      document.getElementById("modalReviews").innerHTML = `<div style="font-size:13px;color:var(--muted);padding:8px 0">暂无评价，快来第一个评价吧！</div>`;
-      return;
-    }
-    document.getElementById("modalReviews").innerHTML = reviews.slice(0,3).map(r => `
-      <div style="background:var(--tag-bg);border-radius:10px;padding:12px;margin-bottom:8px">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
-          <span style="font-size:12px;color:var(--muted)">${r.is_anonymous ? "匿名用户" : (r.user?.nickname || r.user?.username || "用户")}</span>
-          <span style="color:var(--accent);font-size:13px">★ ${r.rating}</span>
-        </div>
-        <div style="font-size:13px;line-height:1.6">${r.content || "（无文字评价）"}</div>
-      </div>`).join("");
-  } catch(e) {}
-}
-
-function closeModal() { document.getElementById("detailModal").classList.remove("open"); }
-function closeModalCheck(e) { if (e.target === document.getElementById("detailModal")) closeModal(); }
-
-// ── 收藏 ──
-async function toggleFav() {
-  if (!requireLogin()) return;
-  try {
-    const res = await RestaurantAPI.toggleFav(state.currentRestaurant.id);
-    const btn = document.getElementById("favBtn");
-    btn.textContent = res.favorited ? "❤️ 已收藏" : "🤍 收藏";
-    showToast(res.favorited ? "已收藏！" : "已取消收藏", "success");
-  } catch(e) { showToast(e.message, "error"); }
-}
-
-async function quickFav(id, btn) {
-  if (!requireLogin()) return;
-  try {
-    const res = await RestaurantAPI.toggleFav(id);
-    btn.textContent = res.favorited ? "❤️" : "🤍";
-    btn.classList.toggle("liked", res.favorited);
-    showToast(res.favorited ? "已收藏！" : "已取消收藏", "success");
-  } catch(e) { showToast(e.message, "error"); }
-}
-
-// ── 评价 ──
-function initStarRate() {
-  document.querySelectorAll(".star").forEach(star => {
-    star.addEventListener("click", () => {
-      state.selectedRating = +star.dataset.v;
-      highlightStars(state.selectedRating);
-    });
-    star.addEventListener("mouseenter", () => highlightStars(+star.dataset.v));
-    star.addEventListener("mouseleave", () => highlightStars(state.selectedRating));
-  });
-}
-
-function highlightStars(n) {
-  document.querySelectorAll(".star").forEach(s => s.classList.toggle("on", +s.dataset.v <= n));
-}
-
-function resetStars() {
-  state.selectedRating = 0;
-  highlightStars(0);
-  document.getElementById("reviewContent").value = "";
-}
-
-async function submitReview() {
-  if (!requireLogin()) return;
-  if (!state.selectedRating) { showToast("请选择评分", "error"); return; }
-  try {
-    await ReviewAPI.create({
-      restaurant_id: state.currentRestaurant.id,
-      rating: state.selectedRating,
-      content: document.getElementById("reviewContent").value.trim(),
-    });
-    showToast("评价发布成功！", "success");
-    // 发布评价获得积分
+/* ── 在地图上画餐厅 marker ────────────── */
+function drawRestaurantMarkers() {
+  if (!AMAP_INSTANCE) return;
+  var toDraw = ALL_RESTAURANTS.filter(function (r) { return r.latitude && r.longitude; }).slice(0, 15);
+  toDraw.forEach(function (r, i) {
     try {
-      const pts = await PointsAPI.earn("review", `评价「${state.currentRestaurant.name}」`);
-      if (pts.ok) showPointsFloat(pts.points, "发布评价");
-    } catch(e) {}
-    resetStars();
-    await loadModalReviews(state.currentRestaurant.id);
-    loadRestaurants();
-    loadRanking();
-  } catch(e) { showToast(e.message, "error"); }
+      var marker = new window.AMap.Marker({
+        position: [r.longitude, r.latitude],
+        offset: new window.AMap.Pixel(-20, -20),
+        content: '<div style="cursor:pointer;" title="' + (r.name || "") + '">' +
+          '<div style="font-size:30px;filter:drop-shadow(0 4px 10px rgba(232,93,38,.35));animation:floatY ' +
+            (2.5 + (i % 5) * 0.2) + 's ease-in-out infinite;">' + (r.emoji || "🍽️") + '</div>' +
+          '</div>'
+      });
+      marker.on("click", function () { openDetail(r.id); });
+      AMAP_INSTANCE.add(marker);
+      MAP_MARKERS.push(marker);
+    } catch (e) {}
+  });
 }
 
-// ── 导航 ──
-function openNav() {
-  const r = state.currentRestaurant;
-  if (r?.latitude && r?.longitude) {
-    window.open(`https://uri.amap.com/marker?position=${r.longitude},${r.latitude}&name=${encodeURIComponent(r.name)}&callnative=1`);
-  } else if (r?.address) {
-    window.open(`https://uri.amap.com/search?keyword=${encodeURIComponent(r.address)}`);
+/* ── 地图内：推荐信息气泡（浮层） ─────── */
+function addMapBubbles() {
+  if (!ALL_RESTAURANTS || ALL_RESTAURANTS.length === 0) return;
+  var stage = document.getElementById("map-stage");
+  var old = document.querySelectorAll(".map-bubble");
+  for (var k = 0; k < old.length; k++) old[k].remove();
+
+  var picks = ALL_RESTAURANTS.slice(0, 6).map(function (r) {
+    var type = "rec";
+    if (r.avg_rating && r.avg_rating >= 4.7) type = "hot";
+    else if (r.price_min && r.price_min <= 15) type = "new";
+    return {
+      type: type,
+      emoji: r.emoji || "🍽️",
+      label: (type === "hot" ? "高分" : (type === "new" ? "平价" : "小觅推荐")),
+      name: r.name,
+      rating: r.avg_rating || 4.5,
+      id: r.id
+    };
+  });
+
+  var positions = [
+    { left: "22%", top: "28%" },
+    { left: "46%", top: "22%" },
+    { left: "62%", top: "42%" },
+    { left: "30%", top: "55%" },
+    { left: "55%", top: "68%" },
+    { left: "72%", top: "60%" },
+  ];
+
+  picks.slice(0, 6).forEach(function (p, i) {
+    var b = document.createElement("div");
+    b.className = "map-bubble " + p.type;
+    b.style.left = positions[i].left;
+    b.style.top = positions[i].top;
+    b.style.animationDelay = (i * 0.15) + "s";
+    b.innerHTML =
+      '<span class="mb-emoji">' + p.emoji + '</span>' +
+      '<span class="mb-label">' + p.label + '</span>' +
+      '<span>' + p.name + '</span>' +
+      '<span style="font-family:\'DM Mono\',monospace;color:#e85d26;font-size:11px;margin-left:6px;">★' + p.rating.toFixed(1) + '</span>';
+    b.onclick = function () { openDetail(p.id); };
+    stage.appendChild(b);
+  });
+}
+
+/* ============================================================
+ *  餐厅详情 Modal
+ * ============================================================ */
+async function openDetail(id) {
+  try { CURRENT_RESTAURANT = await restaurants.detail(id); }
+  catch (e) { CURRENT_RESTAURANT = ALL_RESTAURANTS.find(function (r) { return r.id === id; }) || null; }
+  if (!CURRENT_RESTAURANT) return;
+
+  var r = CURRENT_RESTAURANT;
+  document.getElementById("detailName").textContent = r.name;
+  document.getElementById("detailEmoji").textContent = r.emoji || "🍽️";
+  var colors = ["#fff3e5,#ffe3c2", "#e8f5e9,#c8e6c9", "#e3f2fd,#bbdefb", "#fce4ec,#f8bbd0", "#fff8e1,#ffe0b2"];
+  document.getElementById("detailHero").style.background = "linear-gradient(135deg," + colors[(r.id || 0) % colors.length] + ")";
+  document.getElementById("detailRating").textContent = "★ " + (r.avg_rating ? r.avg_rating.toFixed(1) : "4.5");
+  document.getElementById("detailPrice").textContent = "¥" + (r.price_min || 15) + "-" + (r.price_max || 25) + "/人";
+  document.getElementById("detailAddress").textContent = "📍 " + (r.address || "大学城");
+
+  var tagHtml = "";
+  _tags(r.tags).forEach(function (t) { tagHtml += '<span class="detail-tag">' + t + '</span>'; });
+  document.getElementById("detailTags").innerHTML = tagHtml;
+  document.getElementById("detailDesc").textContent = r.description || "学生党推荐的好餐厅～ 好吃不贵，值得一去！";
+
+  var menuHtml = "";
+  var menu = (r.menu_items && r.menu_items.length) ? r.menu_items : null;
+  if (menu) {
+    menu.forEach(function (m) {
+      menuHtml += '<div class="menu-item"><div class="menu-item-left"><span class="menu-item-emoji">' +
+        (m.emoji || "🍽️") + '</span><span>' + (m.name || "") + '</span></div>' +
+        '<span class="menu-item-price">¥' + (m.price || r.price_min || 18) + '</span></div>';
+    });
   } else {
-    showToast("暂无定位信息");
+    menuHtml =
+      '<div class="menu-item"><div class="menu-item-left"><span class="menu-item-emoji">🎓</span><span>招牌菜 · 学生党最爱</span></div><span class="menu-item-price">¥' +
+      Math.round(((r.price_min || 15) + (r.price_max || 25)) / 2) + '</span></div>' +
+      '<div class="menu-item"><div class="menu-item-left"><span class="menu-item-emoji">👥</span><span>双人套餐 · 性价比之选</span></div><span class="menu-item-price">¥' +
+      ((r.price_max || 25) * 2) + '</span></div>';
   }
+  document.getElementById("detailMenu").innerHTML = menuHtml;
+
+  var isFav = FAVS.indexOf(r.id) > -1;
+  document.getElementById("detailFavBtn").textContent = isFav ? "❤️ 已收藏" : "🤍 收藏";
+  document.getElementById("detailModal").classList.add("open");
+}
+function closeDetail() { document.getElementById("detailModal").classList.remove("open"); }
+function closeDetailCheck(e) { if (e.target.id === "detailModal") closeDetail(); }
+function toggleDetailFav() {
+  if (!CURRENT_RESTAURANT) return;
+  var idx = FAVS.indexOf(CURRENT_RESTAURANT.id);
+  if (idx > -1) { FAVS.splice(idx, 1); document.getElementById("detailFavBtn").textContent = "🤍 收藏"; }
+  else { FAVS.push(CURRENT_RESTAURANT.id); document.getElementById("detailFavBtn").textContent = "❤️ 已收藏"; }
+  localStorage.setItem("favs", JSON.stringify(FAVS));
+}
+function navMap() {
+  if (!CURRENT_RESTAURANT) return;
+  window.open("https://uri.amap.com/marker?position=" +
+    (CURRENT_RESTAURANT.longitude || MAP_CENTER[1]) + "," +
+    (CURRENT_RESTAURANT.latitude || MAP_CENTER[0]) +
+    "&name=" + encodeURIComponent(CURRENT_RESTAURANT.name) + "&callnative=1");
+}
+function askDetail() {
+  if (!CURRENT_RESTAURANT) return;
+  var name = CURRENT_RESTAURANT.name;
+  closeDetail();
+  openAI();
+  setTimeout(function () { askAI("给我详细说说 " + name + " 这家餐厅怎么样？"); }, 400);
 }
 
-// ── AI 助手 · 多轮对话（chat 模式） ──────────────
-let aiOpen = false;
-let mapLocation = null; // [lat, lng] · 地图当前中心，用于给 Agent 计算距离
+/* ============================================================
+ *  AI 助手对话（核心）
+ * ============================================================ */
+function openAI() { document.getElementById("aiModal").classList.add("open"); }
+function closeAI() { document.getElementById("aiModal").classList.remove("open"); }
 
-function toggleAI() { aiOpen = !aiOpen; document.getElementById("aiPanel").classList.toggle("open", aiOpen); }
-function openAI()   { aiOpen = true;  document.getElementById("aiPanel").classList.add("open"); ensureAIGreeting(); }
-
-async function ensureAIGreeting() {
-  const chat = document.getElementById("aiChat");
-  if (!chat || chat.childElementCount > 0) return;
-  // 初始欢迎语（规则版），用户首次打开时看到
-  addBubble("嗨～我是小觅 🤖 当你不知道吃什么的时候，告诉我：<br><br>✨ 现在的心情 / 状态<br>💰 预算范围<br>👥 几个人吃<br>🌶️ 口味偏好<br>我来给你量身推荐！", "bot");
+function askAI(msg) {
+  openAI();
+  setTimeout(function () { sendAI(msg); }, 200);
 }
 
-// 主入口：发送消息
-async function sendAIMsg() {
-  const input = document.getElementById("aiInput");
-  const msg = input.value.trim();
+async function sendAI(forceMsg) {
+  var input = document.getElementById("aiInput");
+  var msg = (forceMsg || input.value || "").trim();
   if (!msg) return;
-  input.value = "";
-  addBubble(msg, "user");
-  const loadingId = "loading_" + Date.now();
-  addBubble("小觅思考中… 🤔", "bot", loadingId);
-  try {
-    const res = await AIAPI.chat(msg, { campus: state.campus });
-    document.getElementById(loadingId)?.remove();
-    addBubble(res.reply, "bot");
-    if (res.recommendations && res.recommendations.length) {
-      for (const r of res.recommendations) renderRestaurantCard("aiChat", r);
-    }
-  } catch(e) {
-    document.getElementById(loadingId)?.remove();
-    addBubble("抱歉，AI暂时无法响应，请稍后再试 😅", "bot");
-  }
-}
+  if (!forceMsg) input.value = "";
 
-function sendQuick(msg) { openAI(); setTimeout(() => { document.getElementById("aiInput").value = msg; sendAIMsg(); }, 200); }
+  var chat = document.getElementById("aiChat");
 
-function resetAI() {
-  const chat = document.getElementById("aiChat");
-  if (chat) chat.innerHTML = "";
-  AIAPI.reset().then(() => ensureAIGreeting()).catch(() => ensureAIGreeting());
-}
+  var userBubble = document.createElement("div");
+  userBubble.className = "chat-msg user";
+  userBubble.textContent = msg;
+  chat.appendChild(userBubble);
 
-// 推荐餐厅卡片渲染（用于 AI 侧栏 & 地图 AI 助手）
-function renderRestaurantCard(chatContainerId, r) {
-  const chat = document.getElementById(chatContainerId);
-  if (!chat) return;
-  const card = document.createElement("div");
-  card.className = "rest-card";
-  card.onclick = () => openDetail(r.id);
-  const emoji = r.emoji || "🍽️";
-  const rating = (r.avg_rating || 0).toFixed(1);
-  const price = r.price_min && r.price_max
-    ? `¥${r.price_min}-${r.price_max}`
-    : (r.price_min ? `¥${r.price_min}起` : "价格待更新");
-  const distText = r.real_distance_m != null
-    ? `${(r.real_distance_m/1000).toFixed(2)}km · 步行${r.walk_minutes}分`
-    : (r.distance_min != null ? `步行约 ${r.distance_min} 分钟` : "");
-  const tags = (r.tags && r.tags.length) ? r.tags.slice(0,3).map(t => `<span class="rest-card-tag">${t}</span>`).join("") : "";
-  card.innerHTML = `
-    <div class="rest-card-thumb">${emoji}</div>
-    <div class="rest-card-body">
-      <div class="rest-card-name">${r.name}</div>
-      <div class="rest-card-meta">
-        <span class="mscore">★${rating}</span>
-        <span>·</span>
-        <span class="mprice">${price}</span>
-        ${distText ? `<span>·</span><span class="mdist">${distText}</span>` : ""}
-      </div>
-      ${tags ? `<div class="rest-card-tags">${tags}</div>` : ""}
-    </div>
-  `;
-  chat.appendChild(card);
+  var loading = document.createElement("div");
+  loading.className = "chat-msg bot";
+  loading.textContent = "小觅正在思考… 🦊";
+  chat.appendChild(loading);
   chat.scrollTop = chat.scrollHeight;
-}
 
-function addBubble(text, type, id = "") {
-  const chat = document.getElementById("aiChat");
-  if (!chat) return;
-  const div = document.createElement("div");
-  div.className = `chat-bubble ${type}`;
-  if (id) div.id = id;
-  div.innerHTML = text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>").replace(/\n/g, "<br>");
-  chat.appendChild(div);
-  chat.scrollTop = chat.scrollHeight;
-}
-
-function removeLoading() {
-  const el = document.getElementById("loadingBubble");
-  if (el) el.remove();
-}
-
-// ── 地图 AI 助手对话弹窗 ───────────────────────────
-let mapAIOpen = false;
-let mapAIChatOpened = false;
-
-function openMapAI() {
-  mapAIOpen = true;
-  document.getElementById("mapAIModal").classList.add("open");
-  // 隐藏地图上的气泡提示，避免干扰
-  const bubble = document.getElementById("mapAIBubble");
-  if (bubble) bubble.style.display = "none";
-  if (!mapAIChatOpened) {
-    mapAIChatOpened = true;
-    const chat = document.getElementById("mapAIChat");
-    if (chat) {
-      const greet = document.createElement("div");
-      greet.className = "chat-bubble bot";
-      greet.innerHTML = "嗨！我是小觅 🤖 这里是基于当前地图位置的实时推荐模式：<br><br>📍 会用你当前地图中心计算距离<br>⭐️ 只推荐附近餐厅<br>你可以直接在下面提问，比如「给我推荐周边评分最高的3家」。";
-      chat.appendChild(greet);
-    }
-    updateMapAILocation();
-    // 自动发一条：「基于当前地图位置，推荐3家附近评分最高的」
-    sendMapAIMsg("基于当前地图位置，给我推荐周边评分最高的3家餐厅");
-  }
-}
-
-function closeMapAI() {
-  mapAIOpen = false;
-  document.getElementById("mapAIModal").classList.remove("open");
-}
-
-function updateMapAILocation() {
-  const el = document.getElementById("mapAILocation");
-  if (!el) return;
-  if (mapLocation) {
-    el.innerHTML = `📍 当前地图中心：${mapLocation[0].toFixed(4)}, ${mapLocation[1].toFixed(4)}`;
-  } else {
-    el.innerHTML = "📍 地图尚未加载位置数据 · 用系统默认推荐";
-  }
-}
-
-function addMapAIBubble(text, type, id = "") {
-  const chat = document.getElementById("mapAIChat");
-  if (!chat) return;
-  const div = document.createElement("div");
-  div.className = `chat-bubble ${type}`;
-  if (id) div.id = id;
-  div.innerHTML = text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>").replace(/\n/g, "<br>");
-  chat.appendChild(div);
-  chat.scrollTop = chat.scrollHeight;
-}
-
-async function sendMapAIMsg(overwriteMsg) {
-  const input = document.getElementById("mapAIInput");
-  const msg = overwriteMsg || (input && input.value.trim());
-  if (!msg) return;
-  if (!overwriteMsg && input) input.value = "";
-  addMapAIBubble(msg, "user");
-  const loadingId = "map_loading_" + Date.now();
-  addMapAIBubble("小觅正在扫描周边地图… 🗺️", "bot", loadingId);
   try {
-    updateMapAILocation();
-    const res = await AIAPI.chat(msg, { campus: state.campus, location: mapLocation });
-    document.getElementById(loadingId)?.remove();
-    addMapAIBubble(res.reply, "bot");
-    if (res.recommendations && res.recommendations.length) {
-      for (const r of res.recommendations) renderRestaurantCard("mapAIChat", r);
+    var body = { message: msg, location: MAP_CENTER };
+    if (AI_SESSION && AI_SESSION.id) body.session_id = AI_SESSION.id;
+
+    var resp = await AIAPI.chat(body.message, {
+      location: body.location,
+      sessionId: body.session_id
+    });
+
+    AI_SESSION = { id: resp.session_id };
+    loading.remove();
+
+    var bot = document.createElement("div");
+    bot.className = "chat-msg bot";
+    bot.textContent = resp.reply || "好的，已经为你准备好推荐～";
+    chat.appendChild(bot);
+
+    var recs = resp.recommendations || [];
+    if (Array.isArray(recs) && recs.length > 0) {
+      recs.forEach(function (r) {
+        var card = document.createElement("div");
+        card.className = "rest-card";
+        var score = r.avg_rating ? r.avg_rating.toFixed(1) : "4.5";
+        var price = "¥" + (r.price_min || 15) + "-" + (r.price_max || 25);
+        var dist = "";
+        if (typeof r.real_distance_m === "number") dist = (r.real_distance_m / 1000).toFixed(2) + " km";
+        else if (typeof r.distance_km === "number") dist = r.distance_km.toFixed(2) + " km";
+        var tagHtml = "";
+        _tags(r.tags).slice(0, 3).forEach(function (t) { tagHtml += '<span class="rest-card-tag">' + t + '</span>'; });
+        card.innerHTML =
+          '<div class="rest-card-thumb">' + (r.emoji || "🍽️") + '</div>' +
+          '<div class="rest-card-body">' +
+            '<div class="rest-card-name">' + r.name + '</div>' +
+            '<div class="rest-card-meta">' +
+              '<span class="rscore">★' + score + '</span>' +
+              '<span class="rprice">' + price + '</span>' +
+              (dist ? '<span>' + dist + '</span>' : '') +
+            '</div>' +
+            (tagHtml ? '<div class="rest-card-tags">' + tagHtml + '</div>' : '') +
+          '</div>';
+        card.onclick = function () { closeAI(); openDetail(r.id); };
+        chat.appendChild(card);
+      });
     }
-  } catch(e) {
-    document.getElementById(loadingId)?.remove();
-    addMapAIBubble("抱歉，AI暂时无法响应，请稍后再试 😅", "bot");
+    chat.scrollTop = chat.scrollHeight;
+  } catch (err) {
+    loading.remove();
+    var errEl = document.createElement("div");
+    errEl.className = "chat-msg bot";
+    errEl.textContent = "抱歉，我现在有点忙 😅 请稍后再试～";
+    chat.appendChild(errEl);
+    chat.scrollTop = chat.scrollHeight;
   }
 }
-
-function sendMapAIQuick(msg) { sendMapAIMsg(msg); }
-
-// ── 首次进入动画 ──────────────────────────────────
-window.addEventListener("DOMContentLoaded", () => {
-  // 只有首次访问显示 splash
-  if (!sessionStorage.getItem("splashShown")) {
-    sessionStorage.setItem("splashShown", "1");
-    setTimeout(() => document.getElementById("splash").classList.add("done"), 1200);
-  } else {
-    document.getElementById("splash").classList.add("done");
-  }
-});
-
-// ── 收藏夹 ──────────────────────────────────────
-async function showFavModal() {
-  document.getElementById("favModal").classList.add("open");
-  const list = document.getElementById("favList");
-  list.innerHTML = '<div class="fav-empty">加载中…</div>';
-  try {
-    // 获取所有餐厅，过滤已收藏的
-    const data = await RestaurantAPI.list({ page_size: 50 });
-    const favs = [];
-    for (const r of data.items) {
-      const res = await RestaurantAPI.isFavorited(r.id);
-      if (res.favorited) favs.push(r);
-    }
-    if (!favs.length) {
-      list.innerHTML = '<div class="fav-empty">还没有收藏任何餐厅<br>去美食地图发现好店吧 🍜</div>';
-      return;
-    }
-    list.innerHTML = `<div class="fav-grid">${favs.map(r => `
-      <div class="fav-card" onclick="closeFavModal();openDetail(${r.id})">
-        <span style="font-size:28px">${r.emoji}</span>
-        <div>
-          <div style="font-size:14px;font-weight:600">${r.name}</div>
-          <div style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace">★ ${r.avg_rating} · ${priceRange(r)}</div>
-        </div>
-      </div>`).join('')}</div>`;
-  } catch(e) {
-    list.innerHTML = `<div class="fav-empty">加载失败：${e.message}</div>`;
-  }
-}
-function closeFavModal() { document.getElementById("favModal").classList.remove("open"); }
-
 </script>
 </body>
 </html>
