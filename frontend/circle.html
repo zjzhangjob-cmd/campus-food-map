@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>校园圈 · 觅食</title>
+<title>社区圈 · 觅食</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@700;900&family=Noto+Sans+SC:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -24,16 +24,16 @@
   .hbtn:hover{background:var(--ink);color:var(--paper);}
   .hbtn.accent{background:var(--accent);color:white;border-color:var(--accent);}
 
-  .page-wrap{max-width:960px;margin:0 auto;padding:32px 24px 80px;display:grid;grid-template-columns:1fr 300px;gap:28px;align-items:start;}
+  .page-wrap{max-width:1280px;margin:0 auto;padding:28px 28px 80px;display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:32px;align-items:start;}
 
   /* Post compose */
-  .compose-box{background:var(--card);border:1.5px solid var(--border);border-radius:18px;padding:20px;margin-bottom:20px;}
-  .compose-header{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
-  .avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;color:white;font-weight:700;}
-  .compose-placeholder{flex:1;padding:10px 16px;background:var(--tag-bg);border-radius:24px;font-size:14px;color:var(--muted);cursor:pointer;border:none;font-family:'Noto Sans SC',sans-serif;text-align:left;}
+  .compose-box{background:var(--card);border:1.5px solid var(--border);border-radius:16px;padding:12px 14px;margin-bottom:14px;display:flex;align-items:center;gap:12px;}
+  .compose-header{display:flex;align-items:center;gap:10px;flex:1;min-width:0;}
+  .avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;color:white;font-weight:700;}
+  .compose-placeholder{flex:1;padding:10px 14px;background:var(--tag-bg);border-radius:18px;font-size:13px;color:var(--muted);cursor:pointer;border:none;font-family:'Noto Sans SC',sans-serif;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .compose-placeholder:hover{background:var(--border);}
-  .compose-actions{display:flex;gap:8px;justify-content:flex-end;}
-  .compose-btn{padding:6px 16px;border-radius:20px;border:1.5px solid var(--border);background:transparent;font-size:12px;cursor:pointer;color:var(--muted);font-family:'Noto Sans SC',sans-serif;transition:all .2s;display:flex;align-items:center;gap:4px;}
+  .compose-actions{display:flex;gap:6px;justify-content:flex-end;flex-shrink:0;}
+  .compose-btn{padding:6px 10px;border-radius:14px;border:1.5px solid var(--border);background:transparent;font-size:12px;cursor:pointer;color:var(--muted);font-family:'Noto Sans SC',sans-serif;transition:all .2s;display:flex;align-items:center;gap:4px;}
   .compose-btn:hover{border-color:var(--accent);color:var(--accent);}
 
   /* Feed */
@@ -63,6 +63,8 @@
   .post-restaurant-emoji{font-size:22px;}
   .post-restaurant-name{font-size:13px;font-weight:600;}
   .post-restaurant-rating{font-size:12px;color:var(--accent);}
+  .wish-mini-btn{border:1.5px solid var(--border);background:var(--card);border-radius:12px;padding:5px 9px;font-size:11px;font-family:'Noto Sans SC',sans-serif;color:var(--ink);cursor:pointer;transition:all .15s;white-space:nowrap;}
+  .wish-mini-btn.on,.wish-mini-btn:hover{background:var(--ink);color:var(--paper);border-color:var(--ink);}
 
   .post-footer{display:flex;align-items:center;gap:4px;padding-top:12px;border-top:1px solid var(--border);}
   .post-action{display:flex;align-items:center;gap:5px;padding:6px 14px;border-radius:20px;border:none;background:transparent;font-size:13px;cursor:pointer;color:var(--muted);font-family:'Noto Sans SC',sans-serif;transition:all .2s;flex:1;justify-content:center;}
@@ -122,9 +124,94 @@
   .compose-submit{width:100%;padding:14px;border-radius:12px;background:var(--accent);color:white;border:none;font-size:15px;cursor:pointer;font-family:'Noto Sans SC',sans-serif;box-shadow:0 4px 16px rgba(232,93,38,.3);transition:all .2s;}
   .compose-submit:hover{background:#d14e1a;}
 
-  .filter-tabs{display:flex;gap:8px;margin-bottom:20px;}
-  .filter-tab{padding:6px 16px;border-radius:20px;border:1.5px solid var(--border);background:var(--card);font-size:13px;cursor:pointer;color:var(--muted);font-family:'Noto Sans SC',sans-serif;transition:all .2s;}
+  .filter-tabs{display:flex;gap:6px;margin:4px 0 16px;flex-wrap:wrap;}
+  .filter-tab{padding:5px 11px;border-radius:14px;border:1.5px solid transparent;background:transparent;font-size:12px;cursor:pointer;color:var(--muted);font-family:'Noto Sans SC',sans-serif;transition:all .2s;}
   .filter-tab.active{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .community-controls{background:rgba(255,252,246,.72);border:1.5px solid var(--border);border-radius:16px;padding:12px 14px;margin-bottom:14px;}
+  .control-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px;}
+  .control-row:last-child{margin-bottom:0;}
+  .control-label{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;min-width:52px;}
+  .community-chip{padding:5px 11px;border-radius:14px;border:1.5px solid var(--border);background:transparent;font-size:12px;color:var(--ink);cursor:pointer;font-family:'Noto Sans SC',sans-serif;transition:all .2s;}
+  .community-chip.active,.community-chip:hover{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .view-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:0;}
+  .view-tab{padding:6px 12px;border-radius:14px;border:1.5px solid var(--border);background:transparent;font-size:12px;cursor:pointer;color:var(--muted);font-family:'Noto Sans SC',sans-serif;transition:all .2s;}
+  .view-tab.active{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .view-intro{background:rgba(255,252,246,.74);border:1.5px solid var(--border);border-radius:16px;padding:14px 16px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:14px;}
+  .view-intro-title{font-family:'Noto Serif SC',serif;font-size:18px;font-weight:900;margin-bottom:6px;}
+  .view-intro-desc{font-size:13px;color:var(--muted);line-height:1.65;}
+  .view-intro-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;flex-shrink:0;}
+  .section-panel{display:none;}
+  .section-panel.active{display:block;}
+  .community-hero{background:linear-gradient(135deg,#1a1209,#3d2010);border-radius:18px;padding:18px 20px;margin-bottom:18px;color:var(--paper);position:relative;overflow:hidden;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:16px;align-items:center;}
+  .community-hero:after{content:"";position:absolute;width:140px;height:140px;border-radius:50%;right:-42px;top:-58px;background:rgba(244,185,66,.12);}
+  .community-kicker{font-size:10px;color:rgba(253,246,227,.55);font-family:'DM Mono',monospace;letter-spacing:1px;margin-bottom:6px;}
+  .community-hero-title{font-family:'Noto Serif SC',serif;font-size:22px;font-weight:900;margin-bottom:5px;position:relative;z-index:1;}
+  .community-hero-desc{font-size:12px;line-height:1.6;color:rgba(253,246,227,.72);max-width:720px;position:relative;z-index:1;}
+  .community-pills{display:flex;gap:8px;flex-wrap:wrap;position:relative;z-index:1;justify-content:flex-end;}
+  .community-pill{padding:6px 12px;border-radius:20px;background:rgba(253,246,227,.08);border:1px solid rgba(253,246,227,.14);font-size:12px;color:var(--paper);}
+  .group-card{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);align-items:center;}
+  .group-card:last-child{border-bottom:none;}
+  .group-icon{width:38px;height:38px;border-radius:12px;background:var(--tag-bg);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+  .group-name{font-size:13px;font-weight:600;}
+  .group-meta{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:2px;}
+  .join-btn{padding:5px 10px;border-radius:14px;border:1.5px solid var(--border);background:transparent;font-size:11px;cursor:pointer;color:var(--accent);font-family:'Noto Sans SC',sans-serif;}
+  .join-btn:hover{background:var(--accent);color:white;border-color:var(--accent);}
+  .groups-main{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .group-tile{background:var(--card);border:1.5px solid var(--border);border-radius:16px;padding:16px;display:flex;gap:12px;align-items:flex-start;transition:all .2s;}
+  .group-tile:hover{border-color:var(--accent);transform:translateY(-2px);}
+  .group-tile-icon{width:44px;height:44px;border-radius:14px;background:var(--tag-bg);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+  .group-tile-name{font-size:15px;font-weight:700;margin-bottom:4px;}
+  .group-tile-meta{font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:10px;}
+  .group-tile-actions{display:flex;gap:8px;flex-wrap:wrap;}
+  .small-btn{padding:6px 11px;border-radius:14px;border:1.5px solid var(--border);background:transparent;font-size:12px;cursor:pointer;color:var(--ink);font-family:'Noto Sans SC',sans-serif;}
+  .small-btn.primary{background:var(--accent);border-color:var(--accent);color:white;}
+  .trust-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
+  .trust-item{background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:12px;font-size:12px;line-height:1.5;}
+  .trust-item strong{display:block;font-size:13px;color:var(--ink);margin-bottom:3px;}
+  .trust-item span{color:var(--muted);}
+  .status-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:12px;background:var(--tag-bg);font-size:11px;color:var(--muted);margin-bottom:8px;}
+  .status-badge.joined{background:#e8f5e9;color:var(--accent3);}
+  .status-badge.pending{background:#fff3e0;color:#b45309;}
+  .detail-page{background:var(--card);border:1.5px solid var(--border);border-radius:18px;padding:20px;}
+  .detail-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:16px;}
+  .detail-title{font-family:'Noto Serif SC',serif;font-size:24px;font-weight:900;margin-bottom:6px;}
+  .detail-sub{font-size:13px;color:var(--muted);line-height:1.6;}
+  .detail-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:14px;}
+  .detail-box{background:var(--paper);border:1.5px solid var(--border);border-radius:14px;padding:14px;}
+  .detail-box-title{font-size:14px;font-weight:700;margin-bottom:10px;}
+  .channel-modal{background:var(--paper);border-radius:20px;padding:24px;width:620px;max-width:95vw;max-height:86vh;overflow-y:auto;transform:scale(.95);transition:transform .3s;}
+  .modal-overlay.open .channel-modal{transform:scale(1);}
+  .flow-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0;}
+  .flow-step{background:var(--tag-bg);border-radius:14px;padding:12px;font-size:12px;line-height:1.55;}
+  .flow-step strong{display:block;font-size:13px;margin-bottom:4px;}
+  .message-preview{background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:12px;margin-top:12px;}
+  .message-line{font-size:12px;color:var(--muted);line-height:1.7;padding:5px 0;border-bottom:1px solid var(--border);}
+  .message-line:last-child{border-bottom:none;}
+  .context-note{border:1.5px solid var(--border);background:#fffaf1;border-radius:14px;padding:12px 14px;margin-bottom:14px;color:var(--muted);font-size:13px;line-height:1.6;display:flex;justify-content:space-between;gap:12px;align-items:center;}
+  .chat-shell{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:16px;margin-top:16px;}
+  .chat-window{background:var(--card);border:1.5px solid var(--border);border-radius:18px;padding:16px;min-height:420px;display:flex;flex-direction:column;gap:12px;}
+  .chat-message{display:flex;gap:10px;align-items:flex-start;}
+  .chat-avatar{width:38px;height:38px;border-radius:12px;background:var(--tag-bg);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .chat-bubble{background:#f7efe2;border-radius:14px;padding:10px 12px;max-width:75%;font-size:13px;line-height:1.65;color:var(--text);}
+  .chat-message.mine{justify-content:flex-end;}
+  .chat-message.mine .chat-bubble{background:#231308;color:var(--paper);}
+  .chat-input{margin-top:auto;display:flex;gap:8px;border-top:1px solid var(--border);padding-top:12px;}
+  .chat-input input{flex:1;border:1.5px solid var(--border);border-radius:999px;background:#fffaf1;padding:10px 14px;font-size:13px;outline:none;}
+  .quick-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+  @media (max-width: 820px) {
+    header{height:auto;min-height:64px;gap:10px;flex-wrap:wrap;padding:10px 16px;}
+    .page-wrap{grid-template-columns:1fr;padding:24px 16px 64px;}
+    .community-hero{grid-template-columns:1fr;}
+    .community-pills{justify-content:flex-start;}
+    .filter-tabs{overflow-x:auto;padding-bottom:4px;}
+    .filter-tab{white-space:nowrap;}
+    .compose-actions{justify-content:flex-start;flex-wrap:wrap;}
+    .groups-main{grid-template-columns:1fr;}
+    .detail-grid,.chat-shell{grid-template-columns:1fr;}
+    .view-intro{display:block;}
+    .view-intro-actions{justify-content:flex-start;margin-top:12px;}
+    .trust-strip,.flow-steps{grid-template-columns:1fr;}
+  }
 </style>
 </head>
 <body>
@@ -135,8 +222,8 @@
       <div class="logo"><span class="logo-main">觅食</span><span class="logo-dot"></span></div>
     </a>
     <div class="nav-tabs">
-      <div class="nav-tab" onclick="location.href='index.html'">美食地图</div>
-      <div class="nav-tab active">校园圈</div>
+      <div class="nav-tab" onclick="goFoodMap()">美食地图</div>
+      <div class="nav-tab active">社区圈</div>
     </div>
   </div>
   <div style="display:flex;gap:10px;align-items:center">
@@ -149,29 +236,110 @@
 
 <div class="page-wrap">
   <div>
-    <!-- 发帖入口 -->
-    <div class="compose-box">
-      <div class="compose-header">
-        <div class="avatar" id="composeAvatar">😊</div>
-        <button class="compose-placeholder" onclick="openCompose()">分享你的觅食体验，或者问问大家推荐什么…</button>
+    <div class="community-hero">
+      <div>
+        <div class="community-kicker">NEARBY COMMUNITY NETWORK</div>
+        <div class="community-hero-title">附近生活情报站</div>
+        <div class="community-hero-desc"><span id="activeCommunityName">上海全市</span> · 把附近热帖、可信拼单和本地社群放到同一张生活地图里，先看真实动态，再决定去哪吃、和谁一起拼。</div>
       </div>
-      <div class="compose-actions">
-        <button class="compose-btn" onclick="openCompose()">📸 晒美食</button>
-        <button class="compose-btn" onclick="openCompose()">⭐ 写评测</button>
-        <button class="compose-btn" onclick="openCompose()">❓ 求推荐</button>
+      <div class="community-pills">
+        <span class="community-pill">📍 位置动态</span>
+        <span class="community-pill">👥 <span id="joinedGroupCount">2 个</span>社群</span>
+        <span class="community-pill">🎟️ <span id="joinedDealCount">2 单</span>拼单</span>
+        <span class="community-pill">💬 求推荐</span>
       </div>
     </div>
 
-    <!-- 筛选 -->
-    <div class="filter-tabs">
-      <div class="filter-tab active" onclick="setTab(this,'all')">全部动态</div>
-      <div class="filter-tab" onclick="setTab(this,'review')">🍽️ 美食评测</div>
-      <div class="filter-tab" onclick="setTab(this,'ask')">❓ 求推荐</div>
-      <div class="filter-tab" onclick="setTab(this,'share')">📸 晒图</div>
+    <div class="community-controls">
+      <div class="control-row">
+        <span class="control-label">社区范围</span>
+        <button class="community-chip active" onclick="setCommunity(this,'上海全市')">上海全市</button>
+        <button class="community-chip" onclick="setCommunity(this,'黄浦区')">黄浦区</button>
+        <button class="community-chip" onclick="setCommunity(this,'杨浦区')">杨浦区</button>
+        <button class="community-chip" onclick="setCommunity(this,'静安区')">静安区</button>
+        <button class="community-chip" onclick="setCommunity(this,'徐汇区')">徐汇区</button>
+        <button class="community-chip" onclick="setCommunity(this,'长宁区')">长宁区</button>
+        <button class="community-chip" onclick="setCommunity(this,'普陀区')">普陀区</button>
+        <button class="community-chip" onclick="setCommunity(this,'虹口区')">虹口区</button>
+        <button class="community-chip" onclick="setCommunity(this,'浦东新区')">浦东新区</button>
+        <button class="community-chip" onclick="setCommunity(this,'闵行区')">闵行区</button>
+      </div>
+      <div class="control-row">
+        <span class="control-label">内容</span>
+        <div class="view-tabs">
+          <button class="view-tab active" data-view="posts" onclick="setView(this,'posts')">💬 帖子</button>
+          <button class="view-tab" data-view="groups" onclick="setView(this,'groups')">👥 社群</button>
+          <button class="view-tab" data-view="deals" onclick="setView(this,'deals')">🎟️ 团购</button>
+        </div>
+      </div>
     </div>
 
-    <!-- 动态列表 -->
-    <div class="feed" id="feed"></div>
+    <div class="section-panel active" id="postsPanel">
+      <!-- 发帖入口 -->
+      <div class="compose-box">
+        <div class="compose-header">
+          <div class="avatar" id="composeAvatar">😊</div>
+          <button class="compose-placeholder" onclick="openCompose()">分享附近好店、发起拼单，或者问问社区推荐什么…</button>
+        </div>
+        <div class="compose-actions">
+          <button class="compose-btn" onclick="openCompose()">晒美食</button>
+          <button class="compose-btn" onclick="selectComposeShortcut('groupbuy')">发团购</button>
+          <button class="compose-btn" onclick="selectComposeShortcut('ask')">求推荐</button>
+        </div>
+      </div>
+
+      <!-- 筛选 -->
+      <div class="filter-tabs">
+        <div class="filter-tab active" onclick="setTab(this,'all')">全部动态</div>
+        <div class="filter-tab" onclick="setTab(this,'review')">美食评测</div>
+        <div class="filter-tab" onclick="setTab(this,'ask')">求推荐</div>
+        <div class="filter-tab" onclick="setTab(this,'groupbuy')">团购拼单</div>
+        <div class="filter-tab" onclick="setTab(this,'share')">晒图</div>
+      </div>
+
+      <!-- 动态列表 -->
+      <div class="feed" id="feed"></div>
+    </div>
+
+    <div class="section-panel" id="groupsPanel">
+      <div class="view-intro">
+        <div>
+          <div class="view-intro-title">社区群</div>
+          <div class="view-intro-desc">按社区和主题组织附近关系，进入群主页后可以看公告、群聊、群内拼单和近期互动。</div>
+        </div>
+        <div class="view-intro-actions">
+          <button class="small-btn primary" onclick="openGroupModal('create-group')">创建社区群</button>
+          <button class="small-btn" onclick="clearDealContext();setViewByName('deals')">全部团购</button>
+        </div>
+      </div>
+      <div class="groups-main" id="groupsMain"></div>
+    </div>
+
+    <div class="section-panel" id="dealsPanel">
+      <div class="view-intro">
+        <div>
+          <div class="view-intro-title">团购拼单</div>
+          <div class="view-intro-desc" id="dealContextText">展示当前社区可参与拼单，优先看进度、履约方式和退款规则。</div>
+        </div>
+        <div class="view-intro-actions">
+          <button class="small-btn primary" onclick="selectComposeShortcut('groupbuy')">发起团购</button>
+          <button class="small-btn" onclick="setViewByName('groups')">找社群</button>
+        </div>
+      </div>
+      <div class="groups-main" id="dealsMain"></div>
+    </div>
+
+    <div class="section-panel" id="groupRoomPanel">
+      <div class="detail-page" id="groupRoom"></div>
+    </div>
+
+    <div class="section-panel" id="groupChatPanel">
+      <div class="detail-page" id="groupChat"></div>
+    </div>
+
+    <div class="section-panel" id="dealRoomPanel">
+      <div class="detail-page" id="dealRoom"></div>
+    </div>
   </div>
 
   <!-- 侧边栏 -->
@@ -180,19 +348,34 @@
       <div class="side-title">🔥 热门话题</div>
       <div id="hotTopics"></div>
     </div>
+    <div class="side-box" id="groups">
+      <div class="side-title">👥 社区群 / 团购</div>
+      <div id="communityGroups"></div>
+    </div>
     <div class="side-box">
       <div class="side-title">👥 活跃吃货</div>
       <div id="activeUsers"></div>
     </div>
     <div class="side-box" style="background:linear-gradient(135deg,#1a1209,#2d1a05);color:var(--paper)">
-      <div style="font-family:'Noto Serif SC',serif;font-size:15px;font-weight:700;margin-bottom:8px">📢 校园圈守则</div>
+      <div style="font-family:'Noto Serif SC',serif;font-size:15px;font-weight:700;margin-bottom:8px">📢 社区圈守则</div>
       <div style="font-size:12px;line-height:1.8;color:rgba(253,246,227,.7)">
         1. 真实分享，拒绝虚假广告<br>
         2. 友善互动，不恶意刷屏<br>
-        3. 附上餐厅标签，方便大家找到<br>
-        4. 图片清晰，让美食更诱人 🍜
+        3. 发团购请写清时间、地点和人数<br>
+        4. 绑定地点，让附近的人更快找到 🍜
       </div>
     </div>
+  </div>
+</div>
+
+<!-- 社群 / 团购承接 Modal -->
+<div class="modal-overlay" id="channelModal" onclick="if(event.target===this)closeChannelModal()">
+  <div class="channel-modal">
+    <div class="modal-title">
+      <span id="channelModalTitle">社区群</span>
+      <button class="modal-close-btn" onclick="closeChannelModal()">✕</button>
+    </div>
+    <div id="channelModalBody"></div>
   </div>
 </div>
 
@@ -210,6 +393,7 @@
         <div class="compose-opt sel" onclick="selectType(this,'review')">🍽️ 美食评测</div>
         <div class="compose-opt" onclick="selectType(this,'ask')">❓ 求推荐</div>
         <div class="compose-opt" onclick="selectType(this,'share')">📸 晒图</div>
+        <div class="compose-opt" onclick="selectType(this,'groupbuy')">🎟️ 团购拼单</div>
         <div class="compose-opt" onclick="selectType(this,'checkin')">📍 打卡</div>
       </div>
     </div>
@@ -225,50 +409,111 @@
 <script>
 // ── 示例数据 ────────────────────────────────────
 const POSTS = [
-  { id:1, type:'review', avatar:'🍜', username:'小米同学', campus:'理工大·计算机系', time:'10分钟前',
-    content:'重庆秀山小面真的绝了！今天点了牛肉面，汤底鲜辣，牛肉软烂入味，面条很有嚼劲。早上7点去还排了15分钟的队，完全值得！强烈推荐给没去过的同学 🔥',
+  { id:1, type:'review', avatar:'🍜', username:'杨浦邻居', campus:'杨浦区', time:'10分钟前',
+    content:'重庆秀山小面真的绝了！今天点了牛肉面，汤底鲜辣，牛肉软烂入味，面条很有嚼劲。早上7点去还排了15分钟的队，完全值得！适合附近上班前快速解决一顿 🔥',
     restaurant:{emoji:'🍜', name:'重庆秀山小面', rating:4.9, id:2},
-    tags:['#小面推荐','#大学城美食','#早餐首选'],
+    tags:['#小面推荐','#杨浦早餐','#少踩雷'],
     images:['🍜','📸'], likes:48, comments:12, liked:false },
-  { id:2, type:'ask', avatar:'🤔', username:'爱吃的阿宝', campus:'师范大·中文系', time:'32分钟前',
-    content:'明天是室友生日，想找一个适合6-8人聚餐、有生日服务、人均60-80元的餐厅，最好在大学城内或附近。有没有推荐的？求助！🙏',
+  { id:2, type:'groupbuy', avatar:'🎟️', username:'团购小队长', campus:'徐汇区', time:'22分钟前',
+    content:'今晚 19:30 凑川渝人家火锅冒菜 4 人团，现在还差 1 人。人均预计 42 左右，想吃毛肚和鸭肠的可以一起，集合点在徐汇区路口。',
+    restaurant:{emoji:'🫕', name:'川渝人家·火锅冒菜', rating:4.8, id:9},
+    tags:['#团购拼单','#今晚饭局','#火锅冒菜'],
+    images:['🫕'], likes:36, comments:18, liked:false },
+  { id:3, type:'ask', avatar:'🤔', username:'刚搬来小陈', campus:'静安区', time:'32分钟前',
+    content:'刚搬到这边，想找一个适合4-6人聚餐、有包间或不太吵、人均60-80元的餐厅，最好吃完还能附近散步。有没有推荐的？求助！🙏',
     restaurant:null,
     tags:['#求推荐','#聚餐','#生日'],
     images:[], likes:23, comments:31, liked:false },
-  { id:3, type:'share', avatar:'☕', username:'咖啡星人', campus:'华师大·设计系', time:'1小时前',
-    content:'豆舍咖啡的桂花冷萃真的好喝！坐在落地窗边写作业，一下午过去了。WiFi很稳，插座也多，强推给需要在外面高效学习的同学。附赠一张今天的工位 ✨',
+  { id:4, type:'share', avatar:'☕', username:'咖啡星人', campus:'静安区', time:'1小时前',
+    content:'豆舍咖啡的桂花冷萃真的好喝！坐在落地窗边处理工作，一下午过去了。WiFi很稳，插座也多，强推给需要在外面高效办公/学习的人。附赠一张今天的工位 ✨',
     restaurant:{emoji:'☕', name:'Café Beanery 豆舍咖啡', rating:4.7, id:10},
-    tags:['#咖啡推荐','#学习圣地','#豆舍'],
+    tags:['#咖啡推荐','#办公友好','#豆舍'],
     images:['☕','🌸','💻'], likes:89, comments:24, liked:true },
-  { id:4, type:'checkin', avatar:'🥩', username:'烤肉爱好者', campus:'暨南大·金融系', time:'2小时前',
+  { id:5, type:'checkin', avatar:'🥩', username:'烤肉爱好者', campus:'徐汇区', time:'2小时前',
     content:'韩尚宫五花肉今天超级香！老板娘说猪肉是今早刚到的，果然新鲜，烤出来焦香四溢。泡菜是自制的，酸辣爽口完全不像外面买的。4个人吃了3盘五花肉哈哈哈，太能吃了 😂',
     restaurant:{emoji:'🥩', name:'韩尚宫韩式烤肉', rating:4.5, id:7},
     tags:['#韩式烤肉','#五花肉','#打卡'],
     images:['🥩','🥬'], likes:67, comments:18, liked:false },
-  { id:5, type:'review', avatar:'🥗', username:'健身达人Lisa', campus:'理工大·体育学院', time:'3小时前',
+  { id:6, type:'review', avatar:'🥗', username:'健身达人Lisa', campus:'杨浦区', time:'3小时前',
     content:'减脂期的福音！绿·植物基轻食的超级食物碗，鸡胸肉+藜麦+牛油果+各种蔬菜，营养均衡热量只有480卡。最重要是好吃！不像其他轻食吃完还很饿，这个真的很扛饿。已经连续吃了两周的午餐了💪',
     restaurant:{emoji:'🥗', name:'绿·植物基轻食', rating:4.6, id:8},
     tags:['#轻食','#减脂','#健康饮食'],
     images:['🥗'], likes:112, comments:45, liked:false },
+  { id:7, type:'ask', avatar:'🌙', username:'夜归人', campus:'浦东新区', time:'4小时前',
+    content:'晚上11点后还有哪些店能堂食？希望不要太油，走路15分钟内，最好有热汤。浦东这边刚搬来，求附近居民指路。',
+    restaurant:null,
+    tags:['#深夜求推荐','#浦东','#热汤'],
+    images:[], likes:19, comments:16, liked:false },
+  { id:8, type:'groupbuy', avatar:'☕', username:'咖啡星人', campus:'静安区', time:'今天 14:10',
+    content:'豆舍咖啡买二送一还差一杯，15:30前自提。我这边要燕麦拿铁，另一个人可以任选同价饮品，适合附近办公的搭一下。',
+    restaurant:{emoji:'☕', name:'Café Beanery 豆舍咖啡', rating:4.7, id:10},
+    tags:['#咖啡拼单','#买二送一','#办公搭子'],
+    images:['☕'], likes:41, comments:9, liked:false },
+  { id:9, type:'review', avatar:'🛵', username:'外卖互助员', campus:'浦东新区', time:'昨天',
+    content:'浦东这边点一笼小确幸很稳，24小时营业，云吞面打包不容易坨。建议备注汤面分装，骑手一般会照做。',
+    restaurant:{emoji:'🧋', name:'一笼小确幸·港式茶餐厅', rating:4.7, id:6},
+    tags:['#外卖友好','#宵夜','#云吞面'],
+    images:['🥣'], likes:58, comments:13, liked:false },
 ];
 
 const HOT_TOPICS = [
   {text:'重庆秀山小面到底有多好吃？', count:'2.3k热度'},
-  {text:'大学城宵夜地图2026最新版', count:'1.8k热度'},
+  {text:'杨浦夜宵地图2026最新版', count:'1.8k热度'},
+  {text:'今晚有哪些拼单团购？', count:'1.4k热度'},
   {text:'一个人吃饭推荐哪些？', count:'1.2k热度'},
   {text:'豆舍咖啡vs其他咖啡馆对比', count:'986热度'},
-  {text:'食堂vs校外，你选哪个？', count:'743热度'},
+  {text:'附近可办公咖啡馆避雷', count:'743热度'},
 ];
 
 const ACTIVE_USERS = [
-  {emoji:'🍜', name:'小米同学', campus:'理工大', posts:32},
-  {emoji:'☕', name:'咖啡星人', campus:'华师大', posts:28},
-  {emoji:'🥗', name:'健身达人Lisa', campus:'理工大', posts:21},
-  {emoji:'🤔', name:'爱吃的阿宝', campus:'师范大', posts:19},
+  {emoji:'🍜', name:'杨浦邻居', campus:'杨浦区', posts:32},
+  {emoji:'🎟️', name:'团购小队长', campus:'徐汇区', posts:28},
+  {emoji:'☕', name:'咖啡星人', campus:'静安区', posts:21},
+  {emoji:'🤔', name:'刚搬来小陈', campus:'静安区', posts:19},
 ];
+
+const COMMUNITY_GROUPS = [
+  {emoji:'🌙', name:'杨浦夜宵拼单群', community:'杨浦区', meta:'128人 · 今晚3个团购', desc:'晚饭后和夜宵拼单集中地，适合火锅、烧烤、小龙虾。', joined:true, tags:['夜宵','火锅','拼单'], active:'19:00-01:00', trust:96, members:['团购小队长','杨浦邻居','夜归人'], announcement:'入群请备注常驻楼栋，拼单需写清截止时间和集合点。', dealRefs:['小面早餐券 10 张团','轻食午餐周卡拼团']},
+  {emoji:'☕', name:'附近咖啡办公搭子', community:'静安区', meta:'76人 · 5条新动态', desc:'找能坐、能充电、能安静办公的咖啡馆。', joined:true, tags:['咖啡','办公','安静'], active:'10:00-18:00', trust:92, members:['咖啡星人','刚搬来小陈','设计打工人'], announcement:'每天 10 点同步可办公座位和插座情况。', dealRefs:['豆舍咖啡买二送一']},
+  {emoji:'🥗', name:'减脂餐团购小队', community:'杨浦区', meta:'52人 · 每日午餐拼单', desc:'轻食、沙拉、低卡餐团购，工作日中午最活跃。', joined:false, tags:['轻食','午餐','低卡'], active:'11:00-13:30', trust:89, members:['健身达人Lisa','团购小队长'], announcement:'拼单默认工作日 11:30 截止，未成团自动取消。', dealRefs:['轻食午餐周卡拼团']},
+  {emoji:'🛵', name:'浦东外卖互助', community:'浦东新区', meta:'91人 · 满减凑单', desc:'凑满减、拼配送费、帮忙带一份。', joined:false, tags:['外卖','满减','互助'], active:'全天', trust:88, members:['外卖互助员','夜归人'], announcement:'互助带餐只接受同社区自提，避免跨区纠纷。', dealRefs:['港式茶餐厅宵夜免配送']},
+  {emoji:'🍲', name:'徐汇聚餐组局群', community:'徐汇区', meta:'64人 · 周末饭局', desc:'4-8人聚餐、生日饭、临时约饭。', joined:false, tags:['聚餐','约饭','包间'], active:'周五-周日', trust:91, members:['烤肉爱好者','刚搬来小陈'], announcement:'聚餐组局请提前写清预算、人均和口味禁忌。', dealRefs:['川渝人家 4 人冒菜团']},
+  {emoji:'🍜', name:'杨浦早餐情报站', community:'杨浦区', meta:'44人 · 今日6条排队情报', desc:'早餐排队、营业变化、限量售罄提醒。', joined:false, tags:['早餐','排队','便宜'], active:'06:30-10:00', trust:94, members:['杨浦邻居','外卖互助员'], announcement:'早高峰消息请尽量带时间和排队人数。', dealRefs:['小面早餐券 10 张团']},
+];
+
+const GROUP_DEALS = [
+  {emoji:'🫕', title:'川渝人家 4 人冒菜团', community:'徐汇区', meta:'还差1人 · 19:30 截止', desc:'人均约42，毛肚/鸭肠/黄喉组合，集合点徐汇路口。', joined:false, initiator:'团购小队长', trust:96, progress:'3/4', refund:'未满4人自动取消', pickup:'徐汇路口 19:25 集合', tags:['火锅','晚餐','需到店']},
+  {emoji:'🥗', title:'轻食午餐周卡拼团', community:'杨浦区', meta:'已成团 12/20 · 明日配送', desc:'超级食物碗、鸡胸肉沙拉、燕麦拿铁可选。', joined:true, initiator:'健身达人Lisa', trust:93, progress:'12/20', refund:'今晚22点前可退', pickup:'杨浦区自提柜', tags:['轻食','午餐','已成团']},
+  {emoji:'☕', title:'豆舍咖啡买二送一', community:'静安区', meta:'下午茶 · 14:00-17:00', desc:'适合办公搭子一起下单，支持自提。', joined:true, initiator:'咖啡星人', trust:92, progress:'2/3', refund:'未凑满自动取消', pickup:'豆舍咖啡前台自提', tags:['咖啡','下午茶','自提']},
+  {emoji:'🍜', title:'小面早餐券 10 张团', community:'杨浦区', meta:'剩余6份 · 明早可用', desc:'重庆秀山小面早餐券，适合常吃早餐的人囤。', joined:false, initiator:'杨浦邻居', trust:94, progress:'4/10', refund:'未成团自动退', pickup:'线上券码', tags:['早餐','券码','便宜']},
+  {emoji:'🧋', title:'港式茶餐厅宵夜免配送', community:'浦东新区', meta:'今晚22点后 · 还差¥38', desc:'凑满减和免配送，适合云吞面、菠萝油、奶茶。', joined:false, initiator:'外卖互助员', trust:88, progress:'¥122/160', refund:'下单前可退出', pickup:'浦东新区门口', tags:['外卖','宵夜','满减']},
+];
+
+let activeCommunity = '上海全市';
+let activePostType = 'all';
+let activeDealContext = null;
+
+const GROUP_MESSAGES = {
+  '杨浦夜宵拼单群': [
+    {from:'团购小队长', avatar:'🎟️', text:'今晚 19:30 的冒菜团还差 1 人，能到徐汇路口集合的优先。'},
+    {from:'杨浦邻居', avatar:'🍜', text:'我 20 分钟内能到，想加一份鸭肠，预算 45 内。'},
+    {from:'系统', avatar:'📌', text:'轻食午餐周卡拼团已成团，明日 11:50 放到杨浦自提柜。'},
+    {from:'我', avatar:'😊', mine:true, text:'我先看一下团单规则，可以的话今晚参与。'}
+  ],
+  '附近咖啡办公搭子': [
+    {from:'咖啡星人', avatar:'☕', text:'豆舍靠窗位 2 张，插座可用，下午人不多。'},
+    {from:'设计打工人', avatar:'💻', text:'有人想拼买二送一吗？我点燕麦拿铁。'},
+    {from:'系统', avatar:'📌', text:'豆舍咖啡买二送一还有 1 杯可拼，17:00 前自提。'},
+    {from:'我', avatar:'😊', mine:true, text:'我可以 15:30 过去，自提没问题。'}
+  ]
+};
 
 // ── 渲染 ────────────────────────────────────────
 function renderFeed(posts) {
+  if (!posts.length) {
+    document.getElementById('feed').innerHTML = '<div class="post-card">这个社区暂时还没有相关动态。可以先发一条求推荐，或者切到「社区群」看看有没有可加入的群。</div>';
+    return;
+  }
   document.getElementById('feed').innerHTML = posts.map((p,i) => `
     <div class="post-card" style="animation-delay:${i*0.07}s">
       <div class="post-header">
@@ -288,12 +533,13 @@ function renderFeed(posts) {
       </div>` : ''}
       ${p.tags.map(t => `<span class="post-tag">${t}</span>`).join('')}
       ${p.restaurant ? `
-        <div class="post-restaurant" onclick="location.href='index.html'">
+        <div class="post-restaurant" onclick="goFoodMap()">
           <span class="post-restaurant-emoji">${p.restaurant.emoji}</span>
           <div>
             <div class="post-restaurant-name">${p.restaurant.name}</div>
             <div class="post-restaurant-rating">★ ${p.restaurant.rating} · 点击查看详情</div>
           </div>
+          <button class="wish-mini-btn ${isWishlisted(p.restaurant.id) ? 'on' : ''}" data-wish-id="${p.restaurant.id}" onclick='event.stopPropagation();toggleWishlist(${JSON.stringify(normalizeWishlistRestaurant(p.restaurant)).replace(/'/g, "&apos;")}, this)'>${isWishlisted(p.restaurant.id) ? '已加入' : '心愿单'}</button>
           <span style="margin-left:auto;color:var(--muted);font-size:12px">→</span>
         </div>` : ''}
       <div class="post-footer">
@@ -323,8 +569,82 @@ function renderFeed(posts) {
     </div>`).join('');
 }
 
-function typeLabel(t){return{review:'美食评测',ask:'求推荐',share:'晒图',checkin:'打卡'}[t]||'动态';}
-function typeColor(t){return{review:'#e85d26',ask:'#2d7a4f',share:'#f4b942',checkin:'#7c5cbf'}[t]||'#8a7a6a';}
+const WISHLIST_KEY = "campus_food_wishlist";
+function getWishlist() {
+  return JSON.parse(localStorage.getItem(WISHLIST_KEY) || "[]");
+}
+function setWishlist(items) {
+  localStorage.setItem(WISHLIST_KEY, JSON.stringify(items));
+  refreshWishlistUI();
+}
+function isWishlisted(id) {
+  return getWishlist().some(r => Number(r.id) === Number(id));
+}
+function normalizeWishlistRestaurant(r) {
+  return {
+    id: r.id,
+    name: r.name,
+    emoji: r.emoji,
+    avg_rating: r.avg_rating || r.rating || 0,
+    cuisine: r.cuisine || "",
+    tags: Array.isArray(r.tags) ? r.tags.join(",") : (r.tags || ""),
+    price_min: r.price_min || 0,
+    price_max: r.price_max || 0,
+    latitude: r.latitude,
+    longitude: r.longitude,
+  };
+}
+function toggleWishlist(r, btn) {
+  const items = getWishlist();
+  const idx = items.findIndex(item => Number(item.id) === Number(r.id));
+  if (idx >= 0) {
+    items.splice(idx, 1);
+    showToast("已从心愿单移除");
+  } else {
+    items.unshift(normalizeWishlistRestaurant(r));
+    showToast("已加入心愿单");
+  }
+  setWishlist(items);
+  if (btn) {
+    const on = idx < 0;
+    btn.classList.toggle("on", on);
+    btn.textContent = on ? "已加入" : "心愿单";
+  }
+}
+function refreshWishlistUI() {
+  document.querySelectorAll("[data-wish-id]").forEach(btn => {
+    const on = isWishlisted(btn.dataset.wishId);
+    btn.classList.toggle("on", on);
+    btn.textContent = on ? "已加入" : "心愿单";
+  });
+}
+
+function communityMatch(item) {
+  return activeCommunity === '上海全市' || item.community === activeCommunity || item.campus === activeCommunity;
+}
+
+function dealContextScore(deal) {
+  if (!activeDealContext) return 0;
+  const group = COMMUNITY_GROUPS.find(g => g.name === activeDealContext);
+  if (!group) return 0;
+  const byRef = group.dealRefs?.includes(deal.title) ? 80 : 0;
+  const byCommunity = deal.community === group.community ? 20 : 0;
+  const byTags = deal.tags.filter(t => group.tags.includes(t)).length * 8;
+  return byRef + byCommunity + byTags;
+}
+
+function getContextDeals() {
+  const deals = GROUP_DEALS.filter(communityMatch);
+  if (!activeDealContext) return deals;
+  return deals.sort((a,b) => dealContextScore(b) - dealContextScore(a));
+}
+
+function getFilteredPosts() {
+  return POSTS.filter(p => communityMatch(p)).filter(p => activePostType === 'all' || p.type === activePostType);
+}
+
+function typeLabel(t){return{review:'美食评测',ask:'求推荐',share:'晒图',checkin:'打卡',groupbuy:'团购拼单'}[t]||'动态';}
+function typeColor(t){return{review:'#e85d26',ask:'#2d7a4f',share:'#f4b942',checkin:'#7c5cbf',groupbuy:'#b45309'}[t]||'#8a7a6a';}
 
 function renderHotTopics() {
   document.getElementById('hotTopics').innerHTML = HOT_TOPICS.map((t,i) => `
@@ -345,6 +665,348 @@ function renderActiveUsers() {
       </div>
       <button class="follow-btn" onclick="this.classList.toggle('following');this.textContent=this.classList.contains('following')?'已关注':'关注'">关注</button>
     </div>`).join('');
+}
+
+function renderCommunityGroups() {
+  const groups = COMMUNITY_GROUPS.filter(communityMatch);
+  document.getElementById('communityGroups').innerHTML = groups.length ? groups.slice(0,4).map(g => `
+    <div class="group-card">
+      <div class="group-icon">${g.emoji}</div>
+      <div style="flex:1">
+        <div class="group-name">${g.name}</div>
+        <div class="group-meta">${g.community} · ${g.meta}</div>
+      </div>
+      <button class="join-btn" onclick="${g.joined ? `openGroupChat('${g.name}')` : `joinGroup('${g.name}')`}">${g.joined ? '群聊' : '加入'}</button>
+    </div>`).join('') : '<div style="font-size:12px;color:var(--muted);line-height:1.7">当前社区还没有活跃群，去主栏发起一个吧。</div>';
+}
+
+function renderGroupsMain() {
+  const groups = COMMUNITY_GROUPS.filter(communityMatch);
+  document.getElementById('groupsMain').innerHTML = groups.map(g => `
+    <div class="group-tile">
+      <div class="group-tile-icon">${g.emoji}</div>
+      <div style="flex:1">
+        <div class="status-badge ${g.joined ? 'joined' : ''}">${g.joined ? '已加入' : '活跃社群'} · 信用 ${g.trust}</div>
+        <div class="group-tile-name">${g.name}</div>
+        <div class="group-tile-meta">${g.community} · ${g.meta} · 活跃 ${g.active}<br>${g.desc}</div>
+        <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px">${g.tags.map(t => `<span class="post-tag">#${t}</span>`).join('')}</div>
+        <div class="group-tile-actions">
+          <button class="small-btn primary" onclick="${g.joined ? `openGroupChat('${g.name}')` : `joinGroup('${g.name}')`}">${g.joined ? '看群聊' : '申请加入'}</button>
+          <button class="small-btn" onclick="openGroupPage('${g.name}')">群主页</button>
+          <button class="small-btn" onclick="openGroupDeals('${g.name}')">看团购</button>
+        </div>
+      </div>
+    </div>`).join('') || '<div class="post-card">这个社区暂时还没有活跃群，可以先发帖召集一个。</div>';
+}
+
+function renderDealsMain() {
+  const deals = getContextDeals();
+  const group = COMMUNITY_GROUPS.find(g => g.name === activeDealContext);
+  const text = document.getElementById('dealContextText');
+  if (text) {
+    text.textContent = group
+      ? `优先展示「${group.name}」相关拼单，其次展示同社区可参与团购。`
+      : '展示当前社区可参与拼单，优先看进度、履约方式和退款规则。';
+  }
+  document.getElementById('dealsMain').innerHTML = deals.map(d => `
+    <div class="group-tile">
+      <div class="group-tile-icon">${d.emoji}</div>
+      <div style="flex:1">
+        <div class="status-badge ${d.joined ? 'joined' : 'pending'}">${d.joined ? '已参团' : '招募中'} · 信用 ${d.trust}${dealContextScore(d) ? ' · 群相关' : ''}</div>
+        <div class="group-tile-name">${d.title}</div>
+        <div class="group-tile-meta">${d.community} · ${d.meta} · ${d.progress}<br>${d.desc}</div>
+        <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px">${d.tags.map(t => `<span class="post-tag">#${t}</span>`).join('')}</div>
+        <div class="group-tile-actions">
+          <button class="small-btn primary" onclick="${d.joined ? `openDealPage('${d.title}')` : `joinDeal('${d.title}')`}">${d.joined ? '查看团单' : '我要参与'}</button>
+          <button class="small-btn" onclick="openDealPage('${d.title}')">详情规则</button>
+          <button class="small-btn" onclick="openCompose()">发起类似拼单</button>
+        </div>
+      </div>
+    </div>`).join('') || '<div class="post-card">这个社区暂时没有团购，去帖子流发起一个吧。</div>';
+}
+
+function renderMyState() {
+  const joinedGroups = COMMUNITY_GROUPS.filter(g => g.joined).length;
+  const joinedDeals = GROUP_DEALS.filter(d => d.joined).length;
+  document.getElementById('joinedGroupCount').textContent = `${joinedGroups} 个`;
+  document.getElementById('joinedDealCount').textContent = `${joinedDeals} 单`;
+}
+
+function openGroupDeals(name) {
+  const group = COMMUNITY_GROUPS.find(g => g.name === name);
+  if (!group) return;
+  activeDealContext = group.name;
+  activeCommunity = group.community;
+  document.getElementById('activeCommunityName').textContent = activeCommunity;
+  document.querySelectorAll('.community-chip').forEach(chip => {
+    chip.classList.toggle('active', chip.textContent.trim() === activeCommunity);
+  });
+  renderFeed(getFilteredPosts());
+  renderCommunityGroups();
+  renderGroupsMain();
+  renderDealsMain();
+  setViewByName('deals');
+}
+
+function clearDealContext() {
+  activeDealContext = null;
+  renderDealsMain();
+}
+
+function joinGroup(name) {
+  openGroupModal(name, true);
+}
+
+function joinDeal(name) {
+  openDealModal(name, true);
+}
+
+function openGroupModal(name, applying = false) {
+  if (name === 'create-group') {
+    document.getElementById('channelModalTitle').textContent = '👥 创建社区群';
+    document.getElementById('channelModalBody').innerHTML = `
+      <div class="group-tile-meta">${activeCommunity} · 新群筹备<br>选择主题、社区和入群规则后即可发起，后续可承接群聊、拼单和活动。</div>
+      <div class="flow-steps">
+        <div class="flow-step"><strong>1. 选择主题</strong>夜宵拼单、咖啡办公、减脂餐、外卖互助或自定义。</div>
+        <div class="flow-step"><strong>2. 设置规则</strong>入群问题、发广告限制、拼单格式和爽约处理。</div>
+        <div class="flow-step"><strong>3. 发布到社区</strong>生成群主页，并在帖子流里发出招募动态。</div>
+      </div>
+      <div class="message-preview">
+        <div class="side-title" style="margin-bottom:8px">创建后会生成</div>
+        <div class="message-line">群主页：公告、成员、近期互动、群内团购。</div>
+        <div class="message-line">招募帖：自动绑定 ${activeCommunity}，可被 Agent 推荐给附近用户。</div>
+        <div class="message-line">群规则：入群审核、团购履约和投诉记录。</div>
+      </div>
+      <div class="group-tile-actions" style="margin-top:16px">
+        <button class="small-btn primary" onclick="confirmChannelAction('新社区群', 'create')">确认创建</button>
+        <button class="small-btn" onclick="closeChannelModal()">稍后再说</button>
+      </div>`;
+    document.getElementById('channelModal').classList.add('open');
+    return;
+  }
+  const group = COMMUNITY_GROUPS.find(g => g.name === name) || {
+    emoji: '👥', name: '创建社区群', community: activeCommunity, meta: '新群筹备中', desc: '选择主题、社区和入群规则后即可发起。'
+  };
+  document.getElementById('channelModalTitle').textContent = `${group.emoji} ${group.name}`;
+  document.getElementById('channelModalBody').innerHTML = `
+    <div class="group-tile-meta">${group.community} · ${group.meta}<br>${group.desc}</div>
+    <div class="flow-steps">
+      <div class="flow-step"><strong>1. 申请加入</strong>查看群公告和社区范围，提交申请，避免无关刷屏。</div>
+      <div class="flow-step"><strong>2. 进入群主页</strong>可看公告、近期拼单、常去店和成员发起的活动。</div>
+      <div class="flow-step"><strong>3. 群内互动</strong>发起约饭、拼单、投票选店，内容可回流到社区帖子。</div>
+    </div>
+    <div class="message-preview">
+      <div class="side-title" style="margin-bottom:8px">近期互动预览</div>
+      <div class="message-line">团购小队长：今晚 19:30 还有一个火锅拼单名额。</div>
+      <div class="message-line">杨浦邻居：昨天那家小面早上排队 15 分钟，建议 8 点前去。</div>
+      <div class="message-line">咖啡星人：豆舍靠窗位今天下午还有空位，适合办公。</div>
+    </div>
+    <div class="group-tile-actions" style="margin-top:16px">
+      <button class="small-btn primary" onclick="confirmChannelAction('${group.name}', 'group')">${applying ? '确认申请加入' : '申请加入'}</button>
+      <button class="small-btn" onclick="closeChannelModal();openGroupDeals('${group.name}')">看群内团购</button>
+      <button class="small-btn" onclick="closeChannelModal()">稍后再说</button>
+    </div>`;
+  document.getElementById('channelModal').classList.add('open');
+}
+
+function openGroupPage(name) {
+  const group = COMMUNITY_GROUPS.find(g => g.name === name);
+  if (!group) return;
+  document.getElementById('groupRoom').innerHTML = `
+    <div class="detail-head">
+      <div>
+        <div class="status-badge ${group.joined ? 'joined' : ''}">${group.joined ? '已加入' : '未加入'} · ${group.community} · 信用 ${group.trust}</div>
+        <div class="detail-title">${group.emoji} ${group.name}</div>
+        <div class="detail-sub">${group.desc}<br>公告：${group.announcement}</div>
+      </div>
+      <div class="group-tile-actions">
+        <button class="small-btn" onclick="setViewByName('groups')">返回社群</button>
+        <button class="small-btn primary" onclick="${group.joined ? `openGroupChat('${group.name}')` : `joinGroup('${group.name}')`}">${group.joined ? '看群聊' : '申请加入'}</button>
+      </div>
+    </div>
+    <div class="detail-grid">
+      <div class="detail-box">
+        <div class="detail-box-title">群内动态</div>
+        <div class="message-line">团购小队长：今晚火锅冒菜还差 1 人，19:30 截止。</div>
+        <div class="message-line">杨浦邻居：小面早上 8 点前不用排太久，8:20 后队伍变长。</div>
+        <div class="message-line">系统：本群近 7 天发起 ${group.joined ? 6 : 3} 个拼单，完成率 92%。</div>
+      </div>
+      <div class="detail-box">
+        <div class="detail-box-title">成员与标签</div>
+        <div class="group-tile-meta">活跃时间：${group.active}<br>核心成员：${group.members.join('、')}</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px">${group.tags.map(t => `<span class="post-tag">#${t}</span>`).join('')}</div>
+      </div>
+      <div class="detail-box">
+        <div class="detail-box-title">群内团购</div>
+        ${GROUP_DEALS.filter(d => group.dealRefs?.includes(d.title) || d.community === group.community).slice(0,3).map(d => `<div class="message-line" onclick="openDealPage('${d.title}')" style="cursor:pointer">${d.emoji} ${d.title} · ${d.progress} · ${d.meta}</div>`).join('') || '<div class="message-line">暂无团购</div>'}
+      </div>
+      <div class="detail-box">
+        <div class="detail-box-title">可承接互动</div>
+        <div class="group-tile-actions">
+          <button class="small-btn primary" onclick="selectComposeShortcut('groupbuy')">发起拼单</button>
+          <button class="small-btn" onclick="selectComposeShortcut('ask')">群内求推荐</button>
+          <button class="small-btn" onclick="openGroupDeals('${group.name}')">看群团购</button>
+        </div>
+      </div>
+    </div>`;
+  setViewByName('groupRoom');
+}
+
+function openGroupChat(name) {
+  const group = COMMUNITY_GROUPS.find(g => g.name === name);
+  if (!group) return;
+  if (!group.joined) { joinGroup(name); return; }
+  const messages = GROUP_MESSAGES[group.name] || [
+    {from:group.members[0] || '群成员', avatar:group.emoji, text:`${group.name} 今天有新动态，先看公告再参与拼单。`},
+    {from:'系统', avatar:'📌', text:`本群活跃时间 ${group.active}，近期拼单与求推荐会同步到社区圈。`},
+    {from:'我', avatar:'😊', mine:true, text:'收到，我先看看群内团购。'}
+  ];
+  const relatedDeals = GROUP_DEALS.filter(d => group.dealRefs?.includes(d.title) || d.community === group.community).slice(0,3);
+  document.getElementById('groupChat').innerHTML = `
+    <div class="detail-head">
+      <div>
+        <div class="status-badge joined">已加入 · ${group.community} · ${group.meta}</div>
+        <div class="detail-title">${group.emoji} ${group.name}</div>
+        <div class="detail-sub">公告：${group.announcement}</div>
+      </div>
+      <div class="group-tile-actions">
+        <button class="small-btn" onclick="openGroupPage('${group.name}')">群主页</button>
+        <button class="small-btn" onclick="setViewByName('groups')">返回社群</button>
+      </div>
+    </div>
+    <div class="chat-shell">
+      <div class="chat-window">
+        ${messages.map(m => `<div class="chat-message ${m.mine ? 'mine' : ''}">
+          ${m.mine ? '' : `<div class="chat-avatar">${m.avatar}</div>`}
+          <div class="chat-bubble"><strong>${m.mine ? '我' : m.from}</strong><br>${m.text}</div>
+        </div>`).join('')}
+        <div class="chat-input">
+          <input placeholder="输入群聊消息，或直接发起拼单/求推荐">
+          <button class="small-btn primary" onclick="showToast('群聊消息已进入 mock 队列', 'success')">发送</button>
+        </div>
+      </div>
+      <div>
+        <div class="detail-box">
+          <div class="detail-box-title">群内快捷入口</div>
+          <div class="quick-row">
+            <button class="small-btn primary" onclick="selectComposeShortcut('groupbuy')">发起拼单</button>
+            <button class="small-btn" onclick="selectComposeShortcut('ask')">求推荐</button>
+            <button class="small-btn" onclick="openGroupDeals('${group.name}')">看团购</button>
+          </div>
+        </div>
+        <div class="detail-box" style="margin-top:12px">
+          <div class="detail-box-title">相关团购</div>
+          ${relatedDeals.map(d => `<div class="message-line" onclick="openDealPage('${d.title}')" style="cursor:pointer">${d.emoji} ${d.title}<br>${d.progress} · ${d.meta}</div>`).join('') || '<div class="message-line">暂无相关团购</div>'}
+        </div>
+      </div>
+    </div>`;
+  setViewByName('groupChat');
+}
+
+function openDealModal(name, applying = false) {
+  const deal = GROUP_DEALS.find(d => d.title === name) || {
+    emoji: '🎟️', title: name, community: activeCommunity, meta: '规则待补充', desc: '请写明人数、截止时间、集合点和退款规则。'
+  };
+  document.getElementById('channelModalTitle').textContent = `${deal.emoji} ${deal.title}`;
+  document.getElementById('channelModalBody').innerHTML = `
+    <div class="group-tile-meta">${deal.community} · ${deal.meta}<br>${deal.desc}</div>
+    <div class="trust-strip" style="grid-template-columns:repeat(2,1fr);margin-top:14px">
+      <div class="trust-item"><strong>发起人信用</strong><span>团购小队长 · 成团 12 次 · 0 投诉</span></div>
+      <div class="trust-item"><strong>成团规则</strong><span>满员自动成团，未满员到点取消</span></div>
+      <div class="trust-item"><strong>履约方式</strong><span>到店自提/现场集合，订单截图留档</span></div>
+      <div class="trust-item"><strong>退款规则</strong><span>未成团自动退，临时爽约扣信用分</span></div>
+    </div>
+    <div class="message-preview">
+      <div class="side-title" style="margin-bottom:8px">参与者留言</div>
+      <div class="message-line">附近上班族：我可以 19:20 到，想加一份鸭肠。</div>
+      <div class="message-line">匿名邻居：上次这个发起人很准时，放心。</div>
+    </div>
+    <div class="group-tile-actions" style="margin-top:16px">
+      <button class="small-btn primary" onclick="confirmChannelAction('${deal.title}', 'deal')">${applying ? '确认参与' : '我要参与'}</button>
+      <button class="small-btn" onclick="selectComposeShortcut('groupbuy');closeChannelModal()">发起类似拼单</button>
+      <button class="small-btn" onclick="closeChannelModal()">稍后再说</button>
+    </div>`;
+  document.getElementById('channelModal').classList.add('open');
+}
+
+function openDealPage(name) {
+  const deal = GROUP_DEALS.find(d => d.title === name);
+  if (!deal) return;
+  document.getElementById('dealRoom').innerHTML = `
+    <div class="detail-head">
+      <div>
+        <div class="status-badge ${deal.joined ? 'joined' : 'pending'}">${deal.joined ? '已参团' : '招募中'} · ${deal.community} · 信用 ${deal.trust}</div>
+        <div class="detail-title">${deal.emoji} ${deal.title}</div>
+        <div class="detail-sub">${deal.desc}<br>发起人：${deal.initiator} · 进度：${deal.progress} · ${deal.meta}</div>
+      </div>
+      <div class="group-tile-actions">
+        <button class="small-btn" onclick="setViewByName('deals')">返回团购</button>
+        <button class="small-btn primary" onclick="${deal.joined ? `showToast('已进入「${deal.title}」参团页', 'success')` : `joinDeal('${deal.title}')`}">${deal.joined ? '查看参团状态' : '我要参与'}</button>
+      </div>
+    </div>
+    <div class="trust-strip" style="grid-template-columns:repeat(4,1fr)">
+      <div class="trust-item"><strong>发起人信用</strong><span>${deal.initiator} · 信用 ${deal.trust}</span></div>
+      <div class="trust-item"><strong>成团进度</strong><span>${deal.progress} · ${deal.meta}</span></div>
+      <div class="trust-item"><strong>取餐/履约</strong><span>${deal.pickup}</span></div>
+      <div class="trust-item"><strong>退款规则</strong><span>${deal.refund}</span></div>
+    </div>
+    <div class="detail-grid">
+      <div class="detail-box">
+        <div class="detail-box-title">参与者留言</div>
+        <div class="message-line">附近上班族：我可以准时到，想加一份饮料。</div>
+        <div class="message-line">匿名邻居：这个发起人上次很准时，履约没问题。</div>
+        <div class="message-line">系统：该发起人 30 天内成团 8 次，取消 1 次，投诉 0 次。</div>
+      </div>
+      <div class="detail-box">
+        <div class="detail-box-title">${deal.joined ? '我的参团状态' : '参与前确认'}</div>
+        <div class="group-tile-meta">${deal.joined ? `已锁定名额，按约定到「${deal.pickup}」。如果临时退出，请在截止前取消，避免影响信用。` : `确认人数、截止时间和履约地点后再参与。${deal.refund}，发起人信用 ${deal.trust}。`}</div>
+        <div class="group-tile-actions" style="margin-top:12px">
+          <button class="small-btn primary" onclick="${deal.joined ? `showToast('已同步到我的拼单', 'success')` : `joinDeal('${deal.title}')`}">${deal.joined ? '同步到我的拼单' : '确认参与'}</button>
+          <button class="small-btn" onclick="selectComposeShortcut('groupbuy')">发起类似拼单</button>
+        </div>
+      </div>
+    </div>`;
+  setViewByName('dealRoom');
+}
+
+function closeChannelModal() {
+  document.getElementById('channelModal').classList.remove('open');
+}
+
+function confirmChannelAction(name, type) {
+  closeChannelModal();
+  if (type === 'group') {
+    const group = COMMUNITY_GROUPS.find(g => g.name === name);
+    if (group) {
+      group.joined = true;
+      renderCommunityGroups();
+      renderGroupsMain();
+      renderMyState();
+      showToast(`已加入「${name}」`, 'success');
+      openGroupChat(name);
+      return;
+    }
+  }
+  if (type === 'deal') {
+    const deal = GROUP_DEALS.find(d => d.title === name);
+    if (deal) {
+      deal.joined = true;
+      deal.meta = deal.meta.includes('已参团') ? deal.meta : `${deal.meta} · 已参团`;
+      renderCommunityGroups();
+      renderDealsMain();
+      renderMyState();
+      showToast(`已参与「${name}」，已进入团单详情`, 'success');
+      openDealPage(name);
+      return;
+    }
+  }
+  const msg = type === 'create' ? '已创建社区群草稿，可继续完善群规则' : `已加入「${name}」候补名单`;
+  showToast(msg, 'success');
+}
+
+function goFoodMap() {
+  sessionStorage.setItem('splashShown', '1');
+  location.href = 'index.html';
 }
 
 // ── 交互 ────────────────────────────────────────
@@ -392,8 +1054,53 @@ function sharePost(id) { showToast('链接已复制到剪贴板', 'success'); }
 function setTab(el, type) {
   document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
   el.classList.add('active');
-  const filtered = type === 'all' ? POSTS : POSTS.filter(p => p.type === type);
-  renderFeed(filtered);
+  activePostType = type;
+  renderFeed(getFilteredPosts());
+}
+
+function setCommunity(el, community) {
+  document.querySelectorAll('.community-chip').forEach(t => {
+    if (t.parentElement?.querySelector('.control-label')?.textContent === '社区范围') t.classList.remove('active');
+  });
+  el.classList.add('active');
+  activeCommunity = community;
+  activeDealContext = null;
+  document.getElementById('activeCommunityName').textContent = community;
+  renderFeed(getFilteredPosts());
+  renderCommunityGroups();
+  renderGroupsMain();
+  renderDealsMain();
+}
+
+function setView(el, view) {
+  document.querySelectorAll('.view-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.section-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById(`${view}Panel`)?.classList.add('active');
+}
+
+function setViewByName(view) {
+  const tab = document.querySelector(`.view-tab[data-view="${view}"]`);
+  if (tab) setView(tab, view);
+  else {
+    document.querySelectorAll('.view-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.section-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById(`${view}Panel`)?.classList.add('active');
+  }
+}
+
+function selectComposeShortcut(type) {
+  selectedType = type;
+  openCompose();
+  setTimeout(() => {
+    document.querySelectorAll('.compose-opt').forEach(o => o.classList.remove('sel'));
+    const label = type === 'groupbuy' ? '团购拼单' : (type === 'ask' ? '求推荐' : '');
+    const target = [...document.querySelectorAll('.compose-opt')].find(o => o.textContent.includes(label));
+    if (target) target.classList.add('sel');
+    const textarea = document.getElementById('postContent');
+    if (textarea && type === 'groupbuy') textarea.placeholder = '写清团购内容、人数、截止时间、集合点和退款/爽约规则…';
+    if (textarea && type === 'ask') textarea.placeholder = '说清预算、人数、口味和位置，附近的人会更容易推荐…';
+  }, 0);
 }
 
 // ── 发帖 Modal ────────────────────────────────────
@@ -427,7 +1134,7 @@ function submitPost() {
   const newPost = {
     id: Date.now(), type: selectedType,
     avatar: '😊', username: user?.nickname || user?.username || '我',
-    campus: user?.campus || '大学城', time: '刚刚',
+    campus: user?.campus || '附近社区', time: '刚刚',
     content, restaurant: null, tags: [], images: [],
     likes: 0, comments: 0, liked: false,
   };
@@ -447,9 +1154,24 @@ window.addEventListener('DOMContentLoaded', () => {
     document.getElementById('userArea').textContent = `👤 ${user.nickname || user.username}`;
     document.getElementById('composeAvatar').textContent = '😊';
   }
-  renderFeed(POSTS);
+  const params = new URLSearchParams(location.search);
+  const community = params.get('community');
+  const view = params.get('view');
+  if (community) {
+    activeCommunity = community;
+    document.getElementById('activeCommunityName').textContent = community;
+    document.querySelectorAll('.community-chip').forEach(chip => {
+      chip.classList.toggle('active', chip.textContent.trim() === community);
+    });
+  }
+  renderFeed(getFilteredPosts());
   renderHotTopics();
   renderActiveUsers();
+  renderCommunityGroups();
+  renderGroupsMain();
+  renderDealsMain();
+  renderMyState();
+  if (view) setViewByName(view);
 });
 </script>
 </body>

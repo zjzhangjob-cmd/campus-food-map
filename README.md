@@ -78,26 +78,20 @@ cd campus-food-map
 cp .env.example .env
 ```
 
-用文本编辑器打开 `.env`，**只需改这一行**（把路径换成你电脑上的实际路径）：
+本地开发默认使用 SQLite，复制后即可运行；数据库文件会自动生成在：
+
+```
+backend/campus_food.db
+```
+
+如需配置 AI 推荐或地图，再用文本编辑器打开 `.env`：
 
 ```bash
 # 打开编辑
 open -e .env
 ```
 
-找到这一行，改成你的实际路径：
-```
-DATABASE_URL=sqlite:////你的用户名/路径/campus-food-map/backend/campus_food.db
-```
-
-例如用户名是 `zhangsan`，路径是 Downloads：
-```
-DATABASE_URL=sqlite:////Users/zhangsan/Downloads/campus-food-map/backend/campus_food.db
-```
-
-> 💡 查看你的实际路径：在终端执行 `pwd`，把结果中的 `campus-food-map` 后面加上 `/backend/campus_food.db`
-
-其余配置均为选填，不影响基本功能：
+以下配置均为选填，不影响基本功能：
 ```bash
 # 选填：Claude AI 推荐（不填则用规则推荐，功能正常）
 ANTHROPIC_API_KEY=
@@ -174,41 +168,18 @@ python3 -m http.server 3000 --directory frontend
 
 ## ❓ 常见问题
 
-### 后端启动报 MySQL 连接错误
+### 后端启动报数据库连接错误
 
-`.env` 里的 `DATABASE_URL` 路径不对，或者 `config.py` 默认值是 MySQL。
+本地开发应使用 SQLite。请确认 `.env` 中的数据库配置是：
 
-**解决：** 直接在终端覆盖 config.py 的默认值：
 ```bash
-cat > backend/app/core/config.py << 'EOF'
-from pydantic_settings import BaseSettings
-from typing import List
-import os
+DATABASE_URL=sqlite:///./campus_food.db
+```
 
-_ENV_PATH = os.path.join(os.path.dirname(__file__), "../../../.env")
+然后重新运行：
 
-class Settings(BaseSettings):
-    APP_NAME: str = "觅食·大学城美食地图"
-    DEBUG: bool = True
-    DATABASE_URL: str = "sqlite:///./campus_food.db"
-    SECRET_KEY: str = "campus-food-map-secret-key"
-    ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 10080
-    ANTHROPIC_API_KEY: str = ""
-    AMAP_KEY: str = ""
-    AMAP_JS_KEY: str = ""
-    ALLOWED_ORIGINS: str = "http://localhost:3000,http://127.0.0.1:3000"
-
-    @property
-    def origins(self) -> List[str]:
-        return [o.strip() for o in self.ALLOWED_ORIGINS.split(",")]
-
-    class Config:
-        env_file = _ENV_PATH
-        extra = "ignore"
-
-settings = Settings()
-EOF
+```bash
+bash start.sh
 ```
 
 ### 餐厅加载失败 / Failed to fetch

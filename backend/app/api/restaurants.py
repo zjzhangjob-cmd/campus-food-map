@@ -45,7 +45,11 @@ def list_restaurants(
     if cuisine:
         query = query.filter(Restaurant.cuisine == cuisine)
     if campus and campus != "全部":
-        query = query.filter(or_(Restaurant.campus == campus, Restaurant.campus == "全部"))
+        districts = {"黄浦区", "徐汇区", "长宁区", "静安区", "普陀区", "虹口区", "杨浦区", "浦东新区", "闵行区", "宝山区"}
+        if campus in districts:
+            query = query.filter(Restaurant.address.ilike(f"%{campus}%"))
+        else:
+            query = query.filter(or_(Restaurant.campus == campus, Restaurant.campus == "全部"))
     if price_max:
         query = query.filter(Restaurant.price_min <= price_max)
     if is_open is not None:

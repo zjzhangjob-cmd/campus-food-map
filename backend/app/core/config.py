@@ -18,6 +18,9 @@ class Settings(BaseSettings):
     AMAP_KEY: str = ""
     AMAP_JS_KEY: str = ""
 
+    SEED_API_ENDPOINT: str = ""
+    SEED_API_KEY: str = ""
+
     ALLOWED_ORIGINS: str = "http://localhost:3000,http://127.0.0.1:3000,http://localhost:5500,http://127.0.0.1:5500"
 
     @property

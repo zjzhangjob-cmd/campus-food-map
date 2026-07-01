@@ -46,7 +46,7 @@ def create_chat_session():
         reply=welcome_message(),
         recommendations=[],
         preferences={},
-        mode="rule",
+        mode=_agent_mode(),
     )
 
 
@@ -59,7 +59,7 @@ async def send_chat_message(
 ):
     restaurants = _get_restaurants(db, body.campus)
     location = tuple(body.location) if body.location else None
-    mode = "claude" if settings.ANTHROPIC_API_KEY else "rule"
+    mode = _agent_mode()
 
     result = await chat_session(
         session_id=session_id,
@@ -86,7 +86,7 @@ async def reset_chat_session(session_id: str):
         reply=result["reply"],
         recommendations=[],
         preferences={},
-        mode="rule",
+        mode=_agent_mode(),
     )
 
 
@@ -95,7 +95,7 @@ async def reset_chat_session(session_id: str):
 async def quick_chat(body: ChatMessageRequest, db: Session = Depends(get_db)):
     restaurants = _get_restaurants(db, body.campus)
     location = tuple(body.location) if body.location else None
-    mode = "claude" if settings.ANTHROPIC_API_KEY else "rule"
+    mode = _agent_mode()
 
     result = await chat_session(
         session_id=body.session_id,
@@ -118,7 +118,11 @@ async def quick_chat(body: ChatMessageRequest, db: Session = Depends(get_db)):
 async def ai_recommend(data: AIRecommendRequest, db: Session = Depends(get_db)):
     query = db.query(Restaurant).filter(Restaurant.is_active == True)
     if data.campus and data.campus != "全部":
-        query = query.filter(or_(Restaurant.campus == data.campus, Restaurant.campus == "全部"))
+        districts = {"黄浦区", "徐汇区", "长宁区", "静安区", "普陀区", "虹口区", "杨浦区", "浦东新区", "闵行区", "宝山区"}
+        if data.campus in districts:
+            query = query.filter(Restaurant.address.ilike(f"%{data.campus}%"))
+        else:
+            query = query.filter(or_(Restaurant.campus == data.campus, Restaurant.campus == "全部"))
 
     restaurants = query.order_by(Restaurant.avg_rating.desc()).limit(15).all()
     context = "\n".join([
@@ -134,5 +138,17 @@ async def ai_recommend(data: AIRecommendRequest, db: Session = Depends(get_db)):
 def _get_restaurants(db: Session, campus: str | None) -> list:
     q = db.query(Restaurant).filter(Restaurant.is_active == True)
     if campus and campus != "全部":
-        q = q.filter(or_(Restaurant.campus == campus, Restaurant.campus == "全部"))
+        districts = {"黄浦区", "徐汇区", "长宁区", "静安区", "普陀区", "虹口区", "杨浦区", "浦东新区", "闵行区", "宝山区"}
+        if campus in districts:
+            q = q.filter(Restaurant.address.ilike(f"%{campus}%"))
+        else:
+            q = q.filter(or_(Restaurant.campus == campus, Restaurant.campus == "全部"))
     return q.order_by(Restaurant.avg_rating.desc()).limit(30).all()
+
+
+def _agent_mode() -> str:
+    if settings.SEED_API_ENDPOINT and settings.SEED_API_KEY:
+        return "seed"
+    if settings.ANTHROPIC_API_KEY:
+        return "claude"
+    return "rule"

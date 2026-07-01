@@ -1,5 +1,5 @@
 """
-觅食 Agent — 大学城美食地图 AI 助手
+觅食 Agent — 社区美食地图 AI 助手
 - 多轮对话（session 管理）
 - 基于用户心情/预算/人数/口味/地理位置来匹配餐厅
 - 提供情绪价值与社交价值：共情 → 披露 → 兜底
@@ -15,30 +15,34 @@ import uuid
 from dataclasses import dataclass, field
 from typing import Any
 
+import requests
+
 from app.core.config import settings
 
 # ============================================================
 # System Prompt · 多轮对话
 # ============================================================
-SYSTEM_PROMPT = """你是「觅食 · 大学城美食地图」的 AI 推荐助手，名字叫「小觅」。
-你的角色：一个懂吃、懂得共情的大学城美食老饕，说话有趣、像朋友，擅长给用户提供情绪价值和社交建议。
+SYSTEM_PROMPT = """你是「觅食 · 社区生活美食地图」的 AI 推荐助手，名字叫「小觅」。
+你的角色：一个懂吃、懂得共情的附近生活向导，说话有趣、像朋友，擅长给用户提供情绪价值、路线判断和场景建议。
+用户不只可能是大学生，也可能是附近居民、上班族、游客、家长、情侣、朋友聚餐、临时来办事的人；不要默认称呼用户为学生党。
 任务：当用户不知道吃什么时，通过多轮对话了解用户的真实需求。
 
 【对话风格】
 - 语气轻松活泼，用 emoji 点缀，像朋友聊天
 - 先共情再给出推荐：先回应用户的情绪（压力大、累、开心、纠结），再给餐厅建议
-- 一次推荐 2~3 家餐厅，格式如下：
+- 一次推荐 2~3 家餐厅，只能推荐「当前可选餐厅」里出现过的餐厅，餐厅名必须和结构化推荐卡片一致，格式如下：
   🎯 **推荐餐厅名** （菜系，人均¥预算，★评分，步行X分钟）
   · 为什么推荐：一句话理由，带情绪价值
   · 必吃：招牌菜
-  · 社交标签：适合一个人 / 朋友聚餐 / 约会 / 学习
+  · 场景标签：适合一个人 / 朋友聚餐 / 约会 / 自习前后 / 赶地铁 / 遛弯
 
 【你需要主动询问的维度】（用户没说时追问）
-1. 现在的心情 / 状态（压力大、刚考完试、想犒劳自己）
+1. 现在的心情 / 状态（压力大、刚下班、刚考完、想犒劳自己、赶时间）
 2. 预算范围
-3. 几个人吃（一个人 / 2人约会 / 3-6人聚餐）
+3. 几个人吃（一个人 / 2人约会 / 家庭 / 3-6人聚餐）
 4. 口味偏好（辣 / 清淡 / 日料 / 中餐 …）
 5. 地点 / 时间要求（附近、立即吃、晚上宵夜）
+6. 吃完后的安排（自习/办公、赶地铁、开车停车、遛弯、见朋友、带小孩、想安静或想热闹）
 
 【回复长度】
 - 控制在 200 字以内
@@ -47,6 +51,14 @@ SYSTEM_PROMPT = """你是「觅食 · 大学城美食地图」的 AI 推荐助�
 
 【工具调用】
 当用户给你一个地点坐标，或你看到"当前地图位置"时，请优先推荐附近的餐厅，并在推荐文本里写上步行距离和评分。
+
+【记忆与纠错】
+- 你会看到「已经学到的用户偏好」，这些偏好优先级高于单次猜测
+- 如果用户说“不吃/不要/别推荐/不喜欢”，立刻承认并调整，不要继续推荐相关餐厅或口味
+- 如果用户明确喜欢某类店、预算、距离、场景，请在后续推荐里主动沿用
+- 推荐完新餐厅后，主动询问是否加入地图或心愿单，以及是否保留上一轮推荐
+- 当用户问发散问题（约会、带娃、聚餐、低预算、停车、离地铁近、安静办公、吃完散步、不堵车）时，把餐厅选择和后续行动一起考虑
+- 不确定时少编造，多追问一个关键问题
 """
 
 # ============================================================
@@ -65,6 +77,8 @@ MOOD_KEYWORDS = {
 BUDGET_PATTERN = re.compile(r"(¥?\d{2,4}|人均|预算|左右|以内|不超|不超过|\d{2,4}块|\d{2,4}元)")
 PEOPLE_PATTERN = re.compile(r"(\d+)\s*(个|人|位|位朋友|朋友|同学)")
 LOC_PATTERN = re.compile(r"(附近|周边|走路|步行|距离|靠近|地图|定位|这里)")
+NEGATIVE_PATTERN = re.compile(r"(不吃|不要|别|不想|不喜欢|讨厌|避开|换一家|不行|踩雷|难吃|太贵|太远|排队)")
+POSITIVE_PATTERN = re.compile(r"(喜欢|爱吃|想吃|以后多推|可以多推荐|不错|好吃|满意)")
 
 SPICY_TAGS = {"川菜", "湘菜", "重庆", "火锅", "辣", "川", "湘"}
 LIGHT_TAGS = {"轻食", "沙拉", "健康", "低卡", "日料", "寿司", "粥", "粤菜"}
@@ -86,7 +100,7 @@ EMOJI_BY_MOOD = {
 WELCOME_GREETINGS = [
     "嗨～欢迎来找「小觅」！今天你是想吃点好的犒劳自己，还是简单快速解决一餐？跟我说说心情和预算，我来给你挑最合适的🍜",
     "你好呀，我是小觅 🤖！不知道吃什么很正常，告诉我：现在是几个人吃、预算大概多少？我立刻给你量身推荐～",
-    "嗨嗨！你已经进入「觅食 · 大学城 AI 模式」✨ 告诉我：想吃辣还是清淡？一个人还是约朋友？我帮你缩小选择范围～",
+    "嗨嗨！你已经进入「觅食 · 附近生活 AI 模式」✨ 告诉我：想吃辣还是清淡？一个人还是约朋友？我帮你缩小选择范围～",
 ]
 
 SOCIALLY_CAPABLE_OPENING = [
@@ -186,6 +200,150 @@ def _match_tag(rest, tag_set: set) -> bool:
     return False
 
 
+def _restaurant_text(r: dict) -> str:
+    return " ".join([
+        str(r.get("name", "")),
+        str(r.get("cuisine", "")),
+        " ".join(r.get("tags", [])),
+        str(r.get("description", "")),
+    ]).lower()
+
+
+def _append_unique(pref: dict, key: str, values: list[str] | set[str]) -> None:
+    items = list(pref.get(key, []))
+    for value in values:
+        if value and value not in items:
+            items.append(value)
+    if items:
+        pref[key] = items
+
+
+def _parse_feedback(text: str, restaurants: list[dict], recent_ids: list[int] | None = None) -> dict:
+    """把用户自然语言反馈转成可复用的会话记忆。"""
+    learned: dict[str, Any] = {}
+    negative = bool(NEGATIVE_PATTERN.search(text))
+    positive = bool(POSITIVE_PATTERN.search(text))
+
+    avoid_cuisines: set[str] = set()
+    liked_cuisines: set[str] = set()
+    avoid_tags: set[str] = set()
+    liked_tags: set[str] = set()
+
+    spicy_words = {"辣", "火锅", "川菜", "湘菜", "重庆"}
+    light_words = {"清淡", "轻食", "健康", "减脂", "沙拉", "低卡"}
+    fast_words = {"快餐", "盖饭", "煎饼", "汉堡"}
+    night_words = {"宵夜", "烧烤", "小龙虾", "串串"}
+
+    if negative:
+        if any(k in text for k in spicy_words):
+            avoid_cuisines.add("spicy")
+            avoid_tags.update(SPICY_TAGS)
+        if any(k in text for k in light_words):
+            avoid_cuisines.add("light")
+            avoid_tags.update(LIGHT_TAGS)
+        if any(k in text for k in fast_words):
+            avoid_cuisines.add("fast")
+            avoid_tags.update(FAST_TAGS)
+        if any(k in text for k in night_words):
+            avoid_cuisines.add("night")
+            avoid_tags.update(NIGHT_TAGS)
+
+    if positive and not negative:
+        if any(k in text for k in spicy_words):
+            liked_cuisines.add("spicy")
+        if any(k in text for k in light_words):
+            liked_cuisines.add("light")
+        if any(k in text for k in fast_words):
+            liked_cuisines.add("fast")
+        if any(k in text for k in night_words):
+            liked_cuisines.add("night")
+
+    mentioned_ids: list[int] = []
+    for r in restaurants:
+        name = r.get("name") or ""
+        if name and name in text:
+            mentioned_ids.append(r["id"])
+
+    if mentioned_ids and negative:
+        learned["avoid_restaurant_ids"] = mentioned_ids
+    elif mentioned_ids and positive:
+        learned["liked_restaurant_ids"] = mentioned_ids
+    elif negative and recent_ids and any(k in text for k in ("这家", "这个", "刚才", "上一家", "换一家", "不行")):
+        learned["avoid_restaurant_ids"] = [int(x) for x in recent_ids[:3]]
+
+    if avoid_cuisines:
+        learned["avoid_cuisines"] = sorted(avoid_cuisines)
+    if liked_cuisines:
+        learned["liked_cuisines"] = sorted(liked_cuisines)
+    if avoid_tags:
+        learned["avoid_tags"] = sorted(avoid_tags)
+    if liked_tags:
+        learned["liked_tags"] = sorted(liked_tags)
+
+    if negative and ("太贵" in text or "便宜" in text or "省钱" in text):
+        learned["price_sensitivity"] = "high"
+    if negative and ("太远" in text or "不想走" in text or "近一点" in text):
+        learned["distance_sensitivity"] = "high"
+
+    return learned
+
+
+def _merge_session_preferences(current: dict, new_pref: dict, learned: dict) -> None:
+    for k, v in new_pref.items():
+        if v is not None:
+            current[k] = v
+
+    for key in ("avoid_cuisines", "liked_cuisines", "avoid_tags", "liked_tags"):
+        _append_unique(current, key, learned.get(key, []))
+
+    for key in ("avoid_restaurant_ids", "liked_restaurant_ids"):
+        ids = [int(x) for x in learned.get(key, [])]
+        existing = [int(x) for x in current.get(key, [])]
+        for item in ids:
+            if item not in existing:
+                existing.append(item)
+        if existing:
+            current[key] = existing
+
+    for key in ("price_sensitivity", "distance_sensitivity"):
+        if learned.get(key):
+            current[key] = learned[key]
+
+    if current.get("cuisine") in current.get("avoid_cuisines", []):
+        current.pop("cuisine", None)
+
+
+def _format_learned_preferences(pref: dict) -> str:
+    labels = {
+        "spicy": "重口/辣",
+        "light": "清淡/轻食",
+        "fast": "快餐/赶时间",
+        "night": "夜宵",
+        "japanese": "日料",
+    }
+    lines = [
+        f"- 心情：{pref.get('mood', '暂不清楚')}",
+        f"- 预算：{pref.get('budget', '暂不清楚')}",
+        f"- 人数：{pref.get('people', '暂不清楚')}",
+        f"- 当前口味：{labels.get(pref.get('cuisine'), pref.get('cuisine', '暂不清楚'))}",
+    ]
+    if pref.get("liked_cuisines"):
+        lines.append("- 偏好口味：" + "、".join(labels.get(x, x) for x in pref["liked_cuisines"]))
+    if pref.get("avoid_cuisines"):
+        lines.append("- 避免口味：" + "、".join(labels.get(x, x) for x in pref["avoid_cuisines"]))
+    if pref.get("avoid_tags"):
+        lines.append("- 避免标签：" + "、".join(pref["avoid_tags"][:8]))
+    if pref.get("liked_restaurant_ids"):
+        lines.append("- 喜欢过的餐厅 id：" + "、".join(map(str, pref["liked_restaurant_ids"][-5:])))
+    if pref.get("avoid_restaurant_ids"):
+        lines.append("- 不再推荐餐厅 id：" + "、".join(map(str, pref["avoid_restaurant_ids"][-8:])))
+    if pref.get("price_sensitivity") == "high":
+        lines.append("- 对价格敏感：优先性价比，少推贵店")
+    if pref.get("distance_sensitivity") == "high":
+        lines.append("- 对距离敏感：优先近，少推远")
+    return "\n".join(lines)
+
+
 def _parse_preferences(text: str) -> dict:
     """把用户输入解析为偏好维度：mood/budget/people/cuisine."""
     pref: dict[str, Any] = {}
@@ -215,7 +373,8 @@ def _parse_preferences(text: str) -> dict:
         pref["location_hint"] = True
 
     # cuisine tag
-    if any(k in text for k in ("辣", "火锅", "川菜", "湘菜", "重庆")):
+    no_spicy = any(k in text for k in ("不辣", "不要辣", "不吃辣", "别太辣", "不能吃辣"))
+    if not no_spicy and any(k in text for k in ("辣", "火锅", "川菜", "湘菜", "重庆")):
         pref["cuisine"] = "spicy"
     if any(k in text for k in ("轻食", "健康", "减脂", "沙拉", "低卡")):
         pref["cuisine"] = "light"
@@ -233,6 +392,19 @@ def _pick_candidates(restaurants: list[dict], pref: dict, location: tuple | None
     """基于偏好打分 + 排序，返回 limit 个候选餐厅。"""
     def score(r: dict) -> tuple:
         s = 0.0
+        if r.get("id") in set(pref.get("avoid_restaurant_ids", [])):
+            s -= 1000
+        if r.get("id") in set(pref.get("liked_restaurant_ids", [])):
+            s += 20
+        if r.get("id") in set(pref.get("recent_recommendation_ids", [])):
+            s -= 12
+        text = _restaurant_text(r)
+        for tag in pref.get("avoid_tags", []):
+            if tag and tag.lower() in text:
+                s -= 35
+        for tag in pref.get("liked_tags", []):
+            if tag and tag.lower() in text:
+                s += 8
         # 评分加权
         s += (r.get("avg_rating") or 0) * 4
         # 距离优先（如果有坐标）
@@ -246,7 +418,9 @@ def _pick_candidates(restaurants: list[dict], pref: dict, location: tuple | None
             if pmin <= budget <= (pm + 10):
                 s += 20
             elif budget < pmin:
-                s -= 10
+                s -= 18 if pref.get("price_sensitivity") == "high" else 10
+        if pref.get("price_sensitivity") == "high":
+            s += max(0, 60 - (r.get("price_max") or 60)) * 0.2
         # 人数场景：一个人偏好有"一人食"/"快餐"标签
         people = pref.get("people")
         if people and people <= 1:
@@ -257,6 +431,24 @@ def _pick_candidates(restaurants: list[dict], pref: dict, location: tuple | None
                 s += 8
         # 口味
         cuisine = pref.get("cuisine")
+        avoid_cuisines = set(pref.get("avoid_cuisines", []))
+        liked_cuisines = set(pref.get("liked_cuisines", []))
+        if "spicy" in avoid_cuisines and _match_tag(r, SPICY_TAGS):
+            s -= 40
+        if "light" in avoid_cuisines and _match_tag(r, LIGHT_TAGS):
+            s -= 40
+        if "fast" in avoid_cuisines and _match_tag(r, FAST_TAGS):
+            s -= 25
+        if "night" in avoid_cuisines and _match_tag(r, NIGHT_TAGS):
+            s -= 25
+        if "spicy" in liked_cuisines and _match_tag(r, SPICY_TAGS):
+            s += 10
+        if "light" in liked_cuisines and _match_tag(r, LIGHT_TAGS):
+            s += 10
+        if "fast" in liked_cuisines and _match_tag(r, FAST_TAGS):
+            s += 8
+        if "night" in liked_cuisines and _match_tag(r, NIGHT_TAGS):
+            s += 8
         if cuisine == "spicy" and _match_tag(r, SPICY_TAGS):
             s += 15
         if cuisine == "light" and _match_tag(r, LIGHT_TAGS):
@@ -270,9 +462,47 @@ def _pick_candidates(restaurants: list[dict], pref: dict, location: tuple | None
             s += 5
         # review 数量加权
         s += min(5, math.log1p(r.get("review_count") or 0))
+        if pref.get("distance_sensitivity") == "high":
+            s -= max(0, walk - 10) * 1.2
         return (-s, walk)
 
     return sorted(restaurants, key=score)[:limit]
+
+
+def _scene_reason(r: dict, pref: dict) -> str:
+    tags = "、".join((r.get("tags") or [])[:3]) or r.get("cuisine") or "附近好店"
+    if pref.get("distance_sensitivity") == "high":
+        return "距离优先，少绕路，适合现在就去。"
+    if pref.get("price_sensitivity") == "high":
+        return "价格更稳，适合想控制预算又不想踩雷。"
+    if pref.get("cuisine") == "light" or "light" in set(pref.get("liked_cuisines", [])):
+        return "口味更清爽，吃完不容易犯困。"
+    if pref.get("people") and pref["people"] >= 4:
+        return "适合多人一起点，选择多，分摊下来更舒服。"
+    return f"{tags}匹配度高，评分和距离都比较稳。"
+
+
+def _aligned_recommendation_reply(message: str, picks: list[dict], pref: dict) -> str:
+    """用实际返回给前端的 picks 生成回答，避免文字推荐和卡片不一致。"""
+    if not picks:
+        return "我这轮没有找到足够匹配的餐厅。你可以告诉我预算、口味、距离上限或吃完后的安排，我再重新筛一轮。"
+
+    intro = "我按你这轮需求重新筛了这几家，下面的文字和地图卡片是一一对应的："
+    blocks = []
+    for r in picks[:3]:
+        price = f"¥{r.get('price_min') or 0}-{r.get('price_max') or 0}"
+        rating = f"★{round(r.get('avg_rating') or 0, 1)}"
+        dist = f"步行{r.get('walk_minutes')}分钟"
+        tags = "、".join((r.get("tags") or [])[:3]) or r.get("cuisine") or "附近好店"
+        dish = r.get("signature_dish") or "看店内招牌菜"
+        blocks.append(
+            f"🎯 **{r['name']}**（{tags}，人均{price}，{rating}，{dist}）\n"
+            f"· 为什么推荐：{_scene_reason(r, pref)}\n"
+            f"· 可以点：{dish}"
+        )
+
+    follow = "要不要把这几家加入地图或心愿单？如果你接下来要自习、赶地铁、开车停车、散步或见朋友，我可以继续按下一步安排收窄。"
+    return intro + "\n\n" + "\n\n".join(blocks) + "\n\n" + follow
 
 
 # ============================================================
@@ -337,7 +567,7 @@ def _rule_agent(message: str, restaurants: list[dict], pref: dict, location: tup
         elif people and people <= 2:
             reason = "两个人分着吃也很合适，能多点几样"
         else:
-            reason = "学生党口碑之选，踩雷概率极低"
+            reason = "附近口碑之选，踩雷概率极低"
 
         social_tag = "一个人" if (people and people == 1) else "朋友聚餐"
         line = (
@@ -368,7 +598,13 @@ def _rule_agent(message: str, restaurants: list[dict], pref: dict, location: tup
 # ============================================================
 # Claude Agent · 有 Key 时用
 # ============================================================
-async def _claude_agent(message: str, restaurants: list[dict], history: list[dict], location: tuple | None) -> tuple[str, list[dict]]:
+async def _claude_agent(
+    message: str,
+    restaurants: list[dict],
+    history: list[dict],
+    location: tuple | None,
+    pref: dict | None = None,
+) -> tuple[str, list[dict]]:
     try:
         import anthropic
     except Exception:
@@ -377,7 +613,7 @@ async def _claude_agent(message: str, restaurants: list[dict], history: list[dic
     client = anthropic.Anthropic(api_key=settings.ANTHROPIC_API_KEY)
 
     # 只挑 top5 给 Claude，避免上下文太大
-    pref = _parse_preferences(message)
+    pref = pref or _parse_preferences(message)
     top = _pick_candidates(restaurants, pref, location, limit=5)
     if top:
         ctx_lines = []
@@ -396,11 +632,7 @@ async def _claude_agent(message: str, restaurants: list[dict], history: list[dic
         user_content += f"【当前地图位置】纬度{location[0]:.4f}，经度{location[1]:.4f}\n"
     user_content += (
         f"【当前可选餐厅】\n{restaurants_context}\n\n"
-        f"【之前已经了解到的用户偏好】\n"
-        f"- 心情：{pref.get('mood', '暂不清楚')}\n"
-        f"- 预算：{pref.get('budget', '暂不清楚')}\n"
-        f"- 人数：{pref.get('people', '暂不清楚')}\n"
-        f"- 口味：{pref.get('cuisine', '暂不清楚')}\n\n"
+        f"【已经学到的用户偏好】\n{_format_learned_preferences(pref)}\n\n"
         f"【用户当前消息】\n{message}"
     )
 
@@ -416,7 +648,7 @@ async def _claude_agent(message: str, restaurants: list[dict], history: list[dic
     try:
         response = client.messages.create(
             model="claude-sonnet-4-20250514",
-            max_tokens=600,
+            max_tokens=450,
             system=SYSTEM_PROMPT,
             messages=messages,
         )
@@ -426,8 +658,91 @@ async def _claude_agent(message: str, restaurants: list[dict], history: list[dic
         reply, _ = _rule_agent(message, restaurants, pref, location)
         reply = f"（AI 暂不可用，切换本地推荐👇）\n\n{reply}"
 
-    # 同时给调用方返回结构化推荐
     picks = _pick_candidates(restaurants, pref, location, limit=3)
+    reply = _aligned_recommendation_reply(message, picks, pref)
+    return reply, picks
+
+
+# ============================================================
+# Seed Agent · 豆包 Seed 模型（火山引擎 ARK，OpenAI 兼容协议）
+# ============================================================
+async def _seed_agent(
+    message: str,
+    restaurants: list[dict],
+    history: list[dict],
+    location: tuple | None,
+    pref: dict | None = None,
+) -> tuple[str, list[dict]]:
+    endpoint = settings.SEED_API_ENDPOINT
+    api_key = settings.SEED_API_KEY
+    
+    if not endpoint or not api_key:
+        return _rule_agent(message, restaurants, pref or _parse_preferences(message), location)
+
+    pref = pref or _parse_preferences(message)
+    top = _pick_candidates(restaurants, pref, location, limit=5)
+    
+    if top:
+        ctx_lines = []
+        for r in top:
+            price = f"¥{r.get('price_min') or 0}-{r.get('price_max') or 0}"
+            rating = f"★{round(r.get('avg_rating') or 0, 1)}"
+            dist = f"步行{r.get('walk_minutes')}分钟"
+            tags = "、".join(r.get("tags", [])[:3]) or r.get("cuisine") or ""
+            ctx_lines.append(f"- {r['name']}（{tags}，人均{price}，{rating}，{dist}，id={r['id']}）")
+        restaurants_context = "\n".join(ctx_lines)
+    else:
+        restaurants_context = "（暂无餐厅数据）"
+
+    user_content = ""
+    if location:
+        user_content += f"【当前地图位置】纬度{location[0]:.4f}，经度{location[1]:.4f}\n"
+    user_content += (
+        f"【当前可选餐厅】\n{restaurants_context}\n\n"
+        f"【已经学到的用户偏好】\n{_format_learned_preferences(pref)}\n\n"
+        f"【用户当前消息】\n{message}"
+    )
+
+    messages: list[dict] = []
+    for h in history[-6:]:
+        if h["role"] == "user":
+            messages.append({"role": "user", "content": h["content"]})
+        else:
+            messages.append({"role": "assistant", "content": h["content"]})
+    messages.append({"role": "user", "content": user_content})
+
+    try:
+        base_url = "https://ark.cn-beijing.volces.com/api/v3"
+        response = requests.post(
+            f"{base_url}/chat/completions",
+            headers={
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json"
+            },
+            json={
+                "model": endpoint,
+                "messages": [
+                    {"role": "system", "content": SYSTEM_PROMPT},
+                    *messages
+                ],
+                "max_tokens": 450,
+                "temperature": 0.6
+            },
+            timeout=18
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            reply = data["choices"][0]["message"]["content"]
+        else:
+            raise Exception(f"Seed API returned {response.status_code}: {response.text}")
+    
+    except Exception as e:
+        reply, _ = _rule_agent(message, restaurants, pref, location)
+        reply = f"（AI 暂不可用，切换本地推荐👇）\n\n{reply}"
+
+    picks = _pick_candidates(restaurants, pref, location, limit=3)
+    reply = _aligned_recommendation_reply(message, picks, pref)
     return reply, picks
 
 
@@ -477,22 +792,29 @@ async def chat_session(
     # 把 ORM 列表转成 dict，并计算与坐标的真实距离
     restaurants = [_rest_to_dict(r, location) for r in restaurants_orm]
 
-    # 解析偏好，并合并进 session
+    # 解析偏好和纠错反馈，并合并进 session
     new_pref = _parse_preferences(message)
-    for k, v in new_pref.items():
-        if v is not None:
-            session.preferences[k] = v
+    learned = _parse_feedback(message, restaurants, session.preferences.get("recent_recommendation_ids", []))
+    _merge_session_preferences(session.preferences, new_pref, learned)
     if location:
         session.preferences["location"] = list(location)
 
-    # 选择 Agent 实现
+    # 选择 Agent 实现（优先级：Seed > Claude > 规则）
+    has_seed = bool(settings.SEED_API_ENDPOINT) and bool(settings.SEED_API_KEY)
     has_claude = bool(settings.ANTHROPIC_API_KEY)
-    if has_claude:
+    
+    if has_seed:
+        reply, recs = await _seed_agent(
+            message, restaurants, session.history, location, session.preferences
+        )
+    elif has_claude:
         reply, recs = await _claude_agent(
-            message, restaurants, session.history, location
+            message, restaurants, session.history, location, session.preferences
         )
     else:
         reply, recs = _rule_agent(message, restaurants, session.preferences, location)
+
+    session.preferences["recent_recommendation_ids"] = [int(r["id"]) for r in recs[:5] if r.get("id")]
 
     # 写回 history
     session.history.append({"role": "user", "content": message})

@@ -159,7 +159,7 @@ body{font-family:'Noto Sans SC',sans-serif;background:#f0e8d8;color:var(--ink);m
 .hi-pts.pos{color:var(--accent3);}
 .hi-pts.neg{color:var(--accent);}
 
-/* ── 收藏 ── */
+/* ── 心愿单 ── */
 .fav-filter{display:flex;gap:6px;padding:12px 14px;overflow-x:auto;background:var(--card);border-bottom:1px solid var(--border);}
 .fav-filter::-webkit-scrollbar{display:none;}
 .ff-chip{flex-shrink:0;padding:5px 12px;border-radius:14px;border:1px solid var(--border);font-size:12px;cursor:pointer;color:var(--muted);background:transparent;font-family:'Noto Sans SC',sans-serif;transition:all .15s;}
@@ -251,7 +251,7 @@ body{font-family:'Noto Sans SC',sans-serif;background:#f0e8d8;color:var(--ink);m
     <div class="user-name">张同学</div>
     <div class="expert-badge" style="background:linear-gradient(135deg,#fff3e0,#ffe0b2);color:#e85d26;">🥢 面食达人</div>
   </div>
-  <div class="user-bio">理工大 · 计算机系大三 | 大学城觅食老司机，面食爱好者 🍜</div>
+  <div class="user-bio">附近生活圈常驻用户 | 社区觅食达人，面食爱好者 🍜</div>
   <div class="user-meta">
     <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>理工大</span>
     <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>加入 2024.09</span>
@@ -261,7 +261,7 @@ body{font-family:'Noto Sans SC',sans-serif;background:#f0e8d8;color:var(--ink);m
     <div class="follow-stat"><div class="n">32</div><div class="l">动态</div></div>
     <div class="follow-stat"><div class="n">128</div><div class="l">关注</div></div>
     <div class="follow-stat"><div class="n">256</div><div class="l">粉丝</div></div>
-    <div class="follow-stat"><div class="n">18</div><div class="l">收藏</div></div>
+    <div class="follow-stat"><div class="n">18</div><div class="l">心愿单</div></div>
   </div>
   <div class="btn-row">
     <button class="btn btn-outline"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>编辑资料</button>
@@ -277,7 +277,7 @@ body{font-family:'Noto Sans SC',sans-serif;background:#f0e8d8;color:var(--ink);m
   </div>
   <div class="tab" onclick="switchTab('fav', this)">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-    收藏
+    心愿单
   </div>
   <div class="tab" onclick="switchTab('follow', this)">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
@@ -363,20 +363,20 @@ body{font-family:'Noto Sans SC',sans-serif;background:#f0e8d8;color:var(--ink);m
       <div class="use-item">
         <div class="use-icon" style="background:#f3e5f5;">📌</div>
         <div class="use-info">
-          <div class="use-name">校园圈帖子置顶</div>
+          <div class="use-name">社区圈帖子置顶</div>
           <div class="use-desc">你的帖子置顶展示1天，获得更多曝光和互动</div>
         </div>
         <div class="use-cost">
           <div class="use-pts">300</div>
           <div class="use-pts-label">积分/天</div>
-          <button class="use-btn" onclick="doRedeem(300,'校园圈帖子置顶1天')">置顶</button>
+          <button class="use-btn" onclick="doRedeem(300,'社区圈帖子置顶1天')">置顶</button>
         </div>
       </div>
       <div class="use-item">
         <div class="use-icon" style="background:#fff8e1;">🏆</div>
         <div class="use-info">
           <div class="use-name">荣耀排行榜展示</div>
-          <div class="use-desc">积分越高，在校园圈排行榜越靠前，获得更多关注</div>
+          <div class="use-desc">积分越高，在社区圈排行榜越靠前，获得更多关注</div>
         </div>
         <div class="use-cost">
           <div class="use-pts">自动</div>
@@ -562,7 +562,7 @@ body{font-family:'Noto Sans SC',sans-serif;background:#f0e8d8;color:var(--ink);m
   </div>
 </div>
 
-<!-- ── 收藏面板 ── -->
+<!-- ── 心愿单面板 ── -->
 <div class="panel" id="panel-fav">
   <div class="fav-filter">
     <button class="ff-chip active" onclick="setFilter(this)">全部 (18)</button>
@@ -576,7 +576,7 @@ body{font-family:'Noto Sans SC',sans-serif;background:#f0e8d8;color:var(--ink);m
       <div class="fav-thumb" style="background:linear-gradient(135deg,#fff3e0,#ffcc80);">
         <div class="fav-deco" style="width:80px;height:80px;background:#e85d26;top:-20px;right:-20px;"></div>
         <div class="fav-emoji">🍜</div>
-        <button class="fav-rm" onclick="showToast('已取消收藏')">✕</button>
+        <button class="fav-rm" onclick="showToast('已移出心愿单')">✕</button>
       </div>
       <div class="fav-body"><div class="fav-name">重庆秀山小面</div><div class="fav-meta"><span class="fav-rating">★ 4.9</span> · ¥12-22</div></div>
     </div>
@@ -584,7 +584,7 @@ body{font-family:'Noto Sans SC',sans-serif;background:#f0e8d8;color:var(--ink);m
       <div class="fav-thumb" style="background:linear-gradient(135deg,#efebe9,#bcaaa4);">
         <div class="fav-deco" style="width:70px;height:70px;background:#795548;bottom:-15px;left:-15px;"></div>
         <div class="fav-emoji">☕</div>
-        <button class="fav-rm" onclick="showToast('已取消收藏')">✕</button>
+        <button class="fav-rm" onclick="showToast('已移出心愿单')">✕</button>
       </div>
       <div class="fav-body"><div class="fav-name">豆舍咖啡</div><div class="fav-meta"><span class="fav-rating">★ 4.7</span> · ¥22-45</div></div>
     </div>
@@ -592,7 +592,7 @@ body{font-family:'Noto Sans SC',sans-serif;background:#f0e8d8;color:var(--ink);m
       <div class="fav-thumb" style="background:linear-gradient(135deg,#e8eaf6,#9fa8da);">
         <div class="fav-deco" style="width:80px;height:80px;background:#3f51b5;top:-15px;right:-15px;"></div>
         <div class="fav-emoji">🫕</div>
-        <button class="fav-rm" onclick="showToast('已取消收藏')">✕</button>
+        <button class="fav-rm" onclick="showToast('已移出心愿单')">✕</button>
       </div>
       <div class="fav-body"><div class="fav-name">川渝人家·火锅</div><div class="fav-meta"><span class="fav-rating">★ 4.8</span> · ¥35-80</div></div>
     </div>
@@ -600,7 +600,7 @@ body{font-family:'Noto Sans SC',sans-serif;background:#f0e8d8;color:var(--ink);m
       <div class="fav-thumb" style="background:linear-gradient(135deg,#fce4ec,#f48fb1);">
         <div class="fav-deco" style="width:70px;height:70px;background:#e91e63;bottom:-10px;right:-10px;"></div>
         <div class="fav-emoji">🍣</div>
-        <button class="fav-rm" onclick="showToast('已取消收藏')">✕</button>
+        <button class="fav-rm" onclick="showToast('已移出心愿单')">✕</button>
       </div>
       <div class="fav-body"><div class="fav-name">大渔铁板烧·日料</div><div class="fav-meta"><span class="fav-rating">★ 4.7</span> · ¥88-160</div></div>
     </div>
@@ -608,7 +608,7 @@ body{font-family:'Noto Sans SC',sans-serif;background:#f0e8d8;color:var(--ink);m
       <div class="fav-thumb" style="background:linear-gradient(135deg,#fffde7,#fff176);">
         <div class="fav-deco" style="width:70px;height:70px;background:#f4b942;top:-15px;left:-15px;"></div>
         <div class="fav-emoji">🥞</div>
-        <button class="fav-rm" onclick="showToast('已取消收藏')">✕</button>
+        <button class="fav-rm" onclick="showToast('已移出心愿单')">✕</button>
       </div>
       <div class="fav-body"><div class="fav-name">柒号煎饼铺</div><div class="fav-meta"><span class="fav-rating">★ 4.8</span> · ¥8-15</div></div>
     </div>
@@ -616,7 +616,7 @@ body{font-family:'Noto Sans SC',sans-serif;background:#f0e8d8;color:var(--ink);m
       <div class="fav-thumb" style="background:linear-gradient(135deg,#e0f2f1,#80cbc4);">
         <div class="fav-deco" style="width:70px;height:70px;background:#00796b;bottom:-10px;right:-10px;"></div>
         <div class="fav-emoji">🍵</div>
-        <button class="fav-rm" onclick="showToast('已取消收藏')">✕</button>
+        <button class="fav-rm" onclick="showToast('已移出心愿单')">✕</button>
       </div>
       <div class="fav-body"><div class="fav-name">陶陶居早茶</div><div class="fav-meta"><span class="fav-rating">★ 4.8</span> · ¥28-55</div></div>
     </div>
@@ -682,7 +682,7 @@ body{font-family:'Noto Sans SC',sans-serif;background:#f0e8d8;color:var(--ink);m
         <span class="pi-time">2小时前</span>
       </div>
       <div class="pi-content">重庆秀山小面真的绝了！今天点了牛肉面，汤底鲜辣，牛肉软烂入味，面条很有嚼劲。早上7点去还排了15分钟的队，完全值得！强烈推荐🔥</div>
-      <div class="pi-tags"><span class="pi-tag">#小面推荐</span><span class="pi-tag">#大学城美食</span><span class="pi-tag">#早餐首选</span></div>
+      <div class="pi-tags"><span class="pi-tag">#小面推荐</span><span class="pi-tag">#附近美食</span><span class="pi-tag">#早餐首选</span></div>
       <div class="pi-foot">
         <span class="pi-action"><svg viewBox="0 0 24 24" fill="#e85d26" stroke="#e85d26" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>48</span>
         <span class="pi-action"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>12</span>
@@ -694,7 +694,7 @@ body{font-family:'Noto Sans SC',sans-serif;background:#f0e8d8;color:var(--ink);m
         <span class="pi-type" style="background:#e8f5e9;color:#2d7a4f;">⭐ 发表评价</span>
         <span class="pi-time">昨天 15:30</span>
       </div>
-      <div class="pi-content">陶陶居的虾饺皇真的是大学城最好吃的！皮薄馅足，虾仁鲜嫩，每次来都要点三笼。价格虽然稍贵，但绝对值得 👍 给满分！</div>
+      <div class="pi-content">陶陶居的虾饺皇真的是附近最好吃的！皮薄馅足，虾仁鲜嫩，每次来都要点三笼。价格虽然稍贵，但绝对值得 👍 给满分！</div>
       <div class="pi-tags"><span class="pi-tag">#陶陶居</span><span class="pi-tag">#早茶</span><span class="pi-tag">#虾饺</span></div>
       <div class="pi-foot">
         <span class="pi-action"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>31</span>
@@ -713,7 +713,7 @@ body{font-family:'Noto Sans SC',sans-serif;background:#f0e8d8;color:var(--ink);m
   </a>
   <a href="circle.html" class="bn">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-    校园圈
+    社区圈
   </a>
   <a href="#" class="bn active">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
@@ -955,7 +955,7 @@ function closeRulesModal() {
         </div>
         <div style="display:flex;align-items:center;gap:12px;padding:11px 14px;background:var(--card);border-radius:12px;border:1px solid var(--border);">
           <span style="font-size:22px;">📌</span>
-          <div style="flex:1;"><div style="font-size:13px;font-weight:500;">校园圈帖子置顶</div><div style="font-size:11px;color:var(--muted);">置顶展示1天，获得更多曝光</div></div>
+          <div style="flex:1;"><div style="font-size:13px;font-weight:500;">社区圈帖子置顶</div><div style="font-size:11px;color:var(--muted);">置顶展示1天，获得更多曝光</div></div>
           <div style="font-size:13px;font-weight:500;color:var(--accent);">300/天</div>
         </div>
         <div style="display:flex;align-items:center;gap:12px;padding:11px 14px;background:var(--card);border-radius:12px;border:1px solid var(--border);">
@@ -981,7 +981,7 @@ function closeRulesModal() {
           <span style="font-size:20px;">🌟</span><div style="flex:1;"><div style="font-size:12px;font-weight:500;">美食鉴赏家</div><div style="font-size:10px;color:var(--muted);">2000 - 4999 积分</div></div><div style="font-size:11px;color:var(--muted);">置顶·加权</div>
         </div>
         <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--card);border-radius:10px;border:1px solid var(--border);">
-          <span style="font-size:20px;">👑</span><div style="flex:1;"><div style="font-size:12px;font-weight:500;">大学城食神</div><div style="font-size:10px;color:var(--muted);">5000+ 积分</div></div><div style="font-size:11px;color:var(--muted);">全部特权</div>
+          <span style="font-size:20px;">👑</span><div style="flex:1;"><div style="font-size:12px;font-weight:500;">社区食神</div><div style="font-size:10px;color:var(--muted);">5000+ 积分</div></div><div style="font-size:11px;color:var(--muted);">全部特权</div>
         </div>
       </div>
 
