@@ -1,6 +1,6 @@
-# 🍜 觅食 · 大学城美食地图
+# 🍜 觅食 · 社区生活地图
 
-> 专为大学城学生打造的本地化美食发现平台，解决「今天吃什么」的决策困境。
+> 基于 AI 的本地生活「地图选店 + 社区种草」一体化决策平台，解决「今天吃什么」的决策困境。
 
 ![Python](https://img.shields.io/badge/Python-3.11-blue?logo=python&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.111-009688?logo=fastapi&logoColor=white)
@@ -17,18 +17,57 @@
 
 ## ✨ 功能一览
 
+### 🍽️ 三条核心路径
+
+| 路径 | 说明 |
+|------|------|
+| 🤖 **觅食帮选** | 全屏地图 + AI 对话，一句话搞定「今天吃什么」 |
+| 🔍 **我来选择** | 货架式卡片浏览，支持多维度筛选排序 |
+| 👥 **社区种草** | 附近真实评价，邻里美食分享阵地 |
+
+### 🤖 AI 能力
+
 | 功能 | 说明 |
 |------|------|
-| 🔍 智能搜索 | 按名称、菜系、标签实时搜索 |
-| 🤖 AI 推荐 | 描述心情即可获得个性化推荐 |
-| 🗺️ 高德地图 | 餐厅位置可视化，点击定位，一键导航 |
-| 🎟️ 学生优惠 | 聚合周边优惠活动 |
-| ❤️ 收藏 & 评价 | 登录后可收藏餐厅、发布评价 |
-| 🎯 趣味模式 | 随机转盘 + 美食PK赛，还能赚积分 |
-| 🏆 积分体系 | 签到/评价/PK赛获得积分，兑换优惠券 |
-| 👤 个人主页 | 积分等级、美食专家徽章、收藏、关注 |
-| 👥 校园圈 | 发帖、评论、点赞、求推荐 |
-| 🛠️ 管理后台 | 餐厅 / 优惠 / 用户 / 评价管理 |
+| 💬 **对话式推荐** | 自然语言表达需求（心情/预算/口味/人数），AI 精准匹配 |
+| 📍 **空间感知** | 基于 LBS 实时定位，计算真实物理距离，推荐步行可达餐厅 |
+| 🎭 **情绪陪伴** | 专属 IP 助手「小觅」，场景预判，提供情绪价值 |
+| 🏙️ **多城切换** | 支持广州/上海双城，虚拟定位切换校区/商圈 |
+
+### 🗺️ 地图功能
+
+| 功能 | 说明 |
+|------|------|
+| 🗺️ **全屏地图模式** | 沉浸式地图浏览，餐厅气泡可视化 |
+| 📌 ** Marker 标记** | 餐厅位置一目了然，点击查看详情 |
+| 🧭 **一键导航** | 调起高德地图，步行/骑行路线规划 |
+| 🔭 **虚拟定位** | 切换不同商圈/区域，探索周边美食 |
+
+### 👥 社区 & 社交
+
+| 功能 | 说明 |
+|------|------|
+| 💬 **社区圈** | 发帖、评论、点赞、求推荐 |
+| 🏷️ **评价标签** | AI 自动提炼餐厅优缺点标签 |
+| ❤️ **心愿单** | 收藏种草餐厅，想吃就存 |
+| 🏆 **积分体系** | 签到/评价/PK赛获得积分 |
+
+### 🎯 趣味玩法
+
+| 功能 | 说明 |
+|------|------|
+| 🎡 **随机转盘** | 选择困难症救星，让命运帮你决定 |
+| ⚔️ **美食 PK 赛** | 两两对决，选出你的最爱 |
+| 🎖️ **等级徽章** | 美食达人成长体系 |
+
+### 🛠️ 管理后台
+
+| 功能 | 说明 |
+|------|------|
+| 🍜 **餐厅管理** | 增删改查餐厅信息 |
+| 🎟️ **团购管理** | 优惠活动上下架 |
+| 👤 **用户管理** | 用户状态管理 |
+| ⭐ **评价审核** | 社区内容治理 |
 
 ---
 
@@ -38,8 +77,26 @@
 前端：HTML5 + CSS3 + Vanilla JS + 高德地图 JS API
 后端：Python 3.11 + FastAPI + SQLAlchemy ORM
 数据库：SQLite（内置，无需安装任何数据库）
-AI：Anthropic Claude API（选填，不填则用规则推荐）
+AI：豆包 Seed 大模型 / Anthropic Claude API（选填，不填则用规则推荐）
 ```
+
+---
+
+## 📊 数据规模
+
+当前已内置 **1193+ 家餐厅** 数据：
+
+| 城市 | 区域 | 餐厅数量 | 说明 |
+|------|------|---------|------|
+| 🇬🇿 **广州** | 大学城 | 10+ | 中山大学、华南理工等高校周边 |
+| 🇸🇭 **上海** | 漕河泾开发区 | 300 | 田林路/古美路/虹梅路等核心区域 |
+| 🇸🇭 **上海** | 徐汇区 | 291 | 徐家汇/衡山路/建国西路等 |
+| 🇸🇭 **上海** | 静安区 | 109 | 南京西路/静安寺等 |
+| 🇸🇭 **上海** | 黄浦区 | ~100 | 人民广场/淮海路等 |
+| 🇸🇭 **上海** | 浦东新区 | ~100 | 陆家嘴/张江等 |
+| 🇸🇭 **上海** | 其他区 | ~200 | 长宁/普陀/虹口/杨浦/闵行/宝山 |
+
+覆盖 **20+ 种菜系**：川菜、湘菜、粤菜、本帮菜、日料、韩餐、西餐、火锅、烧烤、小吃、甜品、奶茶、咖啡、轻食、海鲜、新疆菜、东北菜、法餐...
 
 ---
 
@@ -93,7 +150,11 @@ open -e .env
 
 以下配置均为选填，不影响基本功能：
 ```bash
-# 选填：Claude AI 推荐（不填则用规则推荐，功能正常）
+# 选填：豆包 Seed AI 推荐（推荐使用，效果更好）
+SEED_API_ENDPOINT=ep-xxxxxxxxxx
+SEED_API_KEY=ark-xxxxxxxxxx
+
+# 选填：Claude AI 推荐（备选）
 ANTHROPIC_API_KEY=
 
 # 选填：高德地图 Web 服务 Key（不填地图不显示）
@@ -149,10 +210,10 @@ python3 -m http.server 3000 --directory frontend
 
 | 地址 | 说明 |
 |------|------|
-| http://localhost:3000 | 🌐 美食地图主页 |
+| http://localhost:3000 | 🌐 社区生活地图主页 |
 | http://localhost:3000/fun.html | 🎯 趣味模式（转盘+PK赛）|
 | http://localhost:3000/profile.html | 👤 个人主页 & 积分中心 |
-| http://localhost:3000/circle.html | 👥 校园圈 |
+| http://localhost:3000/circle.html | 👥 社区圈 |
 | http://localhost:3000/login.html | 🔐 登录 / 注册 |
 | http://localhost:3000/admin.html | 🛠️ 管理后台 |
 | http://localhost:8000/docs | 📖 API 交互文档 |
@@ -231,6 +292,21 @@ kill -9 PID
 
 说明后端没有在运行，不是代码慢。检查后端终端是否有报错，重启后端即可。
 
+### AI 推荐不生效 / 回退到规则推荐
+
+检查 `.env` 中的 AI 配置是否正确：
+
+```bash
+# 确认配置
+grep SEED .env
+
+# 测试 API 是否可用
+curl -X POST https://ark.cn-beijing.volces.com/api/v3/chat/completions \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"model":"ep-xxx","messages":[{"role":"user","content":"hi"}]}'
+```
+
 ---
 
 ## 📁 项目结构
@@ -245,13 +321,13 @@ campus-food-map/
 │   │   ├── models/              # SQLAlchemy 数据库模型
 │   │   ├── schemas/             # Pydantic 数据验证
 │   │   ├── core/                # 配置/数据库连接/JWT 认证
-│   │   └── services/            # Claude AI 推荐服务
+│   │   └── services/            # AI 推荐服务（Seed + Claude + 规则）
 │   └── requirements.txt
 ├── frontend/
-│   ├── index.html               # 主页（美食地图）
+│   ├── index.html               # 主页（社区生活地图 + 全屏AI模式）
 │   ├── fun.html                 # 趣味模式（转盘+PK赛）
 │   ├── profile.html             # 个人主页 & 积分中心
-│   ├── circle.html              # 校园圈
+│   ├── circle.html              # 社区圈
 │   ├── login.html               # 登录 / 注册
 │   ├── admin.html               # 管理后台
 │   └── assets/api.js            # 统一 API 请求封装
@@ -276,7 +352,8 @@ campus-food-map/
 | GET  | `/api/restaurants/{id}` | 餐厅详情 |
 | POST | `/api/restaurants/{id}/favorite` | 收藏/取消 |
 | POST | `/api/reviews` | 发布评价 |
-| POST | `/api/ai/recommend` | AI 推荐 |
+| POST | `/api/ai/chat` | AI 对话推荐（多轮对话）|
+| POST | `/api/ai/recommend` | AI 推荐（单次）|
 | GET  | `/api/points/me` | 我的积分 |
 | POST | `/api/points/earn` | 获取积分 |
 | POST | `/api/points/redeem` | 兑换积分 |
