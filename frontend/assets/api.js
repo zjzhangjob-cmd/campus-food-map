@@ -92,12 +92,13 @@ const AIAPI = {
     post("/api/ai/recommend", { message, campus, budget }),
 
   async chat(message, opts = {}) {
-    // opts: { campus, location:[lat, lng] }
+    // opts: { campus, location:[lat, lng], agent_mode:"normal_agent"|"map_agent" }
     const body = {
       session_id: _AI_STATE.session_id,
       message,
       campus: opts.campus || "",
       location: opts.location || null,
+      agent_mode: opts.agent_mode || (opts.location ? "map_agent" : "normal_agent"),
     };
     const res = await post("/api/ai/messages", body);
     // 更新本地缓存的会话 ID，下次请求将带回更准确返回，否则下次下次将带给给

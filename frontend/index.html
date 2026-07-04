@@ -379,6 +379,8 @@
   .fs-place-close{position:absolute;right:10px;top:10px;border:0;background:transparent;font-size:16px;cursor:pointer;color:var(--muted);}
   .fs-wishlist-panel{position:absolute;left:24px;top:78px;z-index:25;width:380px;max-width:calc(100vw - 48px);max-height:60vh;background:rgba(255,252,244,.98);border:1.5px solid var(--border);border-radius:18px;box-shadow:0 12px 34px rgba(26,18,9,.2);display:none;flex-direction:column;overflow:hidden;}
   .fs-wishlist-panel.open{display:flex;animation:fadeUp .18s ease both;}
+  .fullscreen-map.fs-both-panels-open .fs-wishlist-panel{max-width:min(380px,calc(50vw - 36px));}
+  .fullscreen-map.fs-both-panels-open .fs-ai-panel:not([style*="left"]){right:24px;}
   .fs-wishlist-head{padding:14px 16px;border-bottom:1.5px solid var(--border);display:flex;align-items:center;gap:10px;}
   .fs-wishlist-title{font-size:16px;font-weight:900;font-family:'Noto Serif SC',serif;}
   .fs-wishlist-sub{font-size:11px;color:var(--muted);margin-top:2px;}
@@ -484,6 +486,9 @@
     .fs-rec-card{width:168px;}
     .fs-ai-fab{right:16px;bottom:16px;}
     .fs-ai-panel{left:12px;right:12px;top:64px;width:auto;max-height:58vh;}
+    .fs-wishlist-panel{left:12px;right:12px;top:64px;width:auto;max-width:none;max-height:46vh;}
+    .fullscreen-map.fs-both-panels-open .fs-wishlist-panel{max-width:none;top:64px;max-height:34vh;}
+    .fullscreen-map.fs-both-panels-open .fs-ai-panel{top:auto;bottom:12px;max-height:48vh;}
   }
 </style>
 <style>
@@ -1182,6 +1187,42 @@ const decoColors = [
 ];
 
 const WISHLIST_KEY = "campus_food_wishlist";
+function getRestaurantMeters(r) {
+  if (!r) return null;
+  if (r.real_distance_m != null) return Number(r.real_distance_m);
+  if (r.distance_m != null) return Number(r.distance_m);
+  if (r.distance_km != null) return Number(r.distance_km) * 1000;
+  const mins = Number(r.walk_minutes ?? r.distance_min);
+  return Number.isFinite(mins) && mins > 0 ? mins * 80 : null;
+}
+function formatDistanceOnly(rOrMeters) {
+  const meters = typeof rOrMeters === "number" ? rOrMeters : getRestaurantMeters(rOrMeters);
+  if (!Number.isFinite(meters)) return "";
+  return meters < 1000 ? `${Math.max(1, Math.round(meters))}m` : `${(meters / 1000).toFixed(1)}km`;
+}
+function formatTravelTime(r, compact = false) {
+  const meters = getRestaurantMeters(r);
+  const explicitWalk = Number(r?.walk_minutes ?? r?.distance_min);
+  if (Number.isFinite(meters) && meters <= 1200) {
+    return `步行${Math.max(1, Math.round(meters / 80))}分`;
+  }
+  if (!Number.isFinite(meters) && Number.isFinite(explicitWalk) && explicitWalk <= 15) {
+    return `步行${Math.max(1, Math.round(explicitWalk))}分`;
+  }
+  const km = Number.isFinite(meters)
+    ? meters / 1000
+    : (Number.isFinite(explicitWalk) ? explicitWalk * 80 / 1000 : null);
+  if (!Number.isFinite(km) || km <= 0) return "";
+  if (km < 2.2) return `骑行约${Math.max(6, Math.round(km * 5 + 3))}分`;
+  const subway = Math.max(12, Math.round(km * 4 + 8));
+  const drive = Math.max(10, Math.round(km * 3 + 6));
+  return compact ? `地铁${subway}分/驾车${drive}分` : `地铁约${subway}分 · 驾车约${drive}分`;
+}
+function formatDistanceAndTravel(r, compact = false) {
+  const distance = formatDistanceOnly(r);
+  const travel = formatTravelTime(r, compact);
+  return [distance, travel].filter(Boolean).join(compact ? " · " : " · ");
+}
 function getWishlist() {
   return JSON.parse(localStorage.getItem(WISHLIST_KEY) || "[]");
 }
@@ -1248,13 +1289,14 @@ function refreshWishlistUI() {
 }
 
 function openFSWishlistPanel() {
-  closeFSChat();
   renderFSWishlistPanel();
   document.getElementById("fsWishlistPanel")?.classList.add("open");
+  updateFSOverlayState();
 }
 
 function closeFSWishlistPanel() {
   document.getElementById("fsWishlistPanel")?.classList.remove("open");
+  updateFSOverlayState();
 }
 
 function renderFSWishlistPanel() {
@@ -1321,7 +1363,6 @@ async function addSelectedWishlistToMap() {
     ...enriched,
   ];
   updateFSMapPins(fsCurrentPlaces, true);
-  closeFSWishlistPanel();
   appendFSFollowup("我已经把你勾选的心愿单餐厅加入地图。要不要我按距离、价格或下一站安排帮你排序？");
 }
 async function planWishlistOnMap() {
@@ -1382,7 +1423,7 @@ function renderCard(r, i) {
         ${featured ? `<p style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:12px">${r.description.slice(0,80)}…</p>` : ""}
         <div class="card-footer">
           <div><span class="price-range">${priceRange(r)}</span></div>
-          <span class="card-distance">📍 步行${r.distance_min}分钟</span>
+          <span class="card-distance">📍 ${formatTravelTime(r, true)}</span>
         </div>
       </div>
     </div>`;
@@ -1444,7 +1485,7 @@ async function loadRanking() {
         <div class="rank-thumb">${r.emoji}</div>
         <div class="rank-info">
           <div class="rank-name">${r.name}</div>
-          <div class="rank-sub">${r.review_count.toLocaleString()} 评价 · 步行${r.distance_min}min</div>
+          <div class="rank-sub">${r.review_count.toLocaleString()} 评价 · ${formatTravelTime(r, true)}</div>
         </div>
         <span class="rank-score">★${r.avg_rating}</span>
       </div>`).join("");
@@ -1533,7 +1574,7 @@ async function openDetail(id) {
       <span style="font-size:12px;color:var(--muted)">${r.review_count} 条评价</span>
       <span style="font-size:14px;color:var(--accent3);font-weight:600">${priceRange(r)} / 人</span>
       <span style="font-size:12px;background:${r.is_open ? '#e8f5e9':'#fce4ec'};color:${r.is_open ? '#2d7a4f':'#c62828'};padding:2px 8px;border-radius:10px">${r.is_open ? "🟢 营业中" : "⭕ 休息中"}</span>`;
-    document.getElementById("modalLocation").innerHTML = `${r.address || "地址待更新"}<br><span style="color:var(--muted);font-size:12px">⏰ ${r.open_hours || "营业时间待更新"} · 步行${r.distance_min}分钟</span>`;
+    document.getElementById("modalLocation").innerHTML = `${r.address || "地址待更新"}<br><span style="color:var(--muted);font-size:12px">⏰ ${r.open_hours || "营业时间待更新"} · ${formatTravelTime(r)}</span>`;
     document.getElementById("modalDesc").textContent = r.description || "暂无介绍";
 
     // 菜单
@@ -1725,9 +1766,7 @@ function renderRestaurantCard(chatContainerId, r) {
   const price = r.price_min && r.price_max
     ? `¥${r.price_min}-${r.price_max}`
     : (r.price_min ? `¥${r.price_min}起` : "价格待更新");
-  const distText = r.real_distance_m != null
-    ? `${(r.real_distance_m/1000).toFixed(2)}km · 步行${r.walk_minutes}分`
-    : (r.distance_min != null ? `步行约 ${r.distance_min} 分钟` : "");
+  const distText = formatDistanceAndTravel(r, true);
   const tags = (r.tags && r.tags.length) ? r.tags.slice(0,3).map(t => `<span class="rest-card-tag">${t}</span>`).join("") : "";
   card.innerHTML = `
     <div class="rest-card-thumb">${emoji}</div>
@@ -1897,6 +1936,9 @@ let fsActiveRestaurantId = null;
 let fsLineByRestaurant = {};
 let fsDistanceByRestaurant = {};
 let fsLastAgentRecommendations = [];
+let fsLastFollowupKey = "";
+let fsLastFollowupAt = 0;
+let fsFollowupRound = 0;
 let fsWishlistSelection = new Set();
 let fsPanelPinned = false;
 
@@ -1904,6 +1946,7 @@ function openFullscreenMap(skipAutoLocate = false) {
   fsMapOpen = true;
   document.getElementById("fullscreenMap").classList.add("active");
   document.getElementById("fsAIPanel")?.classList.remove("open");
+  updateFSOverlayState();
   document.body.style.overflow = "hidden";
   // 初始化全屏地图
   initFullscreenMap();
@@ -1915,6 +1958,9 @@ function openFullscreenMap(skipAutoLocate = false) {
 function closeFullscreenMap() {
   fsMapOpen = false;
   document.getElementById("fullscreenMap").classList.remove("active");
+  document.getElementById("fsWishlistPanel")?.classList.remove("open");
+  document.getElementById("fsAIPanel")?.classList.remove("open");
+  updateFSOverlayState();
   document.body.style.overflow = "";
 }
 
@@ -2099,7 +2145,8 @@ function fitFSRecommendationView() {
   if (!fsMapInstance || !fsCurrentPlaces.length) return;
   const overlays = [fsUserMarker, ...fsMapMarkers].filter(Boolean);
   const panelOpen = document.getElementById("fsAIPanel")?.classList.contains("open");
-  const padding = panelOpen ? [120, 430, 120, 120] : [120, 140, 120, 120];
+  const wishOpen = document.getElementById("fsWishlistPanel")?.classList.contains("open");
+  const padding = [120, panelOpen ? 430 : 140, 120, wishOpen ? 430 : 120];
   try {
     fsMapInstance.setFitView(overlays, false, padding, 16);
   } catch(e) {
@@ -2122,13 +2169,14 @@ function showFSRestaurantPopover(r) {
   const rating = r.avg_rating || r.rating || "暂无";
   const price = r.price_max || r.price_avg || r.price_min || 20;
   const dist = formatFSDistance(r.real_distance_m);
+  const travel = formatTravelTime(r);
   pop.innerHTML = `
     <button class="fs-place-close" onclick="closeFSPlacePopover()">✕</button>
     <div class="fs-place-head">
       <div class="fs-place-emoji">${r.emoji || "🍽️"}</div>
       <div>
         <div class="fs-place-name">${r.name || "餐厅"}</div>
-        <div class="fs-place-meta">★ ${rating} · ¥${price}/人${dist ? ` · 直线${dist}` : ""}${r.walk_minutes ? ` · 步行约${r.walk_minutes}分钟` : ""}</div>
+        <div class="fs-place-meta">★ ${rating} · ¥${price}/人${dist ? ` · 直线${dist}` : ""}${travel ? ` · ${travel}` : ""}</div>
         <div class="fs-place-meta">${r.cuisine || ""}${r.address ? ` · ${r.address}` : ""}</div>
       </div>
     </div>
@@ -2215,8 +2263,7 @@ function locateMe() {
 }
 
 function formatFSDistance(meters) {
-  if (!meters && meters !== 0) return "";
-  return meters < 1000 ? `${Math.max(1, Math.round(meters))}m` : `${(meters / 1000).toFixed(1)}km`;
+  return formatDistanceOnly(Number(meters));
 }
 
 function fsDistanceMeters(lat1, lng1, lat2, lng2) {
@@ -2377,7 +2424,6 @@ async function autoRecommend() {
       closeFSPlacePopover();
       updateFSMapPins(enriched);
       if (sub) sub.textContent = "已根据当前位置自动推荐";
-      appendFSFollowup("这几家里有没有想保留进心愿单的？如果你接下来要自习、赶地铁、散步或见朋友，我可以继续按下一站重新筛。");
     } else if (sub) {
       sub.textContent = "已按距离和评分展示附近餐厅";
     }
@@ -2419,10 +2465,10 @@ function renderFSRecCards(restaurants) {
 
 /* 全屏 AI 对话 */
 function toggleFSChat() {
-  closeFSWishlistPanel();
   const panel = document.getElementById("fsAIPanel");
   panel?.classList.toggle("open");
   if (panel?.classList.contains("open")) initFSAgentPanel();
+  updateFSOverlayState();
 }
 
 function toggleFSPanelPinned() {
@@ -2445,12 +2491,24 @@ function resetFSPanelSize() {
   panel.style.bottom = "auto";
 }
 
-function appendFSFollowup(text) {
+function appendFSFollowup(text, opts = {}) {
   const chat = document.getElementById("fsAIChat");
   if (!chat) return;
+  if (opts.requireRecommendations && !fsLastAgentRecommendations.length) return;
+  const now = Date.now();
+  const key = opts.key || text;
+  const round = opts.round || String(fsFollowupRound);
+  const combinedKey = `${key}:${round}`;
+  const lastBubble = chat.lastElementChild;
+  if (fsLastFollowupKey === combinedKey && now - fsLastFollowupAt < 120000) return;
+  if (lastBubble?.dataset?.followupKey === combinedKey) return;
+  chat.querySelectorAll(".fs-followup").forEach(el => el.remove());
+  fsLastFollowupKey = combinedKey;
+  fsLastFollowupAt = now;
   const bubble = document.createElement("div");
-  bubble.className = "chat-bubble bot";
-  bubble.innerHTML = `${text}<br><br><span class="quick-reply" onclick="addLastRecommendationsToMap()">本轮全加入地图</span> <span class="quick-reply" onclick="openFSWishlistPanel()">打开心愿单</span> <span class="quick-reply" onclick="sendFSAIQuick('接下来我要自习，帮我保留适合安静坐一会儿的餐厅')">要自习</span> <span class="quick-reply" onclick="sendFSAIQuick('我之后要坐地铁，优先离地铁近')">离地铁近</span>`;
+  bubble.className = "chat-bubble bot fs-followup";
+  bubble.dataset.followupKey = combinedKey;
+  bubble.textContent = text;
   chat.appendChild(bubble);
   chat.scrollTop = chat.scrollHeight;
 }
@@ -2469,6 +2527,18 @@ function addLastRecommendationsToMap() {
 
 function closeFSChat() {
   document.getElementById("fsAIPanel")?.classList.remove("open");
+  updateFSOverlayState();
+}
+
+function updateFSOverlayState() {
+  const shell = document.getElementById("fullscreenMap");
+  if (!shell) return;
+  const aiOpen = document.getElementById("fsAIPanel")?.classList.contains("open");
+  const wishOpen = document.getElementById("fsWishlistPanel")?.classList.contains("open");
+  shell.classList.toggle("fs-ai-open", !!aiOpen);
+  shell.classList.toggle("fs-wishlist-open", !!wishOpen);
+  shell.classList.toggle("fs-both-panels-open", !!aiOpen && !!wishOpen);
+  if (fsMapOpen && fsCurrentPlaces.length) setTimeout(fitFSRecommendationView, 60);
 }
 
 function initFSAgentPanel() {
@@ -2542,12 +2612,19 @@ async function sendFSAIMsg(overwriteMsg) {
     if (res.recommendations && res.recommendations.length) {
       const enriched = enrichFSRestaurants(res.recommendations);
       fsLastAgentRecommendations = enriched;
+      fsFollowupRound += 1;
       for (const r of enriched) renderRestaurantCard("fsAIChat", r);
       renderFSRecCards(enriched);
       fsActiveRestaurantId = null;
       closeFSPlacePopover();
       updateFSMapPins(enriched);
-      appendFSFollowup("我已经把地图更新为这批新推荐。想保留哪几家到心愿单？或者告诉我下一步安排，我再按环境、交通和距离继续收窄。");
+    } else if (res.decision === "recommend" || res.intent === "food_recommendation") {
+      fsLastAgentRecommendations = [];
+      renderFSRecCards([]);
+      fsActiveRestaurantId = null;
+      closeFSPlacePopover();
+      fsCurrentPlaces = [];
+      updateFSMapPins([], true);
     }
   } catch(e) {
     document.getElementById(loadingId)?.remove();

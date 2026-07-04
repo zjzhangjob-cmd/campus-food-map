@@ -27,6 +27,7 @@ class ChatMessageRequest(BaseModel):
     message: str = ""
     campus: Optional[str] = None
     location: Optional[List[float]] = None
+    agent_mode: Optional[str] = "normal_agent"
 
 
 class ChatResponse(BaseModel):
@@ -35,6 +36,9 @@ class ChatResponse(BaseModel):
     recommendations: List[dict] = []
     preferences: dict = {}
     mode: str = "rule"
+    agent_mode: str = "normal_agent"
+    decision: Optional[str] = None
+    intent: Optional[str] = None
 
 
 # ── 1. 创建会话 ───────────────────────
@@ -47,6 +51,7 @@ def create_chat_session():
         recommendations=[],
         preferences={},
         mode=_agent_mode(),
+        agent_mode="normal_agent",
     )
 
 
@@ -67,6 +72,7 @@ async def send_chat_message(
         restaurants_orm=restaurants,
         campus=body.campus,
         location=location,
+        agent_mode=body.agent_mode or "normal_agent",
     )
     return ChatResponse(
         session_id=result["session_id"],
@@ -74,6 +80,9 @@ async def send_chat_message(
         recommendations=result["recommendations"],
         preferences=result.get("preferences", {}),
         mode=mode,
+        agent_mode=result.get("agent_mode", body.agent_mode or "normal_agent"),
+        decision=result.get("decision"),
+        intent=result.get("intent"),
     )
 
 
@@ -87,6 +96,7 @@ async def reset_chat_session(session_id: str):
         recommendations=[],
         preferences={},
         mode=_agent_mode(),
+        agent_mode="normal_agent",
     )
 
 
@@ -103,6 +113,7 @@ async def quick_chat(body: ChatMessageRequest, db: Session = Depends(get_db)):
         restaurants_orm=restaurants,
         campus=body.campus,
         location=location,
+        agent_mode=body.agent_mode or "normal_agent",
     )
     return ChatResponse(
         session_id=result["session_id"],
@@ -110,6 +121,9 @@ async def quick_chat(body: ChatMessageRequest, db: Session = Depends(get_db)):
         recommendations=result["recommendations"],
         preferences=result.get("preferences", {}),
         mode=mode,
+        agent_mode=result.get("agent_mode", body.agent_mode or "normal_agent"),
+        decision=result.get("decision"),
+        intent=result.get("intent"),
     )
 
 
